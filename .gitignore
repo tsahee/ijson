@@ -3,3 +3,5 @@
 ijson.egg-info
 *.so
 build
+*.whl
+*.egg
