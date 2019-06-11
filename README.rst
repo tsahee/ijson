@@ -89,6 +89,12 @@ backend.
 Acknowledgements
 ================
 
+ijson was originally developed and actively maintained until 2016
+by `Ivan Sagalaev <http://softwaremaniacs.org/>`_.
+In 2019 he
+`handed over <https://github.com/isagalaev/ijson/pull/58#issuecomment-500596815>`_
+the maintenance of the project and the PyPI ownership.
+
 Python parser in ijson is relatively simple thanks to `Douglas Crockford
 <http://www.crockford.com/>`_ who invented a strict, easy to parse syntax.
 
