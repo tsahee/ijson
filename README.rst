@@ -1,5 +1,5 @@
-.. image:: https://travis-ci.org/isagalaev/ijson.svg?branch=master
-    :target: https://travis-ci.org/isagalaev/ijson
+.. image:: https://travis-ci.org/ICRAR/ijson.svg?branch=master
+    :target: https://travis-ci.org/ICRAR/ijson
 
 =====
 ijson

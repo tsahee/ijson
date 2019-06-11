@@ -5,9 +5,9 @@ from setuptools import setup, find_packages
 setup(
     name = 'ijson',
     version = import_module('ijson').__version__,
-    author = 'Ivan Sagalaev',
-    author_email = 'maniac@softwaremaniacs.org',
-    url = 'https://github.com/isagalaev/ijson',
+    author = 'Ivan Sagalaev, Rodrigo Tobar',
+    author_email = 'maniac@softwaremaniacs.org, rtobar@icrar.org',
+    url = 'https://github.com/ICRAR/ijson',
     license = 'BSD',
     description = 'Iterative JSON parser with a standard Python iterator interface',
     long_description = open('README.rst').read(),
