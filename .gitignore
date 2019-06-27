@@ -5,3 +5,5 @@ ijson.egg-info
 build
 *.whl
 *.egg
+.coverage
+dist
