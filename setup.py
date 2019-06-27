@@ -39,7 +39,18 @@ def yajl_present():
     fname = tempfile.mktemp(".c", "yajl_version")
     try:
         with open(fname, "wt") as f:
-            f.write('#include <yajl/yajl_version.h>\nint main(int args, char **argv) { yajl_version(); return 0; }')
+            f.write('''
+            #include <yajl/yajl_version.h>
+            int main(int args, char **argv)
+            {
+            #if YAJL_MAJOR != 2
+                fail to compile
+            #else
+                yajl_version();
+            #endif
+                return 0;
+            }
+            ''')
 
         try:
             objs = compiler.compile([fname])
