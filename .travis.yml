@@ -1,15 +1,27 @@
 language: python
 dist: xenial
-python:
-  - "2.7"
-  - "3.4"
-  - "3.5"
-  - "3.6"
-  - "3.7"
+matrix:
+  include:
+    - python: "2.7"
+      env: USE_YAJL1=yes
+    - python: "2.7"
+    - python: "3.4"
+    - python: "3.5"
+    - python: "3.6"
+    - python: "3.7"
 addons:
   apt:
     packages: [libyajl-dev]
 install:
+  - >
+    if [ -n "$USE_YAJL1" ]; then
+      sudo apt purge -y libyajl-dev libyajl2
+      wget https://github.com/lloyd/yajl/archive/1.0.12.zip
+      unzip 1.0.12.zip
+      cd yajl-1.0.12
+      ./configure && make all && sudo make install
+      sudo ldconfig
+    fi
   - pip install cffi
   - cd ${TRAVIS_BUILD_DIR}
   - pip install .
