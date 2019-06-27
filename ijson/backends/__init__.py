@@ -1,3 +1,5 @@
+import warnings
+
 class YAJLImportError(ImportError):
     pass
 
@@ -29,7 +31,12 @@ def find_yajl_ctypes(required):
         yajl = cdll.LoadLibrary(so_name)
     except OSError:
         raise YAJLImportError('Unable to load YAJL.')
-    require_version(yajl.yajl_version(), required)
+    try:
+        version = yajl.yajl_version()
+    except AttributeError:
+        warnings.warn('Cannot determine yajl version, assuming <1.0.12')
+        version = 10000
+    require_version(version, required)
     return yajl
 
 def find_yajl_cffi(ffi, required):
