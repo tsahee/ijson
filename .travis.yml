@@ -14,6 +14,7 @@ install:
   - cd ${TRAVIS_BUILD_DIR}
   - pip install .
 script:
-  - cd ..
-  - cp ${TRAVIS_BUILD_DIR}/tests.py .
-  - python tests.py
+  - pip install coverage coveralls
+  - coverage run tests.py
+after_success:
+ - coveralls
