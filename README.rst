@@ -1,6 +1,9 @@
 .. image:: https://travis-ci.org/ICRAR/ijson.svg?branch=master
     :target: https://travis-ci.org/ICRAR/ijson
 
+.. image:: https://coveralls.io/repos/github/ICRAR/ijson/badge.svg?branch=master
+    :target: https://coveralls.io/github/ICRAR/ijson?branch=master
+
 =====
 ijson
 =====
