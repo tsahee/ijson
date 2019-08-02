@@ -136,16 +136,8 @@ static int number(void * ctx, const char *numberVal, size_t numberLen) {
 		}
 	}
 	else {
-
-		char *endptr;
-		double dval = strtod(numberVal, &endptr);
-		if( endptr == numberVal ) {
-			// not properly parsed (improbable, the parser should give us good stuff)
-			PyErr_SetString(PyExc_ValueError, "cannot convert string to double");
-			return 0;
-		}
-
-		PyObject *args = Py_BuildValue("(d)", dval);
+		PyObject *args;
+		Z_N(args = Py_BuildValue("(s#)", numberVal, numberLen));
 		PyObject *decimal = (PyObject *)((void **)(ctx))[1];
 		Z_N(val = PyObject_Call(decimal, args, NULL));
 		Py_DECREF(args);
