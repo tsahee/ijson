@@ -115,7 +115,7 @@ STRINGS_JSON = br'''
 }
 '''
 NUMBERS_JSON = b'[1, 1.0, 1E2]'
-SURROGATE_PAIRS_JSON = b'"\uD83D\uDCA9"'
+SURROGATE_PAIRS_JSON = br'"\uD83D\uDCA9"'
 
 
 class Parse(object):
