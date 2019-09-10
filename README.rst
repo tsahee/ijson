@@ -130,8 +130,8 @@ library::
     for item in ijson.items(...):
         # ...
 
-Importing the top level library as ``import ijson`` uses the pure Python
-backend.
+Importing the top level library as ``import ijson``
+uses the first available backend in the same order of the list above.
 
 
 Acknowledgements
