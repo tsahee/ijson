@@ -1,16 +1,22 @@
 import distutils.ccompiler
 import distutils.sysconfig
-from importlib import import_module
 import os
 import platform
 import tempfile
 
 from setuptools import setup, find_packages, Extension
 
+def get_ijson_version():
+    """Get version from code without fully importing it"""
+    _globals = {}
+    with open(os.path.join('ijson', 'version.py')) as f:
+        code = f.read()
+    exec(code, _globals)
+    return _globals['__version__']
 
 setupArgs = dict(
     name = 'ijson',
-    version = import_module('ijson').__version__,
+    version = get_ijson_version(),
     author = 'Ivan Sagalaev, Rodrigo Tobar',
     author_email = 'maniac@softwaremaniacs.org, rtobar@icrar.org',
     url = 'https://github.com/ICRAR/ijson',

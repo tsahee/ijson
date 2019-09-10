@@ -16,8 +16,8 @@ the same API and are faster under CPython.
 from ijson.common import JSONError, IncompleteJSONError, ObjectBuilder
 import ijson.backends.python as backend
 
+from .version import __version__
 
-__version__ = '2.4'
 
 
 basic_parse = backend.basic_parse
