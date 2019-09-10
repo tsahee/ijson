@@ -7,3 +7,6 @@ build
 *.egg
 .coverage
 dist
+.project
+.pydevproject
+.settings
