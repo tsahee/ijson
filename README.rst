@@ -42,6 +42,8 @@ stream located under a prefix. Here's how to process all European cities::
     for city in cities:
         do_something_with(city)
 
+For how to build a prefix see the Prefix section below.
+
 Sometimes when dealing with a particularly large JSON payload it may worth to
 not even construct individual Python objects and react on individual events
 immediately producing some result::
@@ -59,6 +61,47 @@ immediately producing some result::
         elif (prefix, event) == ('earth.%s' % continent, 'end_map'):
             stream.write('</%s>' % continent)
     stream.write('</geo>')
+
+
+Events
+======
+
+When using the lower-level ``ijson.parse`` function,
+three-element tuples are generated
+containing a prefix, an event name, and a value.
+Events will be one of the following:
+
+- ``start_map`` and ``end_map`` indicate
+  the beginning and end of a JSON object, respectively.
+  They carry a ``None`` as their value.
+- ``start_array`` and ``end_array`` indicate
+  the beginning and end of a JSON array, respectively.
+  They also carry a ``None`` as their value.
+- ``map_key`` indicates the name of a field in a JSON object.
+  Its associated value is the name itself.
+- ``null``, ``boolean``, ``integer``, ``double``, ``number`` and ``string``
+  all indicate actual content, which is stored in the associated value.
+
+
+Prefix
+======
+
+A prefix represents the context within a JSON document
+where an event originates at.
+It works as follows:
+
+- It starts as an empty string.
+- A ``<name>`` part is appended when the parser starts parsing the contents
+  of a JSON object member called ``name``,
+  and removed once the content finishes.
+- A literal ``item`` part is appended when the parser is parsing
+  elements of a JSON array,
+  and removed when the array ends.
+- Parts are separated by ``.``.
+
+When using the ``ijson.items`` function,
+the prefix works as the selection
+for which objects should be automatically built and returned by ijson.
 
 
 Backends
