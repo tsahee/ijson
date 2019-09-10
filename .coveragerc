@@ -26,3 +26,7 @@
 # part of the core software
 [run]
 source = ijson
+
+[report]
+exclude_lines =
+    raise ImportError\('no backends available'\)
