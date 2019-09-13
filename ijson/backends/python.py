@@ -146,7 +146,7 @@ def parse_object(lexer):
         raise common.IncompleteJSONError('Incomplete JSON data')
 
 
-def basic_parse(file, buf_size=BUFSIZE, allow_comments=False, multiple_values=False):
+def basic_parse(file, buf_size=BUFSIZE):
     '''
     Iterator yielding unprefixed events.
 
@@ -165,11 +165,11 @@ def basic_parse(file, buf_size=BUFSIZE, allow_comments=False, multiple_values=Fa
         raise common.JSONError('Additional data')
 
 
-def parse(file, **kwargs):
+def parse(file, buf_size=BUFSIZE):
     '''
     Backend-specific wrapper for ijson.common.parse.
     '''
-    return common.parse(basic_parse(file, **kwargs))
+    return common.parse(basic_parse(file, buf_size=buf_size))
 
 
 def items(file, prefix):
