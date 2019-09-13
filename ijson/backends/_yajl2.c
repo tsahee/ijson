@@ -256,7 +256,7 @@ static int basicparse_init(BasicParseGen *self, PyObject *args, PyObject *kwargs
 	if( PyObject_IsTrue(allow_comments) ) {
 		yajl_config(handle, yajl_allow_comments, 1);
 	}
-	if( multiple_values ) {
+	if (PyObject_IsTrue(multiple_values)) {
 		yajl_config(handle, yajl_allow_multiple_values, 1);
 	}
 

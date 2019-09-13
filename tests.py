@@ -198,6 +198,13 @@ class Parse(object):
         self.assertEqual(2, len(ids))
         self.assertListEqual([-2,-1], sorted(ids))
 
+    def test_multiple_values(self):
+        multiple_values = JSON + JSON
+        parser = self.backend.basic_parse(BytesIO(multiple_values))
+        self.assertRaises(common.JSONError, list, parser)
+        parser = self.backend.basic_parse(BytesIO(multiple_values), multiple_values=False)
+        self.assertRaises(common.JSONError, list, parser)
+
 # Generating real TestCase classes for each importable backend
 for name in ['python', 'yajl', 'yajl2', 'yajl2_cffi', 'yajl2_c']:
     try:
