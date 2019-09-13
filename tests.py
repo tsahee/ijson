@@ -199,11 +199,17 @@ class Parse(object):
         self.assertListEqual([-2,-1], sorted(ids))
 
     def test_multiple_values(self):
+        if not self.is_yajl2_based:
+            return
         multiple_values = JSON + JSON
         parser = self.backend.basic_parse(BytesIO(multiple_values))
         self.assertRaises(common.JSONError, list, parser)
         parser = self.backend.basic_parse(BytesIO(multiple_values), multiple_values=False)
         self.assertRaises(common.JSONError, list, parser)
+        parser = self.backend.basic_parse(BytesIO(multiple_values), multiple_values=True)
+        events = list(parser)
+        self.assertEqual(events, JSON_EVENTS + JSON_EVENTS)
+
 
 # Generating real TestCase classes for each importable backend
 for name in ['python', 'yajl', 'yajl2', 'yajl2_cffi', 'yajl2_c']:
@@ -215,7 +221,10 @@ for name in ['python', 'yajl', 'yajl2', 'yajl2_cffi', 'yajl2_c']:
         locals()[classname] = type(
             classname,
             (unittest.TestCase, Parse),
-            {'backend': import_module('ijson.backends.%s' % name)},
+            {
+                'backend': import_module('ijson.backends.%s' % name),
+                'is_yajl2_based': name.startswith('yajl2')
+            },
         )
     except ImportError:
         pass
