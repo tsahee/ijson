@@ -36,6 +36,31 @@ JSON = b'''
   ]
 }
 '''
+JSON_OBJECT = {
+    "docs": [
+        {
+            "null": None,
+            "boolean": False,
+            "true": True,
+            "integer": 0,
+            "double": Decimal("0.5"),
+            "exponent": 1e+2,
+            "long": 10000000000,
+            "string": "строка - тест"
+        },
+        {
+            "meta": [[1], {}]
+        },
+        {
+            "meta": {
+                "key": "value"
+            }
+        },
+        {
+            "meta": None
+        }
+    ]
+}
 JSON_EVENTS = [
     ('start_map', None),
         ('map_key', 'docs'),
@@ -201,13 +226,20 @@ class Parse(object):
     def test_multiple_values(self):
         if not self.supports_multiple_values:
             return
+        basic_parse = self.backend.basic_parse
+        items = lambda x, **kwargs: self.backend.items(x, '', **kwargs)
         multiple_values = JSON + JSON + JSON
-        parser = self.backend.basic_parse(BytesIO(multiple_values))
-        self.assertRaises(common.JSONError, list, parser)
-        parser = self.backend.basic_parse(BytesIO(multiple_values), multiple_values=False)
-        self.assertRaises(common.JSONError, list, parser)
-        parser = self.backend.basic_parse(BytesIO(multiple_values), multiple_values=True)
-        self.assertEqual(list(parser), JSON_EVENTS + JSON_EVENTS + JSON_EVENTS)
+        for func in (basic_parse, items):
+            generator = func(BytesIO(multiple_values))
+            self.assertRaises(common.JSONError, list, generator)
+            generator = func(BytesIO(multiple_values), multiple_values=False)
+            self.assertRaises(common.JSONError, list, generator)
+            generator = func(BytesIO(multiple_values), multiple_values=True)
+            result = list(generator)
+            if func == basic_parse:
+                self.assertEqual(result, JSON_EVENTS + JSON_EVENTS + JSON_EVENTS)
+            else:
+                self.assertEqual(result, [JSON_OBJECT, JSON_OBJECT, JSON_OBJECT])
 
 
 # Generating real TestCase classes for each importable backend
