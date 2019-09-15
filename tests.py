@@ -201,14 +201,13 @@ class Parse(object):
     def test_multiple_values(self):
         if not self.supports_multiple_values:
             return
-        multiple_values = JSON + JSON
+        multiple_values = JSON + JSON + JSON
         parser = self.backend.basic_parse(BytesIO(multiple_values))
         self.assertRaises(common.JSONError, list, parser)
         parser = self.backend.basic_parse(BytesIO(multiple_values), multiple_values=False)
         self.assertRaises(common.JSONError, list, parser)
         parser = self.backend.basic_parse(BytesIO(multiple_values), multiple_values=True)
-        events = list(parser)
-        self.assertEqual(events, JSON_EVENTS + JSON_EVENTS)
+        self.assertEqual(list(parser), JSON_EVENTS + JSON_EVENTS + JSON_EVENTS)
 
 
 # Generating real TestCase classes for each importable backend
