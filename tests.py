@@ -199,7 +199,7 @@ class Parse(object):
         self.assertListEqual([-2,-1], sorted(ids))
 
     def test_multiple_values(self):
-        if not self.is_yajl2_based:
+        if not self.supports_multiple_values:
             return
         multiple_values = JSON + JSON
         parser = self.backend.basic_parse(BytesIO(multiple_values))
@@ -223,7 +223,7 @@ for name in ['python', 'yajl', 'yajl2', 'yajl2_cffi', 'yajl2_c']:
             (unittest.TestCase, Parse),
             {
                 'backend': import_module('ijson.backends.%s' % name),
-                'is_yajl2_based': name.startswith('yajl2')
+                'supports_multiple_values': name != 'yajl'
             },
         )
     except ImportError:
