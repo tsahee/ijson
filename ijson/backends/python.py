@@ -180,4 +180,4 @@ def items(file, prefix, **kwargs):
     '''
     Backend-specific wrapper for ijson.common.items.
     '''
-    return common.items(parse(file), prefix, **kwargs)
+    return common.items(parse(file, **kwargs), prefix)
