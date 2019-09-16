@@ -11,13 +11,17 @@ matrix:
     - python: "3.5"
     - python: "3.6"
     - python: "3.7"
+    - python: "3.7"
+      env: YAJL_VERSION=none
 addons:
   apt:
     packages: [libyajl-dev]
 install:
-  - >
+  - |
     if [ -n "$YAJL_VERSION" ]; then
       sudo apt purge -y libyajl-dev libyajl2
+    fi
+    if [ -n "$YAJL_VERSION"  -a "$YAJL_VERSION" != none ]; then
       wget https://github.com/lloyd/yajl/archive/${YAJL_VERSION}.zip
       unzip ${YAJL_VERSION}.zip
       cd yajl-${YAJL_VERSION}
