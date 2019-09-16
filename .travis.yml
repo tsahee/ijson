@@ -24,11 +24,10 @@ install:
       ./configure && make all && sudo make install
       sudo ldconfig
     fi
-  - pip install cffi
+  - pip install coveralls cffi pytest-cov
   - cd ${TRAVIS_BUILD_DIR}
-  - pip install .
+  - python setup.py develop
 script:
-  - pip install coverage coveralls
-  - coverage run tests.py
+  - pytest tests.py -v --cov
 after_success:
  - coveralls
