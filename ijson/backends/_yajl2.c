@@ -602,10 +602,11 @@ typedef struct _builder {
 	int active;
 	PyObject *key;
 	PyObject *value_stack;
+	PyObject *map_type;
 } builder_t;
 
 static inline
-builder_t *builder_create(void) {
+builder_t *builder_create(PyObject *map_type) {
 
 	PyObject *value_stack;
 	N_N(value_stack = PyList_New(0));
@@ -617,11 +618,15 @@ builder_t *builder_create(void) {
 	}
 
 	builder->value_stack = value_stack;
+	if (map_type != Py_None) {
+		builder->map_type = map_type;
+	}
 	return builder;
 }
 
 void builder_destroy(builder_t *builder) {
 	Py_DECREF(builder->value_stack);
+	Py_XDECREF(builder->map_type);
 	free(builder);
 }
 
@@ -666,8 +671,8 @@ int builder_add(builder_t *builder, PyObject *value) {
 		if( PyList_Check(last) ) {
 			M1_M1( PyList_Append(last, value) );
 		}
-		else if( PyDict_Check(last) ) { // it's a dict
-			M1_M1( PyDict_SetItem(last, builder->key, value) );
+		else if (PyMapping_Check(last)) { // it's a dict-like object
+			M1_M1( PyObject_SetItem(last, builder->key, value) );
 		}
 		else {
 			PyErr_SetString(PyExc_TypeError, "Incorrect type found in value_stack");
@@ -688,11 +693,17 @@ int builder_event(builder_t *builder, PyObject *ename, PyObject *value) {
 		Py_INCREF(builder->key);
 	}
 	else if( ename == enames.start_map_ename ) {
-		PyObject *dict;
-		M1_N(dict = PyDict_New());
-		M1_M1( builder_add(builder, dict) );
-		M1_M1( PyList_Append(builder->value_stack, dict) );
-		Py_DECREF(dict);
+		PyObject *mappable;
+		if (builder->map_type) {
+			mappable = PyObject_CallFunctionObjArgs(builder->map_type, NULL);
+		}
+		else {
+			mappable = PyDict_New();
+		}
+		M1_N(mappable);
+		M1_M1( builder_add(builder, mappable) );
+		M1_M1( PyList_Append(builder->value_stack, mappable) );
+		Py_DECREF(mappable);
 	}
 	else if( ename == enames.start_array_ename ) {
 		PyObject *list;
@@ -733,8 +744,8 @@ static int itemsgen_init(ItemsGen *self, PyObject *args, PyObject *kwargs) {
 	self->prefix = NULL;
 	self->end_event = NULL;
 
-	PyObject *read, *decimal, *jsonerror, *jsonincompleteerror;
-	int ret = PyArg_ParseTuple(args, "OOOOO", &(self->prefix), &read, &decimal, &jsonerror, &jsonincompleteerror);
+	PyObject *read, *decimal, *jsonerror, *jsonincompleteerror, *map_type;
+	int ret = PyArg_ParseTuple(args, "OOOOOO", &(self->prefix), &read, &decimal, &jsonerror, &jsonincompleteerror, &map_type);
 	M1_Z(ret);
 
 	// call super.__init__ with everything except self->prefix
@@ -743,6 +754,7 @@ static int itemsgen_init(ItemsGen *self, PyObject *args, PyObject *kwargs) {
 	Py_INCREF(read);
 	Py_INCREF(jsonerror);
 	Py_INCREF(jsonincompleteerror);
+	Py_INCREF(map_type);
 	PyObject *subargs;
 	M1_N(subargs = PyTuple_New(4));
 	M1_NZ( PyTuple_SetItem(subargs, 0, read) );
@@ -753,7 +765,7 @@ static int itemsgen_init(ItemsGen *self, PyObject *args, PyObject *kwargs) {
 	Py_DECREF(subargs);
 	M1_M1(ret);
 
-	M1_N(self->builder = builder_create());
+	M1_N(self->builder = builder_create(map_type));
 	Py_INCREF(Py_None);
 	return 0;
 }

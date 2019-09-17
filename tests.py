@@ -1,5 +1,6 @@
 # -*- coding:utf-8 -*-
 from __future__ import unicode_literals
+import collections
 import unittest
 from io import BytesIO, StringIO
 from decimal import Decimal
@@ -241,6 +242,11 @@ class Parse(object):
             else:
                 self.assertEqual(result, [JSON_OBJECT, JSON_OBJECT, JSON_OBJECT])
 
+    def test_map_type(self):
+        obj = next(self.backend.items(BytesIO(JSON), ''))
+        self.assertTrue(isinstance(obj, dict))
+        obj = next(self.backend.items(BytesIO(JSON), '', map_type=collections.OrderedDict))
+        self.assertTrue(isinstance(obj, collections.OrderedDict))
 
 # Generating real TestCase classes for each importable backend
 for name in ['python', 'yajl', 'yajl2', 'yajl2_cffi', 'yajl2_c']:
