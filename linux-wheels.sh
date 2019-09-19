@@ -16,7 +16,7 @@ copy_or_get() {
 	if [ -f /io/"$name" ]; then
 		cp /io/"$name" .
 	else
-		curl -o "$name" "$url"
+		curl -L -o "$name" "$url"
 	fi
 }
 
