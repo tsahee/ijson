@@ -1,6 +1,6 @@
 # Changelog
 
-## Development version
+## [2.5]
 
 * Default backend changed (#5).
   Instead of using the python backend,
@@ -27,3 +27,4 @@
 - Various small fixes in cffi backend
 
 [2.4]: https://github.com/ICRAR/ijson/releases/tag/2.4
+[2.5]: https://github.com/ICRAR/ijson/releases/tag/v2.5
