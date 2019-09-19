@@ -17,8 +17,8 @@ def get_ijson_version():
 setupArgs = dict(
     name = 'ijson',
     version = get_ijson_version(),
-    author = 'Ivan Sagalaev, Rodrigo Tobar',
-    author_email = 'maniac@softwaremaniacs.org, rtobar@icrar.org',
+    author = 'Rodrigo Tobar, Ivan Sagalaev',
+    author_email = 'rtobar@icrar.org, maniac@softwaremaniacs.org',
     url = 'https://github.com/ICRAR/ijson',
     license = 'BSD',
     description = 'Iterative JSON parser with a standard Python iterator interface',
