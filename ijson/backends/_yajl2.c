@@ -620,6 +620,7 @@ builder_t *builder_create(PyObject *map_type) {
 	builder->value_stack = value_stack;
 	if (map_type != Py_None) {
 		builder->map_type = map_type;
+		Py_INCREF(map_type);
 	}
 	return builder;
 }
@@ -754,7 +755,6 @@ static int itemsgen_init(ItemsGen *self, PyObject *args, PyObject *kwargs) {
 	Py_INCREF(read);
 	Py_INCREF(jsonerror);
 	Py_INCREF(jsonincompleteerror);
-	Py_INCREF(map_type);
 	PyObject *subargs;
 	M1_N(subargs = PyTuple_New(4));
 	M1_NZ( PyTuple_SetItem(subargs, 0, read) );
