@@ -1,6 +1,6 @@
 # Changelog
 
-## Development version
+## [2.5.1]
 
 * Fixing backwards compatibility, allowing
   string readers in all backends (#12, #13).
@@ -33,3 +33,4 @@
 
 [2.4]: https://github.com/ICRAR/ijson/releases/tag/2.4
 [2.5]: https://github.com/ICRAR/ijson/releases/tag/v2.5
+[2.5.1]: https://github.com/ICRAR/ijson/releases/tag/v2.5.1
