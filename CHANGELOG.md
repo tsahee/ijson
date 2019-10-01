@@ -1,5 +1,10 @@
 # Changelog
 
+## Development version
+
+* Fixing backwards compatibility, allowing
+  string readers in all backends (#12, #13).
+
 ## [2.5]
 
 * Default backend changed (#5).
