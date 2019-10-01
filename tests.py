@@ -2,14 +2,14 @@
 from __future__ import unicode_literals
 import collections
 import unittest
-from io import BytesIO, StringIO
 from decimal import Decimal
 import threading
 from importlib import import_module
 
 from ijson import common
+from ijson.compat import BytesIO, StringIO, b2s, IS_PY2
 from ijson.backends.python import basic_parse, Lexer
-from ijson.compat import IS_PY2
+import warnings
 
 
 JSON = b'''
@@ -248,6 +248,14 @@ class Parse(object):
         obj = next(self.backend.items(BytesIO(JSON), '', map_type=collections.OrderedDict))
         self.assertTrue(isinstance(obj, collections.OrderedDict))
 
+    def test_string_stream(self):
+        with warnings.catch_warnings(record=True) as warns:
+            events = list(self.backend.basic_parse(StringIO(b2s(JSON))))
+            self.assertEqual(events, JSON_EVENTS)
+        if self.warn_on_string_stream:
+            self.assertEqual(len(warns), 1)
+            self.assertEqual(DeprecationWarning, warns[0].category)
+
 # Generating real TestCase classes for each importable backend
 for name in ['python', 'yajl', 'yajl2', 'yajl2_cffi', 'yajl2_c']:
     try:
@@ -260,7 +268,8 @@ for name in ['python', 'yajl', 'yajl2', 'yajl2_cffi', 'yajl2_c']:
             (unittest.TestCase, Parse),
             {
                 'backend': import_module('ijson.backends.%s' % name),
-                'supports_multiple_values': name != 'yajl'
+                'supports_multiple_values': name != 'yajl',
+                'warn_on_string_stream': name != 'python' and not IS_PY2
             },
         )
     except ImportError:

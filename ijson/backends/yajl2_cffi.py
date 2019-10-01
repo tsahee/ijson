@@ -6,7 +6,7 @@ from cffi import FFI
 import functools
 import sys
 
-from ijson import common, backends
+from ijson import common, backends, compat
 from ijson.compat import b2s
 
 
@@ -206,6 +206,7 @@ def basic_parse(f, buf_size=64*1024, **config):
 
     # the scope objects makes sure the C objects allocated in _yajl.init
     # are kept alive until this function is done
+    f = compat.bytes_reader(f)
     scope = Container()
     events = []
 
@@ -234,10 +235,10 @@ def parse(file, **kwargs):
     '''
     Backend-specific wrapper for ijson.common.parse.
     '''
-    return common.parse(basic_parse(file, **kwargs))
+    return common.parse(basic_parse(compat.bytes_reader(file), **kwargs))
 
 def items(file, prefix, map_type=None, **kwargs):
     '''
     Backend-specific wrapper for ijson.common.items.
     '''
-    return common.items(parse(file, **kwargs), prefix, map_type=map_type)
+    return common.items(parse(compat.bytes_reader(file), **kwargs), prefix, map_type=map_type)

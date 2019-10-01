@@ -5,7 +5,7 @@ Wrapper for YAJL C library version 2.x.
 from ctypes import Structure, c_uint, c_ubyte, c_int, c_long, c_double, c_char, \
                    c_void_p, c_char_p, CFUNCTYPE, POINTER, byref, string_at, cast
 
-from ijson import common, backends
+from ijson import common, backends, compat
 from ijson.compat import b2s
 
 
@@ -65,6 +65,7 @@ def basic_parse(f, allow_comments=False, buf_size=64 * 1024,
     - buf_size: a size of an input buffer
     - multiple_values: allows the parser to parse multiple JSON objects
     '''
+    f = compat.bytes_reader(f)
     events = []
 
     def callback(event, func_type, func):
@@ -105,10 +106,10 @@ def parse(file, **kwargs):
     '''
     Backend-specific wrapper for ijson.common.parse.
     '''
-    return common.parse(basic_parse(file, **kwargs))
+    return common.parse(basic_parse(compat.bytes_reader(file), **kwargs))
 
 def items(file, prefix, map_type=None, **kwargs):
     '''
     Backend-specific wrapper for ijson.common.items.
     '''
-    return common.items(parse(file, **kwargs), prefix, map_type=map_type)
+    return common.items(parse(compat.bytes_reader(file), **kwargs), prefix, map_type=map_type)
