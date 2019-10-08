@@ -4,6 +4,9 @@
 .. image:: https://coveralls.io/repos/github/ICRAR/ijson/badge.svg?branch=master
     :target: https://coveralls.io/github/ICRAR/ijson?branch=master
 
+.. image:: https://badge.fury.io/py/ijson.svg
+    :target: https://badge.fury.io/py/ijson
+
 =====
 ijson
 =====
