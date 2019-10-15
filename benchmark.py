@@ -82,7 +82,7 @@ def run_benchmarks(args, benchmark_func=None, fname=None):
     if bool(benchmark_func) == bool(fname):
         raise ValueError("Either benchmark_func or fname must be given")
     if benchmark_func:
-        data = benchmark_func(args.s)
+        data = benchmark_func(args.size)
         size = len(data)
         bname = benchmark_func.__name__
     else:
