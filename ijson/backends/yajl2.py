@@ -70,7 +70,11 @@ def basic_parse(f, allow_comments=False, buf_size=64 * 1024,
 
     def callback(event, func_type, func):
         def c_callback(context, *args):
-            events.append((event, func(*args)))
+            try:
+                value = func(*args)
+            except:
+                return 0
+            events.append((event, value))
             return 1
         return func_type(c_callback)
 
