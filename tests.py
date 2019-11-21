@@ -142,6 +142,13 @@ STRINGS_JSON = br'''
 '''
 NUMBERS_JSON = b'[1, 1.0, 1E2]'
 SURROGATE_PAIRS_JSON = br'"\uD83D\uDCA9"'
+PARTIAL_ARRAY_JSONS = [
+    (b'[1,', 1),
+    (b'[1, 2 ', 1, 2),
+    (b'[1, "abc"', 1, 'abc'),
+    (b'[{"abc": [0, 1]}', {'abc': [0, 1]}),
+    (b'[{"abc": [0, 1]},', {'abc': [0, 1]}),
+]
 
 
 class Parse(object):
@@ -255,6 +262,13 @@ class Parse(object):
         if self.warn_on_string_stream:
             self.assertEqual(len(warns), 1)
             self.assertEqual(DeprecationWarning, warns[0].category)
+
+    def test_item_building_greediness(self):
+        for json in PARTIAL_ARRAY_JSONS:
+            json, expected_items = json[0], json[1:]
+            iterable = self.backend.items(BytesIO(json), 'item')
+            for expected_item in expected_items:
+                self.assertEqual(expected_item, next(iterable))
 
 # Generating real TestCase classes for each importable backend
 for name in ['python', 'yajl', 'yajl2', 'yajl2_cffi', 'yajl2_c']:
