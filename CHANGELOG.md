@@ -5,6 +5,8 @@
 * Improving error handling in yajl2 backend (ctypes-based)
   so exceptions caught in callbacks interrupt the parsing process.
 * Including more files in source distributions (#14).
+* Adjusting python backend to avoid reading off the input stream
+  too eagerly (#15).
 
 ## [2.5.1]
 
