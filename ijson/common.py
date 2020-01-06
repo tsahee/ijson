@@ -93,12 +93,12 @@ class ObjectBuilder(object):
 
     Example::
 
-        from io import BytesIO
         from ijson import basic_parse
         from ijson.common import ObjectBuilder
+        from ijson.compat import BytesIO
 
         builder = ObjectBuilder()
-        f = BytesIO(b'{"key": "value"}')
+        f = BytesIO(b'{"key": 23}')
         for event, value in basic_parse(f):
             builder.event(event, value)
         print(builder.value)
