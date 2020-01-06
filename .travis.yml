@@ -32,7 +32,6 @@ install:
   - cd ${TRAVIS_BUILD_DIR}
   - python setup.py develop
 script:
-  - python -mdoctest ijson/common.py
   - pytest tests.py -v --cov
 after_success:
  - coveralls
