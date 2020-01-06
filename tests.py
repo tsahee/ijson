@@ -23,7 +23,8 @@ JSON = b'''
       "double": 0.5,
       "exponent": 1.0e+2,
       "long": 10000000000,
-      "string": "\\u0441\\u0442\\u0440\\u043e\\u043a\\u0430 - \xd1\x82\xd0\xb5\xd1\x81\xd1\x82"
+      "string": "\\u0441\\u0442\\u0440\\u043e\\u043a\\u0430 - \xd1\x82\xd0\xb5\xd1\x81\xd1\x82",
+      "\xc3\xb1and\xc3\xba": null
     },
     {
       "meta": [[1], {}]
@@ -47,7 +48,8 @@ JSON_OBJECT = {
             "double": Decimal("0.5"),
             "exponent": 1e+2,
             "long": 10000000000,
-            "string": "строка - тест"
+            "string": "строка - тест",
+            "ñandú": None
         },
         {
             "meta": [[1], {}]
@@ -83,6 +85,8 @@ JSON_EVENTS = [
                 ('number', 10000000000),
                 ('map_key', 'string'),
                 ('string', 'строка - тест'),
+                ('map_key', 'ñandú'),
+                ('null', None),
             ('end_map', None),
             ('start_map', None),
                 ('map_key', 'meta'),
@@ -341,6 +345,7 @@ class Common(unittest.TestCase):
         self.assertEqual(builder.value, {
             'docs': [
                 {
+                   'ñandú': None,
                    'string': 'строка - тест',
                    'null': None,
                    'boolean': False,
