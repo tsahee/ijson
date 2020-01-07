@@ -98,11 +98,11 @@ class ObjectBuilder(object):
         >>> from ijson.compat import BytesIO
 
         >>> builder = ObjectBuilder()
-        >>> f = BytesIO(b'{"key": 23}')
+        >>> f = BytesIO(b'{"key": "value"}')
         >>> for event, value in basic_parse(f):
         ...     builder.event(event, value)
-        >>> builder.value
-        {'key': 23}
+        >>> builder.value == {'key': 'value'}
+        True
 
     '''
     def __init__(self, map_type=None):
