@@ -14,11 +14,7 @@
 #include <yajl/yajl_common.h>
 #include <yajl/yajl_parse.h>
 
-#if PY_MAJOR_VERSION >= 3
 #define STRING_FROM_UTF8(val, len) PyUnicode_FromStringAndSize((const char *)val, len)
-#else
-#define STRING_FROM_UTF8(val, len) PyString_FromStringAndSize((const char *)val, len)
-#endif
 
 
 /*

@@ -34,7 +34,7 @@ _callback_data = [
     ('number', C_STR, lambda v, l: common.number(b2s(string_at(v, l)))),
     ('string', C_STR, lambda v, l: string_at(v, l).decode('utf-8')),
     ('start_map', C_EMPTY, lambda: None),
-    ('map_key', C_STR, lambda v, l: b2s(string_at(v, l))),
+    ('map_key', C_STR, lambda v, l: string_at(v, l).decode('utf-8')),
     ('end_map', C_EMPTY, lambda: None),
     ('start_array', C_EMPTY, lambda: None),
     ('end_array', C_EMPTY, lambda: None),

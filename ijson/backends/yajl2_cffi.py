@@ -131,7 +131,7 @@ def start_map():
 @ffi.callback('int(void *ctx, const unsigned char *key, size_t stringLen)')
 @append_event_to_ctx('map_key')
 def map_key(key, length):
-    return b2s(ffi.string(key, maxlen=length))
+    return ffi.string(key, maxlen=length).decode('utf-8')
 
 
 @ffi.callback('int(void *ctx)')
