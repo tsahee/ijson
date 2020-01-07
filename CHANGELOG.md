@@ -2,6 +2,13 @@
 
 ## Development version
 
+* When using python 2, all backends now return
+  `map_key` values as `unicode` objects, not `str`
+  (until now only the Python backend did so).
+  This is what the `json` built-in module does,
+  and allows for correctly handling non-ascii key names.
+  Comparison between `unicode` and `str` objects is possible,
+  so most client code should be unaffected.
 * Improving error handling in yajl2 backend (ctypes-based)
   so exceptions caught in callbacks interrupt the parsing process.
 * Including more files in source distributions (#14).
