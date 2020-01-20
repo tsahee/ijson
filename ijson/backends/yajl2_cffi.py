@@ -160,7 +160,6 @@ _callback_data = (
 )
 
 
-_asd = list()
 def yajl_init(scope, events, allow_comments=False, multiple_values=False):
     scope.ctx = ffi.new_handle(events)
     scope.callbacks = ffi.new('yajl_callbacks*', _callback_data)
