@@ -90,9 +90,14 @@ def run_benchmarks(args, benchmark_func=None, fname=None):
         size = os.stat(args.input).st_size
 
     for backend_name, backend in args.backends.items():
+        method = getattr(backend, args.method)
+        method_args = ()
+        if args.method in ('items', 'kvitems'):
+            method_args = args.prefix,
+
         reader = io.BytesIO(data) if benchmark_func else open(fname, 'rb')
         start = time.time()
-        for _ in backend.basic_parse(reader, multiple_values=args.multiple_values):
+        for _ in method(reader, *method_args, multiple_values=args.multiple_values):
             pass
         duration = time.time() - start
         megabytes = size / 1024. / 1024.
@@ -122,6 +127,9 @@ def main():
         help='File to use for benchmarks rather than built-in benchmarking functions')
     parser.add_argument('-m', '--multiple-values', action='store_true', default=False,
         help='Content has multiple JSON values, useful when used with -i')
+    parser.add_argument('-M', '--method', choices=['basic_parse', 'parse', 'kvitems', 'items'],
+                        help='The method to benchmark', default='basic_parse')
+    parser.add_argument('-p', '--prefix', help='Prefix (used with -M items|kvitems)', default='')
 
     args = parser.parse_args()
     if args.list:
