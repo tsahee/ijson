@@ -64,6 +64,23 @@ JSON_OBJECT = {
         }
     ]
 }
+JSON_KVITEMS = [
+    ("null", None),
+    ("boolean", False),
+    ("true", True),
+    ("integer", 0),
+    ("double", Decimal("0.5")),
+    ("exponent", 1e+2),
+    ("long", 10000000000),
+    ("string", "строка - тест"),
+    ("ñandú", None),
+    ("meta", [[1], {}]),
+    ("meta", {"key": "value"}),
+    ("meta", None)
+]
+JSON_KVITEMS_META = [
+    ('key', 'value')
+]
 JSON_EVENTS = [
     ('start_map', None),
         ('map_key', 'docs'),
@@ -260,6 +277,33 @@ class Parse(object):
         ids = list(self.backend.items(f, 'meta.view.columns.item.id'))
         self.assertEqual(2, len(ids))
         self.assertListEqual([-2,-1], sorted(ids))
+
+    def test_kvitems(self):
+        kvitems = list(self.backend.kvitems(BytesIO(JSON), 'docs.item'))
+        self.assertEqual(JSON_KVITEMS, kvitems)
+
+    def test_kvitems_toplevel(self):
+        kvitems = list(self.backend.kvitems(BytesIO(JSON), ''))
+        self.assertEqual(1, len(kvitems))
+        key, value = kvitems[0]
+        self.assertEqual('docs', key)
+        self.assertEqual(JSON_OBJECT['docs'], value)
+
+    def test_kvitems_empty(self):
+        kvitems = list(self.backend.kvitems(BytesIO(JSON), 'docs'))
+        self.assertEqual([], kvitems)
+
+    def test_kvitems_twodictlevels(self):
+        f = BytesIO(b'{"meta":{"view":{"columns":[{"id": -1}, {"id": -2}]}}}')
+        view = list(self.backend.kvitems(f, 'meta.view'))
+        self.assertEqual(1, len(view))
+        key, value = view[0]
+        self.assertEqual('columns', key)
+        self.assertEqual([{'id': -1}, {'id': -2}], value)
+
+    def test_kvitems_different_underlying_types(self):
+        kvitems = list(self.backend.kvitems(BytesIO(JSON), 'docs.item.meta'))
+        self.assertEqual(JSON_KVITEMS_META, kvitems)
 
     def test_multiple_values(self):
         if not self.supports_multiple_values:

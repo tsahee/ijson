@@ -152,6 +152,29 @@ def items(prefixed_events, prefix, map_type=None):
     except StopIteration:
         pass
 
+def kvitems(prefixed_events, prefix, map_type=None):
+    '''
+    An iterator returning (key, value) pairs constructed from the events
+    under a given prefix. The prefix should point to JSON objects
+    '''
+    builder = None
+    key = None
+    for current, event, value in prefixed_events:
+        if current == prefix and event == 'map_key':  # found new object at prefix
+            if builder:
+                yield key, builder.value
+            key = value
+            builder = ObjectBuilder(map_type=map_type)
+            if prefix:
+                object_prefix = '.'.join([prefix, key])
+            else:
+                object_prefix = key
+        elif builder and current == prefix and event == 'end_map':
+            yield key, builder.value
+            builder = None
+        elif builder and current.startswith(object_prefix):  # while at this key, build the object
+            builder.event(event, value)
+
 
 def number(str_value):
     '''

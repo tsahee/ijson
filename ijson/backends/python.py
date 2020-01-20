@@ -183,3 +183,10 @@ def items(file, prefix, map_type=None, **kwargs):
     Backend-specific wrapper for ijson.common.items.
     '''
     return common.items(parse(file, **kwargs), prefix, map_type=map_type)
+
+
+def kvitems(file, prefix, map_type=None, **kwargs):
+    '''
+    Backend-specific wrapper for ijson.common.kvitems.
+    '''
+    return common.kvitems(parse(file, **kwargs), prefix, map_type=map_type)
