@@ -47,6 +47,18 @@ stream located under a prefix. Here's how to process all European cities::
 
 For how to build a prefix see the Prefix section below.
 
+Other times it might be useful to iterate over object members
+rather than objects themselves (e.g., when objects are too big).
+In that case one can use the ``kvitems`` functions instead::
+
+    import ijson
+
+    f = urlopen('http://.../')
+    european_places = ijson.kvitems(f, 'earth.europe.item')
+    names = (v for k, v in european_places if k == 'name')
+    for name in names:
+        do_something_with(name)
+
 Sometimes when dealing with a particularly large JSON payload it may worth to
 not even construct individual Python objects and react on individual events
 immediately producing some result::

@@ -2,6 +2,12 @@
 
 ## Development version
 
+* New `kvitems` method in all backends.
+  Like `items`, it takes a prefix,
+  and iterates over the key/value pairs of matching objects
+  (instead of iterating over objects themselves, like in `items`).
+  This is useful for iterating over big objects
+  that would otherwise consume too much memory.
 * When using python 2, all backends now return
   `map_key` values as `unicode` objects, not `str`
   (until now only the Python backend did so).
