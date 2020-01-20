@@ -18,7 +18,9 @@ Usage
 =====
 
 All usage example will be using a JSON document describing geographical
-objects::
+objects:
+
+.. code-block:: json
 
     {
       "earth": {
@@ -35,7 +37,9 @@ objects::
     }
 
 Most common usage is having ijson yield native Python objects out of a JSON
-stream located under a prefix. Here's how to process all European cities::
+stream located under a prefix. Here's how to process all European cities:
+
+.. code-block::  python
 
     import ijson
 
@@ -49,7 +53,9 @@ For how to build a prefix see the Prefix section below.
 
 Other times it might be useful to iterate over object members
 rather than objects themselves (e.g., when objects are too big).
-In that case one can use the ``kvitems`` functions instead::
+In that case one can use the ``kvitems`` functions instead:
+
+.. code-block::  python
 
     import ijson
 
@@ -61,7 +67,9 @@ In that case one can use the ``kvitems`` functions instead::
 
 Sometimes when dealing with a particularly large JSON payload it may worth to
 not even construct individual Python objects and react on individual events
-immediately producing some result::
+immediately producing some result:
+
+.. code-block::  python
 
     import ijson
 
@@ -138,7 +146,9 @@ backends located in ijson/backends:
 - ``python``: pure Python parser, good to use with PyPy
 
 You can import a specific backend and use it in the same way as the top level
-library::
+library:
+
+.. code-block::  python
 
     import ijson.backends.yajl2_cffi as ijson
 
