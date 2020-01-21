@@ -157,23 +157,22 @@ def kvitems(prefixed_events, prefix, map_type=None):
     An iterator returning (key, value) pairs constructed from the events
     under a given prefix. The prefix should point to JSON objects
     '''
+    prefixed_events = iter(prefixed_events)
     builder = None
-    key = None
-    for current, event, value in prefixed_events:
-        if current == prefix and event == 'map_key':  # found new object at prefix
-            if builder:
+    try:
+        while True:
+            path, event, value = next(prefixed_events)
+            while path == prefix and event == 'map_key':
+                key = value
+                builder = ObjectBuilder(map_type=map_type)
+                path, event, value = next(prefixed_events)
+                while path != prefix:
+                    builder.event(event, value)
+                    path, event, value = next(prefixed_events)
+                del builder.containers[:]
                 yield key, builder.value
-            key = value
-            builder = ObjectBuilder(map_type=map_type)
-            if prefix:
-                object_prefix = '.'.join([prefix, key])
-            else:
-                object_prefix = key
-        elif builder and current == prefix and event == 'end_map':
-            yield key, builder.value
-            builder = None
-        elif builder and current.startswith(object_prefix):  # while at this key, build the object
-            builder.event(event, value)
+    except StopIteration:
+        pass
 
 
 def number(str_value):
