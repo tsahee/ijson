@@ -931,6 +931,7 @@ static int kvitemsgen_init(KVItemsGen *self, PyObject *args, PyObject *kwargs)
 static void kvitemsgen_dealloc(KVItemsGen *self)
 {
 	Py_XDECREF(self->prefix);
+	Py_XDECREF(self->key);
 	if (self->builder) {
 		builder_destroy(self->builder);
 	}
@@ -994,7 +995,10 @@ static PyObject* kvitemsgen_iternext(PyObject *self)
 		Py_DECREF(event);
 		Py_DECREF(value);
 		if (retval) {
-			return PyTuple_Pack(2, retkey, retval);
+			PyObject *tuple = PyTuple_Pack(2, retkey, retval);
+			Py_XDECREF(retkey);
+			Py_XDECREF(retval);
+			return tuple;
 		}
 	}
 
