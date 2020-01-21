@@ -888,9 +888,7 @@ typedef struct {
     ParseGen parse;
     builder_t *builder;
     PyObject *prefix;
-    PyObject *current;
     PyObject *key;
-    PyObject *end_event;
 } KVItemsGen;
 
 
@@ -901,7 +899,7 @@ static int kvitemsgen_init(KVItemsGen *self, PyObject *args, PyObject *kwargs)
 {
 	self->builder = NULL;
 	self->prefix = NULL;
-	self->end_event = NULL;
+	self->key = NULL;
 
 	PyObject *read, *decimal, *jsonerror, *jsonincompleteerror, *map_type;
 	int ret = PyArg_ParseTuple(args, "OOOOOO", &(self->prefix), &read, &decimal, &jsonerror, &jsonincompleteerror, &map_type);
@@ -956,10 +954,6 @@ static PyObject* kvitemsgen_iternext(PyObject *self)
 		PyObject *path  = PyTuple_GetItem(res, 0);
 		PyObject *event = PyTuple_GetItem(res, 1);
 		PyObject *value = PyTuple_GetItem(res, 2);
-		Py_INCREF(path);
-		Py_INCREF(event);
-		Py_INCREF(value);
-		Py_DECREF(res);
 
 		PyObject *retval = NULL;
 		PyObject *retkey = NULL;
@@ -973,27 +967,28 @@ static PyObject* kvitemsgen_iternext(PyObject *self)
 				retval = builder_value(gen->builder);
 				retkey = gen->key;
 				Py_INCREF(retkey);
+				Py_XDECREF(gen->key);
 				if (event == enames.map_key_ename) {
-					Py_INCREF(value);
 					gen->key = value;
+					Py_INCREF(gen->key);
 					N_M1(builder_reset(gen->builder));
 					gen->builder->active = 1;
 				}
 				else {
+					gen->key = NULL;
 					gen->builder->active = 0;
 				}
 			}
 		}
 		else if (cmp == 1 && event == enames.map_key_ename) {
-			Py_INCREF(value);
+			Py_XDECREF(gen->key);
 			gen->key = value;
+			Py_INCREF(gen->key);
 			N_M1(builder_reset(gen->builder));
 			gen->builder->active = 1;
 		}
 
-		Py_DECREF(path);
-		Py_DECREF(event);
-		Py_DECREF(value);
+		Py_DECREF(res);
 		if (retval) {
 			PyObject *tuple = PyTuple_Pack(2, retkey, retval);
 			Py_XDECREF(retkey);
