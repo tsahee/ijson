@@ -881,6 +881,173 @@ static PyTypeObject ItemsGen_Type = {
 };
 
 
+/*
+ * parse generator object structure
+ */
+typedef struct {
+    ParseGen parse;
+    builder_t *builder;
+    PyObject *prefix;
+    PyObject *current;
+    PyObject *key;
+    PyObject *end_event;
+} KVItemsGen;
+
+
+/*
+ * __init__, destructor, __iter__ and __next__
+ */
+static int kvitemsgen_init(KVItemsGen *self, PyObject *args, PyObject *kwargs)
+{
+	self->builder = NULL;
+	self->prefix = NULL;
+	self->end_event = NULL;
+
+	PyObject *read, *decimal, *jsonerror, *jsonincompleteerror, *map_type;
+	int ret = PyArg_ParseTuple(args, "OOOOOO", &(self->prefix), &read, &decimal, &jsonerror, &jsonincompleteerror, &map_type);
+	M1_Z(ret);
+
+	// call super.__init__ with everything except self->prefix
+	Py_INCREF(self->prefix);
+	Py_INCREF(decimal);
+	Py_INCREF(read);
+	Py_INCREF(jsonerror);
+	Py_INCREF(jsonincompleteerror);
+	PyObject *subargs;
+	M1_N(subargs = PyTuple_New(4));
+	M1_NZ( PyTuple_SetItem(subargs, 0, read) );
+	M1_NZ( PyTuple_SetItem(subargs, 1, decimal) );
+	M1_NZ( PyTuple_SetItem(subargs, 2, jsonerror) );
+	M1_NZ( PyTuple_SetItem(subargs, 3, jsonincompleteerror) );
+	ret = ParseGen_Type.tp_init((PyObject *)self, subargs, kwargs);
+	Py_DECREF(subargs);
+	M1_M1(ret);
+
+	M1_N(self->builder = builder_create(map_type));
+	Py_INCREF(Py_None);
+	return 0;
+}
+
+static void kvitemsgen_dealloc(KVItemsGen *self)
+{
+	Py_XDECREF(self->prefix);
+	if (self->builder) {
+		builder_destroy(self->builder);
+	}
+	ParseGen_Type.tp_dealloc((PyObject *)self);
+}
+
+static PyObject* kvitemsgen_iter(PyObject *self)
+{
+	Py_INCREF(self);
+	return self;
+}
+
+static PyObject* kvitemsgen_iternext(PyObject *self)
+{
+	KVItemsGen *gen = (KVItemsGen *)self;
+
+	while (1) {
+
+		/* for path,event,value in parse(): */
+		PyObject *res;
+		N_N(res = ParseGen_Type.tp_iternext(self));
+		PyObject *path  = PyTuple_GetItem(res, 0);
+		PyObject *event = PyTuple_GetItem(res, 1);
+		PyObject *value = PyTuple_GetItem(res, 2);
+		Py_INCREF(path);
+		Py_INCREF(event);
+		Py_INCREF(value);
+		Py_DECREF(res);
+
+		PyObject *retval = NULL;
+		PyObject *retkey = NULL;
+		int cmp = PyObject_RichCompareBool(path, gen->prefix, Py_EQ);
+		N_M1(cmp);
+		if (builder_isactive(gen->builder)) {
+			if (cmp == 0) {
+				N_M1(builder_event(gen->builder, event, value));
+			}
+			else {
+				retval = builder_value(gen->builder);
+				retkey = gen->key;
+				Py_INCREF(retkey);
+				if (event == enames.map_key_ename) {
+					Py_INCREF(value);
+					gen->key = value;
+					N_M1(builder_reset(gen->builder));
+					gen->builder->active = 1;
+				}
+				else {
+					gen->builder->active = 0;
+				}
+			}
+		}
+		else if (cmp == 1 && event == enames.map_key_ename) {
+			Py_INCREF(value);
+			gen->key = value;
+			N_M1(builder_reset(gen->builder));
+			gen->builder->active = 1;
+		}
+
+		Py_DECREF(path);
+		Py_DECREF(event);
+		Py_DECREF(value);
+		if (retval) {
+			return PyTuple_Pack(2, retkey, retval);
+		}
+	}
+
+}
+
+/*
+ * items generator object type
+ */
+static PyTypeObject KVItemsGen_Type = {
+#if PY_MAJOR_VERSION >= 3
+	PyVarObject_HEAD_INIT(NULL, 0)
+#else
+	PyObject_HEAD_INIT(NULL)
+	0,                            /*ob_size*/
+#endif
+	"_yajl2.kvitems",             /*tp_name*/
+	sizeof(KVItemsGen),           /*tp_basicsize*/
+	0,                            /*tp_itemsize*/
+	(destructor)kvitemsgen_dealloc, /*tp_dealloc*/
+	0,                            /*tp_print*/
+	0,                            /*tp_getattr*/
+	0,                            /*tp_setattr*/
+	0,                            /*tp_compare*/
+	0,                            /*tp_repr*/
+	0,                            /*tp_as_number*/
+	0,                            /*tp_as_sequence*/
+	0,                            /*tp_as_mapping*/
+	0,                            /*tp_hash */
+	0,                            /*tp_call*/
+	0,                            /*tp_str*/
+	0,                            /*tp_getattro*/
+	0,                            /*tp_setattro*/
+	0,                            /*tp_as_buffer*/
+	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_ITER, /*tp_flags*/
+	"Generates key/value pairs",  /*tp_doc*/
+	0,                            /*tp_traverse*/
+	0,                            /*tp_clear*/
+	0,                            /*tp_richcompare*/
+	0,                            /*tp_weaklistoffset*/
+	kvitemsgen_iter,              /*tp_iter: __iter__() method*/
+	kvitemsgen_iternext,          /*tp_iternext: next() method*/
+	0,                            /*tp_methods*/
+	0,                            /*tp_members*/
+	0,                            /*tp_getset*/
+	&ParseGen_Type,               /*tp_base*/
+	0,                            /*tp_dict*/
+	0,                            /*tp_descr_get*/
+	0,                            /*tp_descr_set*/
+	0,                            /*tp_dictoffset*/
+	(initproc)kvitemsgen_init     /*tp_init*/
+};
+
+
 static PyMethodDef yajl2_methods[] = {
 	{NULL, NULL, 0, NULL}        /* Sentinel */
 };
@@ -907,9 +1074,11 @@ MOD_INIT(_yajl2)
 	BasicParseGen_Type.tp_new = PyType_GenericNew;
 	ParseGen_Type.tp_new = PyType_GenericNew;
 	ItemsGen_Type.tp_new = PyType_GenericNew;
+	KVItemsGen_Type.tp_new = PyType_GenericNew;
 	X_LZ(PyType_Ready(&BasicParseGen_Type), MOD_VAL(NULL));
 	X_LZ(PyType_Ready(&ParseGen_Type), MOD_VAL(NULL));
 	X_LZ(PyType_Ready(&ItemsGen_Type), MOD_VAL(NULL));
+	X_LZ(PyType_Ready(&KVItemsGen_Type), MOD_VAL(NULL));
 
 	MOD_DEF(m, "_yajl2", "wrapper for yajl2 methods", yajl2_methods);
 	X_N(m, MOD_VAL(NULL));
@@ -917,9 +1086,11 @@ MOD_INIT(_yajl2)
 	Py_INCREF(&BasicParseGen_Type);
 	Py_INCREF(&ParseGen_Type);
 	Py_INCREF(&ItemsGen_Type);
+	Py_INCREF(&KVItemsGen_Type);
 	PyModule_AddObject(m, "basic_parse", (PyObject *)&BasicParseGen_Type);
 	PyModule_AddObject(m, "parse", (PyObject *)&ParseGen_Type);
 	PyModule_AddObject(m, "items", (PyObject *)&ItemsGen_Type);
+	PyModule_AddObject(m, "kvitems", (PyObject *)&KVItemsGen_Type);
 
 	dot = STRING_FROM_UTF8(".", 1);
 	item = STRING_FROM_UTF8("item", 4);

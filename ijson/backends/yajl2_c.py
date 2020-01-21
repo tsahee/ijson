@@ -26,7 +26,5 @@ def items(file, prefix, map_type=None, **kwargs):
     return _yajl2.items(prefix, f.read, decimal.Decimal, common.JSONError, common.IncompleteJSONError, map_type, **kwargs)
 
 def kvitems(file, prefix, map_type=None, **kwargs):
-    '''
-    Backend-specific wrapper for ijson.common.kvitems.
-    '''
-    return common.kvitems(parse(file, **kwargs), prefix, map_type=map_type)
+    f = compat.bytes_reader(file)
+    return _yajl2.kvitems(prefix, f.read, decimal.Decimal, common.JSONError, common.IncompleteJSONError, map_type, **kwargs)
