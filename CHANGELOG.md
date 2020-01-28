@@ -1,6 +1,6 @@
 # Changelog
 
-## Development version
+## [2.6.0]
 
 * New `kvitems` method in all backends.
   Like `items`, it takes a prefix,
@@ -55,3 +55,4 @@
 [2.4]: https://github.com/ICRAR/ijson/releases/tag/2.4
 [2.5]: https://github.com/ICRAR/ijson/releases/tag/v2.5
 [2.5.1]: https://github.com/ICRAR/ijson/releases/tag/v2.5.1
+[2.6.0]: https://github.com/ICRAR/ijson/releases/tag/v2.6.0
