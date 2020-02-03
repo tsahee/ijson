@@ -1,5 +1,10 @@
 # Changelog
 
+## [2.6.1]
+
+* Fixed a deprecation warning in the C backend
+  present in python 3.8 when parsing Decimal values.
+
 ## [2.6.0]
 
 * New `kvitems` method in all backends.
@@ -56,3 +61,4 @@
 [2.5]: https://github.com/ICRAR/ijson/releases/tag/v2.5
 [2.5.1]: https://github.com/ICRAR/ijson/releases/tag/v2.5.1
 [2.6.0]: https://github.com/ICRAR/ijson/releases/tag/v2.6.0
+[2.6.1]: https://github.com/ICRAR/ijson/releases/tag/v2.6.1
