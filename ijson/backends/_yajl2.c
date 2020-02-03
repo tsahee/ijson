@@ -10,6 +10,7 @@
 
 #include <errno.h>
 
+#define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #include <yajl/yajl_common.h>
 #include <yajl/yajl_parse.h>
