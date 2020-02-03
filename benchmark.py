@@ -30,6 +30,10 @@ def big_int_object(n):
     return b'{' + b',\n'.join([b'"key_%d": %d' % (i, i) for i in range(n)]) + b'}'
 
 @benchmark
+def big_decimal_object(n):
+    return b'{' + b',\n'.join([b'"key_%d": %d.0' % (i, i) for i in range(n)]) + b'}'
+
+@benchmark
 def big_null_object(n):
     return b'{' + b',\n'.join([b'"key_%d": null' % (i,) for i in range(n)]) + b'}'
 
