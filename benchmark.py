@@ -137,8 +137,8 @@ def run_benchmarks(args, benchmark_func=None, fname=None):
             pass
         duration = time.time() - start
         megabytes = size / 1024. / 1024.
-        print("%.3f, %s, %s, %.3f, %.3f" %
-              (megabytes, bname, backend_name, duration,
+        print("%.3f, %s, %s, %s, %.3f, %.3f" %
+              (megabytes, args.method, bname, backend_name, duration,
                megabytes / duration))
         reader.close()
 
@@ -180,7 +180,7 @@ def main():
         print(msg)
         return
 
-    print("#mbytes,test_case,backend,time,mb_per_sec")
+    print("#mbytes,method,test_case,backend,time,mb_per_sec")
     if args.input:
         run_benchmarks(args, fname=args.input)
     else:
