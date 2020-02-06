@@ -13,6 +13,7 @@ import collections
 import importlib
 import io
 import os
+import sys
 import time
 
 
@@ -82,13 +83,34 @@ def parse_backends(s):
     return backends
 
 
+def _stdout_tty_write_flush(message):
+    stdout = sys.stdout
+    if stdout.isatty():
+        stdout.write(message)
+        stdout.flush()
+
+
+class progress_message(object):
+
+    def __init__(self, message):
+        self.message = message
+
+    def __enter__(self):
+        _stdout_tty_write_flush(self.message)
+        return self
+
+    def __exit__(self, *args):
+        _stdout_tty_write_flush('\r\033[K')
+
+
 def run_benchmarks(args, benchmark_func=None, fname=None):
     if bool(benchmark_func) == bool(fname):
         raise ValueError("Either benchmark_func or fname must be given")
     if benchmark_func:
-        data = benchmark_func(args.size)
-        size = len(data)
         bname = benchmark_func.__name__
+        with progress_message('Generating data for benchmark %s...' % (bname,)):
+            data = benchmark_func(args.size)
+            size = len(data)
     else:
         bname = fname
         size = os.stat(args.input).st_size
