@@ -60,6 +60,14 @@ def object_with_10_keys(n):
         template
         for _ in range(n)) + b']'
 
+@benchmark
+def empty_lists(n):
+    return b'[' + b', '.join(b'[]' for _ in range(n)) + b']'
+
+@benchmark
+def empty_objects(n):
+    return b'[' + b', '.join(b'{}' for _ in range(n)) + b']'
+
 def parse_benchmarks(s):
     return [_benchmarks[name] for name in s.split(',')]
 
