@@ -131,7 +131,9 @@ def run_benchmarks(args, benchmark_func=None, fname=None):
 
         reader = io.BytesIO(data) if benchmark_func else open(fname, 'rb')
         start = time.time()
-        for _ in method(reader, *method_args, multiple_values=args.multiple_values):
+        for _ in method(reader, *method_args,
+                        multiple_values=args.multiple_values,
+                        buf_size=args.bufsize):
             pass
         duration = time.time() - start
         megabytes = size / 1024. / 1024.
@@ -143,12 +145,16 @@ def run_benchmarks(args, benchmark_func=None, fname=None):
 
 def main():
     DEFAULT_N = 100000
+    DEFAULT_BUFSIZE = 64 * 1024
     ALL_BENCHMARKS = ','.join(_benchmarks)
     ALL_BACKENDS = ','.join(_backends)
     parser = argparse.ArgumentParser()
     parser.add_argument('-s', '--size', type=int,
         help='Size of JSON content; actual size in bytes might differ, defaults to %d' % DEFAULT_N,
         default=DEFAULT_N)
+    parser.add_argument('-S', '--bufsize', type=int,
+        help='Buffer size used during parsing; defaults to %d' % DEFAULT_BUFSIZE,
+        default=DEFAULT_BUFSIZE)
     parser.add_argument('-b', '--benchmarks', type=parse_benchmarks,
         help='Comma-separated list of benchmarks to include, defaults to %s' % ALL_BENCHMARKS,
         default=ALL_BENCHMARKS)
