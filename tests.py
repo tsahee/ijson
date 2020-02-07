@@ -34,6 +34,9 @@ JSON = b'''
     },
     {
       "meta": null
+    },
+    {
+      "meta": []
     }
   ]
 }
@@ -61,6 +64,9 @@ JSON_OBJECT = {
         },
         {
             "meta": None
+        },
+        {
+            "meta": []
         }
     ]
 }
@@ -110,6 +116,10 @@ JSON_PARSE_EVENTS = [
     ('docs.item.meta', 'null', None),
     ('docs.item', 'end_map', None),
     ('docs.item', 'start_map', None),
+    ('docs.item', 'map_key', 'meta'),
+    ('docs.item.meta', 'start_array', None),
+    ('docs.item.meta', 'end_array', None),
+    ('docs.item', 'end_map', None),
     ('docs', 'end_array', None),
     ('', 'end_map', None)
 ]
@@ -125,7 +135,8 @@ JSON_KVITEMS = [
     ("ñandú", None),
     ("meta", [[1], {}]),
     ("meta", {"key": "value"}),
-    ("meta", None)
+    ("meta", None),
+    ("meta", [])
 ]
 JSON_KVITEMS_META = [
     ('key', 'value')
@@ -174,6 +185,11 @@ JSON_EVENTS = [
             ('start_map', None),
                 ('map_key', 'meta'),
                 ('null', None),
+            ('end_map', None),
+            ('start_map', None),
+                ('map_key', 'meta'),
+                ('start_array', None),
+                ('end_array', None),
             ('end_map', None),
         ('end_array', None),
     ('end_map', None),
@@ -462,6 +478,7 @@ class Common(unittest.TestCase):
             [[1], {}],
             {'key': 'value'},
             None,
+            []
         ])
 
 class Stream(unittest.TestCase):
