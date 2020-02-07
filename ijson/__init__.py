@@ -13,7 +13,7 @@ Top-level ``ijson`` module exposes method from the pure Python backend. There's
 also two other backends using the C library yajl in ``ijson.backends`` that have
 the same API and are faster under CPython.
 '''
-from ijson.common import JSONError, IncompleteJSONError, ObjectBuilder
+from ijson.common import JSONError, IncompleteJSONError, ObjectBuilder, compat
 
 from ijson.utils import coroutine
 from .version import __version__
@@ -37,4 +37,9 @@ items = backend.items
 items_coro = backend.items_coro
 kvitems = backend.kvitems
 kvitems_coro = backend.kvitems_coro
+if compat.IS_PY35:
+    basic_parse_async = backend.basic_parse_async
+    parse_async = backend.parse_async
+    items_async = backend.items_async
+    kvitems_async = backend.kvitems_async
 del backend

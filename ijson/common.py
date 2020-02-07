@@ -425,3 +425,8 @@ def enrich_backend(backend, use_string_reader=False):
         if gen_name not in backend:
             factory = globals()['_make_' + gen_name]
             backend[gen_name] = factory(backend, use_string_reader)
+        if compat.IS_PY35:
+            from . import utils35
+            async_name = gen_name + '_async'
+            factory = getattr(utils35, '_make_' + async_name)
+            backend[async_name] = factory(backend)
