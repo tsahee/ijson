@@ -305,7 +305,7 @@ class Parse(object):
         for json in INVALID_JSONS:
             # Yajl1 doesn't complain about additional data after the end
             # of a parsed object. Skipping this test.
-            if self.__class__.__name__ == 'YajlParse' and json == YAJL1_PASSING_INVALID:
+            if self.__class__.__name__ == 'YajlTests' and json == YAJL1_PASSING_INVALID:
                 continue
             with self.assertRaises(common.JSONError) as cm:
                 list(self.backend.basic_parse(BytesIO(json)))
@@ -426,24 +426,27 @@ class Parse(object):
             for expected_item in expected_items:
                 self.assertEqual(expected_item, next(iterable))
 
-# Generating real TestCase classes for each importable backend
-for name in ['python', 'yajl', 'yajl2', 'yajl2_cffi', 'yajl2_c']:
-    try:
-        classname = '%sParse' % ''.join(p.capitalize() for p in name.split('_'))
-        if IS_PY2:
-            classname = classname.encode('ascii')
+def generate_test_cases(module, base_class):
+    for name in ['python', 'yajl', 'yajl2', 'yajl2_cffi', 'yajl2_c']:
+        try:
+            classname = '%sTests' % ''.join(p.capitalize() for p in name.split('_'))
+            if IS_PY2:
+                classname = classname.encode('ascii')
 
-        locals()[classname] = type(
-            classname,
-            (unittest.TestCase, Parse),
-            {
-                'backend': import_module('ijson.backends.%s' % name),
-                'supports_multiple_values': name != 'yajl',
-                'warn_on_string_stream': name != 'python' and not IS_PY2
-            },
-        )
-    except ImportError:
-        pass
+            module[classname] = type(
+                classname,
+                (base_class, unittest.TestCase),
+                {
+                    'backend': import_module('ijson.backends.%s' % name),
+                    'supports_multiple_values': name != 'yajl',
+                    'warn_on_string_stream': name != 'python' and not IS_PY2
+                },
+            )
+        except ImportError:
+            pass
+
+# Generating real TestCase classes for each importable backend
+generate_test_cases(globals(), Parse)
 
 
 class Common(unittest.TestCase):
