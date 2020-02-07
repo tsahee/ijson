@@ -449,40 +449,5 @@ def generate_test_cases(module, base_class):
 generate_test_cases(globals(), Parse)
 
 
-class Common(unittest.TestCase):
-    '''
-    Backend independent tests. They all use basic_parse imported explicitly from
-    the python backend to generate parsing events.
-    '''
-    def test_object_builder(self):
-        builder = common.ObjectBuilder()
-        for event, value in basic_parse(BytesIO(JSON)):
-            builder.event(event, value)
-        self.assertEqual(builder.value, JSON_OBJECT)
-
-    def test_scalar_builder(self):
-        builder = common.ObjectBuilder()
-        for event, value in basic_parse(BytesIO(SCALAR_JSON)):
-            builder.event(event, value)
-        self.assertEqual(builder.value, 0)
-
-    def test_parse(self):
-        events = common.parse(basic_parse(BytesIO(JSON)))
-        events = [value
-            for prefix, event, value in events
-            if prefix == 'docs.item.meta.item.item'
-        ]
-        self.assertEqual(events, [1])
-
-    def test_items(self):
-        events = basic_parse(BytesIO(JSON))
-        meta = list(common.items(common.parse(events), 'docs.item.meta'))
-        self.assertEqual(meta, [
-            [[1], {}],
-            {'key': 'value'},
-            None,
-            []
-        ])
-
 if __name__ == '__main__':
     unittest.main()
