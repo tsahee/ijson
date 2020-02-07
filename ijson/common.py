@@ -2,7 +2,7 @@
 Backend independent higher level interfaces, common exceptions.
 '''
 import decimal
-from ijson import utils
+from ijson import compat, utils
 
 
 class JSONError(Exception):
@@ -293,3 +293,95 @@ def number(str_value):
     if not ('.' in str_value or 'e' in str_value or 'E' in str_value):
         return int(str_value)
     return decimal.Decimal(str_value)
+
+
+def file_source(f, use_string_reader, buf_size=64*1024):
+    '''A generator that yields data from a file-like object'''
+    if use_string_reader:
+        f = compat.string_reader(f)
+    else:
+        f = compat.bytes_reader(f)
+    while True:
+        data = f.read(buf_size)
+        yield data
+        if not data:
+            break
+
+
+def _basic_parse_pipeline(backend, config):
+    return (
+        (backend['basic_parse_basecoro'], [], config),
+    )
+
+
+def _parse_pipeline(backend, config):
+    return (
+        (backend['parse_basecoro'], [], {}),
+        (backend['basic_parse_basecoro'], [], config)
+    )
+
+
+def _items_pipeline(backend, prefix, map_type, config):
+    return (
+        (backend['items_basecoro'], (prefix,), {'map_type': map_type}),
+        (backend['parse_basecoro'], [], {}),
+        (backend['basic_parse_basecoro'], [], config)
+    )
+
+
+def _kvitems_pipeline(backend, prefix, map_type, config):
+    return (
+        (backend['kvitems_basecoro'], (prefix,), {'map_type': map_type}),
+        (backend['parse_basecoro'], [], {}),
+        (backend['basic_parse_basecoro'], [], config)
+    )
+
+
+def _make_basic_parse(backend, use_string_reader):
+    def basic_parse(f, buf_size=64*1024, **config):
+        return utils.coros2gen(
+            file_source(f, use_string_reader, buf_size=buf_size),
+            *_basic_parse_pipeline(backend, config)
+        )
+    return basic_parse
+
+
+def _make_parse(backend, use_string_reader):
+    def parse(f, buf_size=64*1024, **config):
+        return utils.coros2gen(
+            file_source(f, use_string_reader, buf_size=buf_size),
+            *_parse_pipeline(backend, config)
+        )
+    return parse
+
+
+def _make_items(backend, use_string_reader):
+    def items(f, prefix, map_type=None, buf_size=64*1024, **config):
+        return utils.coros2gen(
+            file_source(f, use_string_reader, buf_size=buf_size),
+            *_items_pipeline(backend, prefix, map_type, config)
+        )
+    return items
+
+
+def _make_kvitems(backend, use_string_reader):
+    def kvitems(f, prefix, map_type=None, buf_size=64*1024, **config):
+        return utils.coros2gen(
+            file_source(f, use_string_reader, buf_size=buf_size),
+            *_kvitems_pipeline(backend, prefix, map_type, config)
+        )
+    return kvitems
+
+
+def enrich_backend(backend, use_string_reader=False):
+    '''
+    Provides a backend with any missing coroutines/generators/async-generators
+    it might be missing by using the generic ones written in python.
+    '''
+    for gen_name in ('basic_parse', 'parse', 'items', 'kvitems'):
+        basecoro_name = gen_name + '_basecoro'
+        if basecoro_name not in backend:
+            backend[basecoro_name] = globals()[basecoro_name]
+        if gen_name not in backend:
+            factory = globals()['_make_' + gen_name]
+            backend[gen_name] = factory(backend, use_string_reader)
