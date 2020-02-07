@@ -8,6 +8,7 @@ import warnings
 
 
 IS_PY2 = sys.version_info[0] < 3
+IS_PY35 = sys.version_info[0:2] >= (3, 5)
 
 
 if IS_PY2:
