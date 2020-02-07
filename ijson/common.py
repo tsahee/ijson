@@ -2,6 +2,7 @@
 Backend independent higher level interfaces, common exceptions.
 '''
 import decimal
+from ijson import utils
 
 
 class JSONError(Exception):
@@ -84,6 +85,74 @@ def parse(basic_events):
         yield prefix, event, value
 
 
+@utils.coroutine
+def parse_basecoro(target):
+    '''
+    A coroutine dispatching parsing events with the information about their
+    location with the JSON object tree. Events are tuples
+    ``(prefix, type, value)``.
+
+    Available types and values are:
+
+    ('null', None)
+    ('boolean', <True or False>)
+    ('number', <int or Decimal>)
+    ('string', <unicode>)
+    ('map_key', <str>)
+    ('start_map', None)
+    ('end_map', None)
+    ('start_array', None)
+    ('end_array', None)
+
+    Prefixes represent the path to the nested elements from the root of the JSON
+    document. For example, given this document::
+
+        {
+          "array": [1, 2],
+          "map": {
+            "key": "value"
+          }
+        }
+
+    the parser would yield events:
+
+      ('', 'start_map', None)
+      ('', 'map_key', 'array')
+      ('array', 'start_array', None)
+      ('array.item', 'number', 1)
+      ('array.item', 'number', 2)
+      ('array', 'end_array', None)
+      ('', 'map_key', 'map')
+      ('map', 'start_map', None)
+      ('map', 'map_key', 'key')
+      ('map.key', 'string', u'value')
+      ('map', 'end_map', None)
+      ('', 'end_map', None)
+
+    '''
+    path = []
+    while True:
+        event, value = yield
+        if event == 'map_key':
+            prefix = '.'.join(path[:-1])
+            path[-1] = value
+        elif event == 'start_map':
+            prefix = '.'.join(path)
+            path.append(None)
+        elif event == 'end_map':
+            path.pop()
+            prefix = '.'.join(path)
+        elif event == 'start_array':
+            prefix = '.'.join(path)
+            path.append('item')
+        elif event == 'end_array':
+            path.pop()
+            prefix = '.'.join(path)
+        else: # any scalar value
+            prefix = '.'.join(path)
+        target.send((prefix, event, value))
+
+
 class ObjectBuilder(object):
     '''
     Incrementally builds an object from JSON parser events. Events are passed
@@ -152,6 +221,27 @@ def items(prefixed_events, prefix, map_type=None):
     except StopIteration:
         pass
 
+
+@utils.coroutine
+def items_basecoro(target, prefix, map_type=None):
+    '''
+    An couroutine dispatching native Python objects constructed from the events
+    under a given prefix.
+    '''
+    while True:
+        current, event, value = (yield)
+        if current == prefix:
+            if event in ('start_map', 'start_array'):
+                builder = ObjectBuilder(map_type=map_type)
+                end_event = event.replace('start', 'end')
+                while (current, event) != (prefix, end_event):
+                    builder.event(event, value)
+                    current, event, value = (yield)
+                del builder.containers[:]
+                target.send(builder.value)
+            else:
+                target.send(value)
+
 def kvitems(prefixed_events, prefix, map_type=None):
     '''
     An iterator returning (key, value) pairs constructed from the events
@@ -173,6 +263,26 @@ def kvitems(prefixed_events, prefix, map_type=None):
                 yield key, builder.value
     except StopIteration:
         pass
+
+
+@utils.coroutine
+def kvitems_basecoro(target, prefix, map_type=None):
+    '''
+    An coroutine dispatching (key, value) pairs constructed from the events
+    under a given prefix. The prefix should point to JSON objects
+    '''
+    builder = None
+    while True:
+        path, event, value = (yield)
+        while path == prefix and event == 'map_key':
+            key = value
+            builder = ObjectBuilder(map_type=map_type)
+            path, event, value = (yield)
+            while path != prefix:
+                builder.event(event, value)
+                path, event, value = (yield)
+            del builder.containers[:]
+            target.send((key, builder.value))
 
 
 def number(str_value):
