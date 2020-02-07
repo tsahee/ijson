@@ -484,15 +484,5 @@ class Common(unittest.TestCase):
             []
         ])
 
-class Stream(unittest.TestCase):
-    def test_bytes(self):
-        l = Lexer(BytesIO(JSON))
-        self.assertEqual(next(l)[1], '{')
-
-    def test_string(self):
-        l = Lexer(StringIO(JSON.decode('utf-8')))
-        self.assertEqual(next(l)[1], '{')
-
-
 if __name__ == '__main__':
     unittest.main()
