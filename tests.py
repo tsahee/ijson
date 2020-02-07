@@ -439,30 +439,7 @@ class Common(unittest.TestCase):
         builder = common.ObjectBuilder()
         for event, value in basic_parse(BytesIO(JSON)):
             builder.event(event, value)
-        self.assertEqual(builder.value, {
-            'docs': [
-                {
-                   'ñandú': None,
-                   'string': 'строка - тест',
-                   'null': None,
-                   'boolean': False,
-                   'true': True,
-                   'integer': 0,
-                   'double': Decimal('0.5'),
-                   'exponent': 100,
-                   'long': 10000000000,
-                },
-                {
-                    'meta': [[1], {}],
-                },
-                {
-                    'meta': {'key': 'value'},
-                },
-                {
-                    'meta': None,
-                },
-            ],
-        })
+        self.assertEqual(builder.value, JSON_OBJECT)
 
     def test_scalar_builder(self):
         builder = common.ObjectBuilder()
