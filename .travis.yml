@@ -35,7 +35,13 @@ install:
   - cd ${TRAVIS_BUILD_DIR}
   - python setup.py develop
 script:
+  - |
+    tests="tests.py"
+    version=`python -c 'import sys; v = sys.version_info; print(v[0] * 10 + v[1])'`
+    if [ $version -ge 35 ]; then
+      tests+=" tests_asyncio.py"
+    fi
   - python -mdoctest ijson/common.py
-  - pytest tests.py -v --cov
+  - pytest $tests -v --cov
 after_success:
  - coveralls
