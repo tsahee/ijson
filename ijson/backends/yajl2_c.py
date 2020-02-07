@@ -8,23 +8,44 @@
 '''
 Wrapper for _yajl2 C extension module
 '''
-import decimal
 
-from ijson import common, compat
-from . import _yajl2 # @UnresolvedImport
+from ijson import common, compat, utils
+from . import _yajl2
+
+@utils.coroutine
+def basic_parse_basecoro(target, **kwargs):
+    return _yajl2.basic_parse_basecoro(target.send, **kwargs)
 
 def basic_parse(file, **kwargs):
     f = compat.bytes_reader(file)
-    return _yajl2.basic_parse(f.read, decimal.Decimal, common.JSONError, common.IncompleteJSONError, **kwargs)
+    buf_size = kwargs.pop('buf_size', 64 * 1024)
+    return _yajl2.basic_parse(f, buf_size, **kwargs)
+
+@utils.coroutine
+def parse_basecoro(target, **kwargs):
+    return _yajl2.parse_basecoro(target.send, **kwargs)
 
 def parse(file, **kwargs):
     f = compat.bytes_reader(file)
-    return _yajl2.parse(f.read, decimal.Decimal, common.JSONError, common.IncompleteJSONError, **kwargs)
+    buf_size = kwargs.pop('buf_size', 64 * 1024)
+    return _yajl2.parse(f, buf_size, **kwargs)
 
-def items(file, prefix, map_type=None, **kwargs):
-    f = compat.bytes_reader(file)
-    return _yajl2.items(prefix, f.read, decimal.Decimal, common.JSONError, common.IncompleteJSONError, map_type, **kwargs)
+@utils.coroutine
+def kvitems_basecoro(target, prefix, map_type=None, **kwargs):
+    return _yajl2.kvitems_basecoro(target.send, prefix, map_type, **kwargs)
 
 def kvitems(file, prefix, map_type=None, **kwargs):
     f = compat.bytes_reader(file)
-    return _yajl2.kvitems(prefix, f.read, decimal.Decimal, common.JSONError, common.IncompleteJSONError, map_type, **kwargs)
+    buf_size = kwargs.pop('buf_size', 64 * 1024)
+    return _yajl2.kvitems(f, buf_size, prefix, map_type, **kwargs)
+
+@utils.coroutine
+def items_basecoro(target, prefix, map_type=None, **kwargs):
+    return _yajl2.items_basecoro(target.send, prefix, map_type, **kwargs)
+
+def items(file, prefix, map_type=None, **kwargs):
+    f = compat.bytes_reader(file)
+    buf_size = kwargs.pop('buf_size', 64 * 1024)
+    return _yajl2.items(f, buf_size, prefix, map_type, **kwargs)
+
+common.enrich_backend(globals())

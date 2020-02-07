@@ -1,5 +1,6 @@
 import distutils.ccompiler
 import distutils.sysconfig
+import glob
 import os
 import platform
 import tempfile
@@ -78,7 +79,8 @@ if platform.python_implementation() == 'CPython':
     if yajl_present():
         yajl_ext = Extension('ijson.backends._yajl2',
                              language='c',
-                             sources = ['ijson/backends/_yajl2.c'],
+                             sources = glob.glob('ijson/backends/yajl2_c/*.c'),
+                             include_dirs = ['ijson/backends/yajl2_c'],
                              libraries = ['yajl'])
         setupArgs['ext_modules'] = [yajl_ext]
 
