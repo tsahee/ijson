@@ -4,9 +4,8 @@ CFFI-Wrapper for YAJL C library version 2.x.
 
 from cffi import FFI
 import functools
-import sys
 
-from ijson import common, backends, compat
+from ijson import common, backends, utils
 from ijson.compat import b2s
 
 
@@ -79,8 +78,8 @@ def append_event_to_ctx(event):
         @functools.wraps(func)
         def wrapped(ctx, *args, **kwargs):
             value = func(*args, **kwargs)
-            ctx = ffi.from_handle(ctx)
-            ctx.append((event, value))
+            send = ffi.from_handle(ctx)
+            send((event, value))
             return 1
         return wrapped
     return wrapper
@@ -160,8 +159,8 @@ _callback_data = (
 )
 
 
-def yajl_init(scope, events, allow_comments=False, multiple_values=False):
-    scope.ctx = ffi.new_handle(events)
+def yajl_init(scope, send, allow_comments=False, multiple_values=False):
+    scope.ctx = ffi.new_handle(send)
     scope.callbacks = ffi.new('yajl_callbacks*', _callback_data)
     handle = yajl.yajl_alloc(scope.callbacks, ffi.NULL, scope.ctx)
 
@@ -191,59 +190,30 @@ class Container(object):
     pass
 
 
-def basic_parse(f, buf_size=64*1024, **config):
+@utils.coroutine
+def basic_parse_basecoro(target, **config):
     '''
-    Iterator yielding unprefixed events.
+    Coroutine dispatching unprefixed events.
 
     Parameters:
 
-    - f: a readable file-like object with JSON input
     - allow_comments: tells parser to allow comments in JSON input
-    - buf_size: a size of an input buffer
     - multiple_values: allows the parser to parse multiple JSON objects
     '''
 
     # the scope objects makes sure the C objects allocated in _yajl.init
     # are kept alive until this function is done
-    f = compat.bytes_reader(f)
     scope = Container()
-    events = []
 
-    handle = yajl_init(scope, events, **config)
+    handle = yajl_init(scope, target.send, **config)
     try:
         while True:
-            buffer = f.read(buf_size)
-            # this calls the callbacks which will
-            # fill the events list
+            buffer = (yield)
             yajl_parse(handle, buffer)
-
-            if not buffer and not events:
+            if not buffer:
                 break
-
-            for event in events:
-                yield event
-
-            # clear all events, but don't replace the
-            # the events list instance
-            del events[:]
     finally:
         yajl.yajl_free(handle)
 
 
-def parse(file, **kwargs):
-    '''
-    Backend-specific wrapper for ijson.common.parse.
-    '''
-    return common.parse(basic_parse(compat.bytes_reader(file), **kwargs))
-
-def items(file, prefix, map_type=None, **kwargs):
-    '''
-    Backend-specific wrapper for ijson.common.items.
-    '''
-    return common.items(parse(compat.bytes_reader(file), **kwargs), prefix, map_type=map_type)
-
-def kvitems(file, prefix, map_type=None, **kwargs):
-    '''
-    Backend-specific wrapper for ijson.common.kvitems.
-    '''
-    return common.kvitems(parse(file, **kwargs), prefix, map_type=map_type)
+common.enrich_backend(globals())
