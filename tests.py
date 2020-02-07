@@ -256,6 +256,10 @@ class Parse(object):
         events = list(self.backend.basic_parse(BytesIO(JSON)))
         self.assertEqual(events, JSON_EVENTS)
 
+    def test_parse(self):
+        events = list(self.backend.parse(BytesIO(JSON)))
+        self.assertEqual(events, JSON_PARSE_EVENTS)
+
     def test_basic_parse_threaded(self):
         thread = threading.Thread(target=self.test_basic_parse)
         thread.start()
