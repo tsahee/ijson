@@ -307,7 +307,7 @@ class Parse(object):
             # of a parsed object. Skipping this test.
             if self.__class__.__name__ == 'YajlTests' and json == YAJL1_PASSING_INVALID:
                 continue
-            with self.assertRaises(common.JSONError) as cm:
+            with self.assertRaises(common.JSONError):
                 list(self.backend.basic_parse(BytesIO(json)))
 
     def test_incomplete(self):
