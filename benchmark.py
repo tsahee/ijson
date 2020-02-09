@@ -17,6 +17,8 @@ import sys
 import time
 
 
+from ijson import compat
+
 _benchmarks = collections.OrderedDict()
 def benchmark(f):
     _benchmarks[f.__name__] = f
@@ -111,6 +113,26 @@ class progress_message(object):
         _stdout_tty_write_flush('\r\033[K')
 
 
+if compat.IS_PY35:
+    exec('''
+class AsyncReader(object):
+    def __init__(self, data, use_str):
+        if use_str:
+            self.data = io.StringIO(data.decode('utf8'))
+        else:
+            self.data = io.BytesIO(data)
+
+    async def read(self, n=-1):
+        return self.data.read(n)
+
+    def close(self):
+        self.data.close()
+
+async def _run_async(method, reader, *method_args, **method_kwargs):
+    async for _ in method(reader, *method_args, **method_kwargs):
+        pass
+    ''')
+
 def run_benchmarks(args, benchmark_func=None, fname=None):
     if bool(benchmark_func) == bool(fname):
         raise ValueError("Either benchmark_func or fname must be given")
@@ -124,17 +146,41 @@ def run_benchmarks(args, benchmark_func=None, fname=None):
         size = os.stat(args.input).st_size
 
     for backend_name, backend in args.backends.items():
-        method = getattr(backend, args.method)
+
+        # Get correct method and prepare its arguments
+        method = args.method + '_async' if args.run_async else args.method
+        method = getattr(backend, method)
         method_args = ()
         if args.method in ('items', 'kvitems'):
             method_args = args.prefix,
+        method_kwargs = {
+            'multiple_values': args.multiple_values,
+            'buf_size': args.bufsize
+        }
 
-        reader = io.BytesIO(data) if benchmark_func else open(fname, 'rb')
+        # Prepare reader
+        if not benchmark_func:
+            reader = open(fname, 'rb')
+        else:
+            reader = AsyncReader(data, backend_name == 'python') if args.run_async else io.BytesIO(data)
+
+        # Prepare function that will run the benchmark
+        if args.run_async:
+            import asyncio
+            loop = asyncio.new_event_loop()
+            def run():
+                try:
+                    loop.run_until_complete(_run_async(method, reader, *method_args, **method_kwargs))
+                finally:
+                    loop.close()
+        else:
+            def run():
+                for _ in method(reader, *method_args, **method_kwargs):
+                    pass
+
+        # Go, go, go!
         start = time.time()
-        for _ in method(reader, *method_args,
-                        multiple_values=args.multiple_values,
-                        buf_size=args.bufsize):
-            pass
+        run()
         duration = time.time() - start
         megabytes = size / 1024. / 1024.
         print("%.3f, %s, %s, %s, %.3f, %.3f" %
@@ -169,6 +215,9 @@ def main():
         help='Content has multiple JSON values, useful when used with -i')
     parser.add_argument('-M', '--method', choices=['basic_parse', 'parse', 'kvitems', 'items'],
                         help='The method to benchmark', default='basic_parse')
+    if compat.IS_PY35:
+        parser.add_argument('-a', '--async', action='store_true', default=False,
+                            dest='run_async', help='Benchmark asyncio-enabled methods')
     parser.add_argument('-p', '--prefix', help='Prefix (used with -M items|kvitems)', default='')
 
     args = parser.parse_args()
