@@ -337,6 +337,42 @@ def _kvitems_pipeline(backend, prefix, map_type, config):
     )
 
 
+def _make_basic_parse_coro(backend):
+    def basic_parse_coro(target, **config):
+        return utils.chain(
+            target,
+            *_basic_parse_pipeline(backend, config)
+        )
+    return utils.coroutine(basic_parse_coro)
+
+
+def _make_parse_coro(backend):
+    def parse_coro(target, **config):
+        return utils.chain(
+            target,
+            *_parse_pipeline(backend, config)
+        )
+    return utils.coroutine(parse_coro)
+
+
+def _make_items_coro(backend):
+    def items_coro(target, prefix, map_type=None, **config):
+        return utils.chain(
+            target,
+            *_items_pipeline(backend, prefix, map_type, config)
+        )
+    return utils.coroutine(items_coro)
+
+
+def _make_kvitems_coro(backend):
+    def kvitems(target, prefix, map_type=None, **config):
+        return utils.chain(
+            target,
+            *_items_pipeline(backend, prefix, map_type, config)
+        )
+    return utils.coroutine(kvitems)
+
+
 def _make_basic_parse(backend, use_string_reader):
     def basic_parse(f, buf_size=64*1024, **config):
         return utils.coros2gen(
@@ -382,6 +418,10 @@ def enrich_backend(backend, use_string_reader=False):
         basecoro_name = gen_name + '_basecoro'
         if basecoro_name not in backend:
             backend[basecoro_name] = globals()[basecoro_name]
+        coro_name = gen_name + '_coro'
+        if coro_name not in backend:
+            factory = globals()['_make_' + coro_name]
+            backend[coro_name] = factory(backend)
         if gen_name not in backend:
             factory = globals()['_make_' + gen_name]
             backend[gen_name] = factory(backend, use_string_reader)
