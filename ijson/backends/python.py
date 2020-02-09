@@ -1,7 +1,6 @@
 '''
 Pure-python parsing backend.
 '''
-from __future__ import unicode_literals
 import re
 from json.decoder import scanstring
 
