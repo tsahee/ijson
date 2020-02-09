@@ -11,7 +11,7 @@
 ijson
 =====
 
-Ijson is an iterative JSON parser with a standard Python iterator interface.
+Ijson is an iterative JSON parser with a standard Python iterator interfaces.
 
 
 Usage
@@ -35,6 +35,10 @@ objects:
         ]
       }
     }
+
+
+High-level interfaces
+---------------------
 
 Most common usage is having ijson yield native Python objects out of a JSON
 stream located under a prefix. Here's how to process all European cities:
@@ -65,6 +69,10 @@ In that case one can use the ``kvitems`` functions instead:
     for name in names:
         do_something_with(name)
 
+
+Lower-level interfaces
+----------------------
+
 Sometimes when dealing with a particularly large JSON payload it may worth to
 not even construct individual Python objects and react on individual events
 immediately producing some result:
@@ -84,6 +92,103 @@ immediately producing some result:
         elif (prefix, event) == ('earth.%s' % continent, 'end_map'):
             stream.write('</%s>' % continent)
     stream.write('</geo>')
+
+Even more bare-bones is the ability to react on individual events
+without even calculating a prefix:
+
+.. code-block:: python
+
+    import ijson
+
+    events = ijson.basic_parse(urlopen('http://.../'))
+    num_names = sum(1 for event, value in events
+                    if event == 'map_key' and value == 'name')
+
+
+``asyncio`` support
+-------------------
+
+In python 3.5+ one can also directly use asynchronously-read objects
+in the context of an ``asyncio`` event loop, like so:
+
+.. code-block:: python
+
+   import ijson
+
+   f = await async_urlopen('http://..../')
+   async for object in ijson.items_async(f, 'earth.europe.item'):
+      if object['type'] == 'city':
+         do_something_with(city)
+
+In python 3.5+ all of the methods above
+have an ``*_async`` counterpart
+that works on asynchronous I/O objects,
+and that can be iterated asynchronously.
+In other words, something like this:
+
+.. code-block:: python
+
+   import asyncio
+   import ijson
+
+   async def run():
+      f = await async_urlopen('http://..../')
+      async for object in ijson.items_async(f, 'earth.europe.item'):
+         if object['type'] == 'city':
+            do_something_with(city)
+   asyncio.run(run())
+
+
+Push interfaces
+---------------
+
+All examples above use a file-like object as the data input
+(both the normal case, and for ``asyncio`` support),
+and hence are "pull" interfaces,
+with the library reading data as necessary.
+If for whatever reason it's not possible to use such method,
+you can still **push** data
+through yet a different interface: coroutines.
+Coroutines effectively allow users
+to send data to them at any point in time,
+with a final *target* coroutine-like object
+receiving the results.
+
+In the following example
+the user is doing the reading
+instead of letting the library do it:
+
+.. code-block:: python
+
+   import ijson
+
+   @ijson.coroutine
+   def print_cities():
+      while True:
+         obj = (yield)
+         if obj['type'] != 'city':
+            continue
+         print(obj)
+
+   coro = ijson.items_coro(print_cities(), 'earth.europe.item')
+   f = urlopen('http://.../')
+   chunk = f.read(buf_size)
+   while chunk:
+      try:
+         coro.send(chunk)
+      except StopIteration:
+            break
+      chunk = f.read()
+
+All four ijson iterators
+have a ``*_coro`` counterpart
+that work by pushing data into them.
+Instead of receiving a file-like object
+and option buffer size as arguments,
+they receive a single ``target`` argument,
+which should be a coroutine-like object
+(anything implementing a ``send`` method)
+through which results will be published.
 
 
 Events
