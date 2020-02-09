@@ -20,7 +20,7 @@ from .version import __version__
 
 def _default_backend():
     import importlib
-    for backend in ('yajl2_c', 'yajl2_cffi', 'yajl2', 'python'):
+    for backend in ('yajl2_c', 'yajl2_cffi', 'yajl2', 'yajl', 'python'):
         try:
             return importlib.import_module('ijson.backends.' + backend)
         except ImportError:
