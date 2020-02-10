@@ -27,7 +27,8 @@ static PyObject *chain(PyObject *sink, object_creation_info *coro_pipeline)
 			int nargs = PyTuple_Size(coro_info.args);
 			N_N(coro_args = PyTuple_New(nargs + 1));
 			PyTuple_SET_ITEM(coro_args, 0, coro);
-			for (int i = 0; i != nargs; i++) {
+			int i;
+			for (i = 0; i != nargs; i++) {
 				PyTuple_SET_ITEM(coro_args, i + 1, PySequence_GetItem(coro_info.args, i));
 			}
 		}
