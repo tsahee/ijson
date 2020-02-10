@@ -1,5 +1,35 @@
 # Changelog
 
+## Development version
+
+* Full re-design of ijson:
+  instead of working with generators on a "pull" model,
+  it now uses coroutines on a "push" model.
+  The current set of generators
+  (``basic_parse``, ``parse``, ``kvitems`` and ``items``)
+  are implemented on top of these coroutines,
+  and are fully backward compatible.
+  Some text comparing the old a new designs
+  can be found [here](notes/design_notes.rst).
+* Initial support for ``asyncio`` in python 3.5+
+  in the for of ``async for``-enabled asynchronous iterators.
+  These are named ``*_async``, and take a file-like object
+  whose ``read()`` method can be ``awaited`` on.
+* Exposure of underlying infrastructure implementing the push model.
+  These are named ``*_coro``,
+  and take a coroutine-like object
+  (i.e., implementing a ``send`` method)
+  instead of file-like objects.
+  In this scheme, users are in charge
+  of sending chunks of data into the coroutines
+  using ``coro.send(chunk)``.
+* C backend performance improved
+  by avoiding memory copies when possible
+  when reading data off a file (i.e., using ``readinto`` when possible)
+  and by avoiding tuple packing/unpacking in certain situations.
+* C extension broken down into separate source files
+  for easier understanding and maintenance.
+
 ## [2.6.1]
 
 * Fixed a deprecation warning in the C backend
