@@ -1,6 +1,6 @@
 # Changelog
 
-## Development version
+## [3.0rc1]
 
 * Full re-design of ijson:
   instead of working with generators on a "pull" model,
