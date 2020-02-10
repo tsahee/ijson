@@ -3,6 +3,8 @@
 # Build manylinux binary wheels using a manually compiled yajl install
 # within the quay.io/pypa/manylinux1_x86_64 docker container
 #
+# Run like: docker run -v $PWD:/io quay.io/pypa/manylinux1_x86_64 bash /io/linux-wheels.sh
+#
 # Contributed by Rodrigo Tobar <rtobar@icrar.org>
 #
 # ICRAR - International Centre for Radio Astronomy Research
