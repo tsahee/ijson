@@ -7,6 +7,19 @@
 .. image:: https://badge.fury.io/py/ijson.svg
     :target: https://badge.fury.io/py/ijson
 
+.. image:: https://img.shields.io/pypi/pyversions/ijson.svg
+    :target: https://pypi.python.org/pypi/ijson
+
+.. image:: https://img.shields.io/pypi/dd/ijson.svg
+    :target: https://pypi.python.org/pypi/ijson
+
+.. image:: https://img.shields.io/pypi/dw/ijson.svg
+    :target: https://pypi.python.org/pypi/ijson
+
+.. image:: https://img.shields.io/pypi/dm/ijson.svg
+    :target: https://pypi.python.org/pypi/ijson
+
+
 =====
 ijson
 =====
