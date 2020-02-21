@@ -108,21 +108,9 @@ without even calculating a prefix:
 ``asyncio`` support
 -------------------
 
-In python 3.5+ one can also directly use asynchronously-read objects
-in the context of an ``asyncio`` event loop, like so:
-
-.. code-block:: python
-
-   import ijson
-
-   f = await async_urlopen('http://..../')
-   async for object in ijson.items_async(f, 'earth.europe.item'):
-      if object['type'] == 'city':
-         do_something_with(city)
-
 In python 3.5+ all of the methods above
 have an ``*_async`` counterpart
-that works on asynchronous I/O objects,
+that works on file-like asynchronous objects,
 and that can be iterated asynchronously.
 In other words, something like this:
 
