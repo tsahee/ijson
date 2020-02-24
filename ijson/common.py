@@ -232,7 +232,7 @@ def _make_basic_parse_coro(backend):
             target,
             *_basic_parse_pipeline(backend, config)
         )
-    return utils.coroutine(basic_parse_coro)
+    return basic_parse_coro
 
 
 def _make_parse_coro(backend):
@@ -241,7 +241,7 @@ def _make_parse_coro(backend):
             target,
             *_parse_pipeline(backend, config)
         )
-    return utils.coroutine(parse_coro)
+    return parse_coro
 
 
 def _make_items_coro(backend):
@@ -250,7 +250,7 @@ def _make_items_coro(backend):
             target,
             *_items_pipeline(backend, prefix, map_type, config)
         )
-    return utils.coroutine(items_coro)
+    return items_coro
 
 
 def _make_kvitems_coro(backend):
@@ -259,7 +259,7 @@ def _make_kvitems_coro(backend):
             target,
             *_items_pipeline(backend, prefix, map_type, config)
         )
-    return utils.coroutine(kvitems)
+    return kvitems
 
 
 def _make_basic_parse(backend, use_string_reader):
