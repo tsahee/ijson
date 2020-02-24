@@ -43,12 +43,15 @@ problem make sure file-like objects are opened in binary mode instead of text
 mode.
 '''
 
+def _warn_and_return(o):
+    warnings.warn(_str_vs_bytes_warning, DeprecationWarning)
+    return o
+
 def bytes_reader(f):
     """Returns a file-like object that reads bytes"""
     if type(f.read(0)) == bytetype:
         return f
-    warnings.warn(_str_vs_bytes_warning, DeprecationWarning)
-    return utf8reader(f)
+    return _warn_and_return(utf8reader(f))
 
 def string_reader(f):
     """Returns a file-like object that reads utf-8 encoded strings"""
