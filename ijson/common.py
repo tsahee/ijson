@@ -318,4 +318,4 @@ def enrich_backend(backend, use_string_reader=False):
             from . import utils35
             async_name = gen_name + '_async'
             factory = getattr(utils35, '_make_' + async_name)
-            backend[async_name] = factory(backend)
+            backend[async_name] = factory(backend, use_string_reader)

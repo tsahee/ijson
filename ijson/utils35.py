@@ -45,17 +45,22 @@ class async_iterable(object):
     from an async file-like object.
     '''
 
-    def __init__(self, f, buf_size, *coro_pipeline):
+    def __init__(self, f, buf_size, use_string_reader, *coro_pipeline):
         self.events = sendable_deque()
         self.coro = utils.chain(self.events, *coro_pipeline)
         self.coro_finished = False
         self.f = f
         self.buf_size = buf_size
+        self.use_string_reader = use_string_reader
+        self.checked_file = False
 
     def __aiter__(self):
         return self
 
     async def __anext__(self):
+        if not self.checked_file:
+            self.f = await _check_file_reader(self.f, self.use_string_reader)
+            self.checked_file = True
         if self.events:
             return self.events.popleft()
         if self.coro_finished:
@@ -73,30 +78,30 @@ class async_iterable(object):
                 raise StopAsyncIteration
 
 
-def _make_basic_parse_async(backend):
+def _make_basic_parse_async(backend, use_string_reader):
     def basic_parse_async(f, buf_size=64*1024, **config):
-        return async_iterable(f, buf_size,
+        return async_iterable(f, buf_size, use_string_reader,
             *common._basic_parse_pipeline(backend, config)
         )
     return basic_parse_async
 
-def _make_parse_async(backend):
+def _make_parse_async(backend, use_string_reader):
     def parse_async(f, buf_size=64*1024, **config):
-        return async_iterable(f, buf_size,
+        return async_iterable(f, buf_size, use_string_reader,
             *common._parse_pipeline(backend, config)
         )
     return parse_async
 
-def _make_items_async(backend):
+def _make_items_async(backend, use_string_reader):
     def items_async(f, prefix, map_type=None, buf_size=64*1024, **config):
-        return async_iterable(f, buf_size,
+        return async_iterable(f, buf_size, use_string_reader,
             *common._items_pipeline(backend, prefix, map_type, config)
         )
     return items_async
 
-def _make_kvitems_async(backend):
+def _make_kvitems_async(backend, use_string_reader):
     def kvitems_async(f, prefix, map_type=None, buf_size=64*1024, **config):
-        return async_iterable(f, buf_size,
+        return async_iterable(f, buf_size, use_string_reader,
             *common._kvitems_pipeline(backend, prefix, map_type, config)
         )
     return kvitems_async
