@@ -8,7 +8,6 @@ from importlib import import_module
 
 from ijson import common
 from ijson.compat import BytesIO, StringIO, b2s, IS_PY2, bytetype
-from ijson.backends.python import basic_parse, Lexer
 import warnings
 
 
