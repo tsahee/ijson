@@ -257,7 +257,7 @@ def _make_kvitems_coro(backend):
     def kvitems(target, prefix, map_type=None, **config):
         return utils.chain(
             target,
-            *_items_pipeline(backend, prefix, map_type, config)
+            *_kvitems_pipeline(backend, prefix, map_type, config)
         )
     return kvitems
 
