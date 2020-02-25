@@ -520,6 +520,9 @@ def generate_test_cases(module, base_class):
 # Generating real TestCase classes for each importable backend
 generate_test_cases(globals(), Generators)
 generate_test_cases(globals(), Coroutines)
+if compat.IS_PY35:
+    import tests_asyncio
+    generate_test_cases(globals(), tests_asyncio.Async)
 
 if __name__ == '__main__':
     unittest.main()

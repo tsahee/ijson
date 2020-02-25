@@ -3,8 +3,6 @@
 import asyncio
 import io
 
-from tests import generate_test_cases
-
 
 class AsyncReader(object):
     def __init__(self, data):
@@ -42,5 +40,3 @@ class Async(object):
                     return
         self._run(run())
         return events[0]
-
-generate_test_cases(globals(), Async)
