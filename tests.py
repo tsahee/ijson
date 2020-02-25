@@ -6,7 +6,7 @@ from decimal import Decimal
 import threading
 from importlib import import_module
 
-from ijson import common
+from ijson import common, utils, compat
 from ijson.compat import BytesIO, StringIO, b2s, IS_PY2, bytetype
 import warnings
 
@@ -236,6 +236,19 @@ PARTIAL_ARRAY_JSONS = [
 ]
 
 
+if compat.IS_PY2:
+    def bytesiter(self, x):
+        return x
+    striter = bytesiter
+else:
+    def bytesiter(self, x):
+        for b in x:
+            yield bytes([b])
+    def striter(self, x):
+        x = x.decode('utf8')
+        for s in x:
+            yield s
+
 class SingleReadFile(object):
     '''A bytes file that can be read only once'''
 
@@ -262,62 +275,134 @@ class SingleReadFileStr(SingleReadFile):
     def __init__(self, raw_value):
         super(SingleReadFileStr, self).__init__(b2s(raw_value))
 
-class Parse(object):
+class IJsonTestsBase(object):
     '''
-    Base class for parsing tests that is used to create test cases for each
-    available backends.
+    Base class with common tests for all backends and iteration methods.
+    Subclasses implement `all()` and `first()` to collect events coming from
+    a particuliar method, and also provide a `suffix` member that indicates
+    which method is being tested.
     '''
-    def test_basic_parse(self):
-        events = list(self.backend.basic_parse(BytesIO(JSON)))
-        self.assertEqual(events, JSON_EVENTS)
 
-    def test_parse(self):
-        events = list(self.backend.parse(BytesIO(JSON)))
-        self.assertEqual(events, JSON_PARSE_EVENTS)
+    def __getattr__(self, name):
+        return getattr(self.backend, name + self.suffix)
+
+    def test_basic_parse(self):
+        events = self.all(self.basic_parse, JSON)
+        self.assertEqual(events, JSON_EVENTS)
 
     def test_basic_parse_threaded(self):
         thread = threading.Thread(target=self.test_basic_parse)
         thread.start()
         thread.join()
 
+    def test_parse(self):
+        events = self.all(self.parse, JSON)
+        self.assertEqual(events, JSON_PARSE_EVENTS)
+
+    def test_items(self):
+        events = self.all(self.items, JSON, '')
+        self.assertEqual(events, [JSON_OBJECT])
+
+    def test_items_twodictlevels(self):
+        json = b'{"meta":{"view":{"columns":[{"id": -1}, {"id": -2}]}}}'
+        ids = self.all(self.items, json, 'meta.view.columns.item.id')
+        self.assertEqual(2, len(ids))
+        self.assertListEqual([-2,-1], sorted(ids))
+
+    def test_map_type(self):
+        obj = self.first(self.items, JSON, '')
+        self.assertTrue(isinstance(obj, dict))
+        obj = self.first(self.items, JSON, '', map_type=collections.OrderedDict)
+        self.assertTrue(isinstance(obj, collections.OrderedDict))
+
+    def test_kvitems(self):
+        kvitems = self.all(self.kvitems, JSON, 'docs.item')
+        self.assertEqual(JSON_KVITEMS, kvitems)
+
+    def test_kvitems_toplevel(self):
+        kvitems = self.all(self.kvitems, JSON, '')
+        self.assertEqual(1, len(kvitems))
+        key, value = kvitems[0]
+        self.assertEqual('docs', key)
+        self.assertEqual(JSON_OBJECT['docs'], value)
+
+    def test_kvitems_empty(self):
+        kvitems = self.all(self.kvitems, JSON, 'docs')
+        self.assertEqual([], kvitems)
+
+    def test_kvitems_twodictlevels(self):
+        json = b'{"meta":{"view":{"columns":[{"id": -1}, {"id": -2}]}}}'
+        view = self.all(self.kvitems, json, 'meta.view')
+        self.assertEqual(1, len(view))
+        key, value = view[0]
+        self.assertEqual('columns', key)
+        self.assertEqual([{'id': -1}, {'id': -2}], value)
+
+    def test_kvitems_different_underlying_types(self):
+        kvitems = self.all(self.kvitems, JSON, 'docs.item.meta')
+        self.assertEqual(JSON_KVITEMS_META, kvitems)
+
     def test_scalar(self):
-        events = list(self.backend.basic_parse(BytesIO(SCALAR_JSON)))
+        events = self.all(self.basic_parse, SCALAR_JSON)
         self.assertEqual(events, [('number', 0)])
 
     def test_strings(self):
-        events = list(self.backend.basic_parse(BytesIO(STRINGS_JSON)))
+        events = self.all(self.basic_parse, STRINGS_JSON)
         strings = [value for event, value in events if event == 'string']
         self.assertEqual(strings, ['', '"', '\\', '\\\\', '\b\f\n\r\t'])
         self.assertTrue(('map_key', 'special\t') in events)
 
     def test_surrogate_pairs(self):
-        event = next(self.backend.basic_parse(BytesIO(SURROGATE_PAIRS_JSON)))
+        event = self.first(self.basic_parse, SURROGATE_PAIRS_JSON)
         parsed_string = event[1]
         self.assertEqual(parsed_string, '💩')
 
     def test_numbers(self):
-        events = list(self.backend.basic_parse(BytesIO(NUMBERS_JSON)))
+        events = self.all(self.basic_parse, NUMBERS_JSON)
         types = [type(value) for event, value in events if event == 'number']
         self.assertEqual(types, [int, Decimal, Decimal])
+
+    def test_incomplete(self):
+        for json in INCOMPLETE_JSONS:
+            with self.assertRaises(common.IncompleteJSONError):
+                self.all(self.basic_parse, json)
 
     def test_invalid(self):
         for json in INVALID_JSONS:
             # Yajl1 doesn't complain about additional data after the end
             # of a parsed object. Skipping this test.
-            if self.__class__.__name__ == 'YajlTests' and json == YAJL1_PASSING_INVALID:
+            if self.backend_name == 'yajl' and json == YAJL1_PASSING_INVALID:
                 continue
             with self.assertRaises(common.JSONError):
-                list(self.backend.basic_parse(BytesIO(json)))
+                self.all(self.basic_parse, json)
 
-    def test_incomplete(self):
-        for json in INCOMPLETE_JSONS:
-            with self.assertRaises(common.IncompleteJSONError):
-                list(self.backend.basic_parse(BytesIO(json)))
+    def test_multiple_values(self):
+        if not self.supports_multiple_values:
+            return
+        items = lambda x, **kwargs: self.items(x, '', **kwargs)
+        multiple_json = JSON + JSON + JSON
+        for func in (self.basic_parse, items):
+            with self.assertRaises(common.JSONError):
+                self.all(func, multiple_json)
+            with self.assertRaises(common.JSONError):
+                self.all(func, multiple_json, multiple_values=False)
+            result = self.all(func, multiple_json, multiple_values=True)
+            if func == items:
+                self.assertEqual(result, [JSON_OBJECT, JSON_OBJECT, JSON_OBJECT])
+            else:
+                self.assertEqual(result, JSON_EVENTS + JSON_EVENTS + JSON_EVENTS)
+
+
+class GeneratorSpecificTests(object):
+    '''
+    Base class for parsing tests that is used to create test cases for each
+    available backends.
+    '''
 
     def test_utf8_split(self):
         buf_size = JSON.index(b'\xd1') + 1
         try:
-            events = list(self.backend.basic_parse(BytesIO(JSON), buf_size=buf_size))
+            self.all(self.basic_parse, JSON, buf_size=buf_size)
         except UnicodeDecodeError:
             self.fail('UnicodeDecodeError raised')
 
@@ -328,74 +413,13 @@ class Parse(object):
 
     def test_boundary_lexeme(self):
         buf_size = JSON.index(b'false') + 1
-        events = list(self.backend.basic_parse(BytesIO(JSON), buf_size=buf_size))
+        events = self.all(self.basic_parse, JSON, buf_size=buf_size)
         self.assertEqual(events, JSON_EVENTS)
 
     def test_boundary_whitespace(self):
         buf_size = JSON.index(b'   ') + 1
-        events = list(self.backend.basic_parse(BytesIO(JSON), buf_size=buf_size))
+        events = self.all(self.basic_parse, JSON, buf_size=buf_size)
         self.assertEqual(events, JSON_EVENTS)
-
-    def test_api(self):
-        self.assertTrue(list(self.backend.items(BytesIO(JSON), '')))
-        self.assertTrue(list(self.backend.parse(BytesIO(JSON))))
-
-    def test_items_twodictlevels(self):
-        f = BytesIO(b'{"meta":{"view":{"columns":[{"id": -1}, {"id": -2}]}}}')
-        ids = list(self.backend.items(f, 'meta.view.columns.item.id'))
-        self.assertEqual(2, len(ids))
-        self.assertListEqual([-2,-1], sorted(ids))
-
-    def test_kvitems(self):
-        kvitems = list(self.backend.kvitems(BytesIO(JSON), 'docs.item'))
-        self.assertEqual(JSON_KVITEMS, kvitems)
-
-    def test_kvitems_toplevel(self):
-        kvitems = list(self.backend.kvitems(BytesIO(JSON), ''))
-        self.assertEqual(1, len(kvitems))
-        key, value = kvitems[0]
-        self.assertEqual('docs', key)
-        self.assertEqual(JSON_OBJECT['docs'], value)
-
-    def test_kvitems_empty(self):
-        kvitems = list(self.backend.kvitems(BytesIO(JSON), 'docs'))
-        self.assertEqual([], kvitems)
-
-    def test_kvitems_twodictlevels(self):
-        f = BytesIO(b'{"meta":{"view":{"columns":[{"id": -1}, {"id": -2}]}}}')
-        view = list(self.backend.kvitems(f, 'meta.view'))
-        self.assertEqual(1, len(view))
-        key, value = view[0]
-        self.assertEqual('columns', key)
-        self.assertEqual([{'id': -1}, {'id': -2}], value)
-
-    def test_kvitems_different_underlying_types(self):
-        kvitems = list(self.backend.kvitems(BytesIO(JSON), 'docs.item.meta'))
-        self.assertEqual(JSON_KVITEMS_META, kvitems)
-
-    def test_multiple_values(self):
-        if not self.supports_multiple_values:
-            return
-        basic_parse = self.backend.basic_parse
-        items = lambda x, **kwargs: self.backend.items(x, '', **kwargs)
-        multiple_values = JSON + JSON + JSON
-        for func in (basic_parse, items):
-            generator = func(BytesIO(multiple_values))
-            self.assertRaises(common.JSONError, list, generator)
-            generator = func(BytesIO(multiple_values), multiple_values=False)
-            self.assertRaises(common.JSONError, list, generator)
-            generator = func(BytesIO(multiple_values), multiple_values=True)
-            result = list(generator)
-            if func == basic_parse:
-                self.assertEqual(result, JSON_EVENTS + JSON_EVENTS + JSON_EVENTS)
-            else:
-                self.assertEqual(result, [JSON_OBJECT, JSON_OBJECT, JSON_OBJECT])
-
-    def test_map_type(self):
-        obj = next(self.backend.items(BytesIO(JSON), ''))
-        self.assertTrue(isinstance(obj, dict))
-        obj = next(self.backend.items(BytesIO(JSON), '', map_type=collections.OrderedDict))
-        self.assertTrue(isinstance(obj, collections.OrderedDict))
 
     def test_string_stream(self):
         with warnings.catch_warnings(record=True) as warns:
@@ -425,28 +449,77 @@ class Parse(object):
             for expected_item in expected_items:
                 self.assertEqual(expected_item, next(iterable))
 
+
+class Coroutines(object):
+    '''Test adaptation for coroutines'''
+
+    suffix = '_coro'
+
+    def all(self, routine, json_content, *args, **kwargs):
+        events = utils.sendable_list()
+        coro = routine(events, *args, **kwargs)
+        for datum in self.inputiter(json_content):
+            coro.send(datum)
+        try:
+            coro.send(self.empty_string)
+        except StopIteration:
+            pass
+        return events
+
+    def first(self, routine, json_content, *args, **kwargs):
+        events = utils.sendable_list()
+        coro = routine(events, *args, **kwargs)
+        for datum in self.inputiter(json_content):
+            coro.send(datum)
+            if events:
+                return events[0]
+        try:
+            coro.send(self.empty_string)
+        except StopIteration:
+            pass
+        return None
+
+
+class Generators(GeneratorSpecificTests):
+    '''Test adaptation for generators'''
+
+    suffix = ''
+
+    def all(self, routine, json_content, *args, **kwargs):
+        return list(routine(BytesIO(json_content), *args, **kwargs))
+
+    def first(self, routine, json_content, *args, **kwargs):
+        return next(routine(BytesIO(json_content), *args, **kwargs))
+
+
 def generate_test_cases(module, base_class):
     for name in ['python', 'yajl', 'yajl2', 'yajl2_cffi', 'yajl2_c']:
         try:
-            classname = '%sTests' % ''.join(p.capitalize() for p in name.split('_'))
+            classname = '%s%sTests' % (
+                ''.join(p.capitalize() for p in name.split('_')),
+                base_class.__name__
+            )
             if IS_PY2:
                 classname = classname.encode('ascii')
 
             module[classname] = type(
                 classname,
-                (base_class, unittest.TestCase),
+                (base_class, IJsonTestsBase, unittest.TestCase),
                 {
+                    'backend_name': name,
                     'backend': import_module('ijson.backends.%s' % name),
                     'supports_multiple_values': name != 'yajl',
-                    'warn_on_string_stream': name != 'python' and not IS_PY2
+                    'warn_on_string_stream': name != 'python' and not IS_PY2,
+                    'inputiter': bytesiter if name != 'python' else striter,
+                    'empty_string': b'' if name != 'python' else ''
                 },
             )
         except ImportError:
             pass
 
 # Generating real TestCase classes for each importable backend
-generate_test_cases(globals(), Parse)
-
+generate_test_cases(globals(), Generators)
+generate_test_cases(globals(), Coroutines)
 
 if __name__ == '__main__':
     unittest.main()
