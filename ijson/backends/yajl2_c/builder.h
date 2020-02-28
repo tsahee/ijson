@@ -11,6 +11,8 @@
 #ifndef BUILDER_H
 #define BUILDER_H
 
+#include <assert.h>
+
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 
@@ -119,15 +121,13 @@ int _builder_add(builder_t *builder, PyObject *value)
 	else {
 		PyObject *last;
 		M1_N(last = PyList_GetItem(builder->value_stack, nvals-1));
+		assert(("stack element not list or dict-like",
+		        PyList_Check(last) || PyMapping_Check(last)));
 		if (PyList_Check(last)) {
 			M1_M1(PyList_Append(last, value));
 		}
-		else if (PyMapping_Check(last)) { // it's a dict-like object
+		else { // it's a dict-like object
 			M1_M1(PyObject_SetItem(last, builder->key, value));
-		}
-		else {
-			PyErr_SetString(PyExc_TypeError, "Incorrect type found in value_stack");
-			return -1;
 		}
 	}
 

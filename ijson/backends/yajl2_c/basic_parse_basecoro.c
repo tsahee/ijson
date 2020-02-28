@@ -8,6 +8,8 @@
  * Copyright by UWA (in the framework of the ICRAR)
  */
 
+#include <assert.h>
+
 #include "basic_parse_basecoro.h"
 #include "common.h"
 #include "parse_basecoro.h"
@@ -67,17 +69,14 @@ static int number(void * ctx, const char *numberVal, size_t numberLen) {
 		nval[numberLen] = 0;
 		char *endptr;
 #if PY_MAJOR_VERSION >= 3
-		Z_N(val = PyLong_FromString(nval, &endptr, 10));
+		val = PyLong_FromString(nval, &endptr, 10);
 #else
 		// returns either PyLong or PyInt
-		Z_N(val = PyInt_FromString(nval, &endptr, 10));
+		val = PyInt_FromString(nval, &endptr, 10);
 #endif
 		free(nval);
-		if( endptr == nval ) {
-			// not properly parsed (improbable, the parser should give us good stuff)
-			PyErr_SetString(PyExc_ValueError, "cannot convert string to double");
-			return 0;
-		}
+		assert(("string provided by yajl is not an integer",
+		        val != NULL && endptr != nval));
 	}
 	else {
 		Z_N(val = PyObject_CallFunction(Decimal, "s#", numberVal, numberLen));

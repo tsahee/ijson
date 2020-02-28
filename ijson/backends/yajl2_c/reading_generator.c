@@ -8,6 +8,8 @@
  * Copyright by UWA (in the framework of the ICRAR)
  */
 
+#include <assert.h>
+
 #include "basic_parse_basecoro.h"
 #include "common.h"
 #include "reading_generator.h"
@@ -52,21 +54,15 @@ int reading_generator_init(reading_generator_t *self, PyObject *args, object_cre
 	// The latter allocates a bytearray, which is how we distinguish between
 	// the two cases later
 	if (PyObject_HasAttrString(file, "readinto")) {
-		self->read_func = PyObject_GetAttrString(file, "readinto");
-		M1_N(self->read_func);
+		M1_N(self->read_func = PyObject_GetAttrString(file, "readinto"));
 		PyObject *pbuf_size = Py_BuildValue("n", buf_size);
 		self->buffer = PyObject_CallFunctionObjArgs((PyObject *)&PyByteArray_Type, pbuf_size, NULL);
 		M1_N(self->buffer);
 	}
-	else if (PyObject_HasAttrString(file, "read")) {
-		self->read_func = PyObject_GetAttrString(file, "read");
-		M1_N(self->read_func);
+	else {
+		M1_N(self->read_func = PyObject_GetAttrString(file, "read"));
 		self->buf_size = PyLong_FromSsize_t(buf_size);
 		self->buffer = NULL;
-	}
-	else {
-		PyErr_SetString(PyExc_TypeError, "file object doesn't have readinto or read method");
-		return -1;
 	}
 
 	Py_DECREF(file);
@@ -75,10 +71,8 @@ int reading_generator_init(reading_generator_t *self, PyObject *args, object_cre
 	self->finished = 0;
 
 	M1_N(self->coro = chain(self->events, coro_pipeline));
-	if (!BasicParseBasecoro_Check(self->coro)) {
-		PyErr_SetString(PyExc_TypeError, "reading_generator works only with basic_parse_basecoro");
-		return -1;
-	}
+	assert(("reading_generator works only with basic_parse_basecoro",
+	        BasicParseBasecoro_Check(self->coro)));
 	return 0;
 }
 
