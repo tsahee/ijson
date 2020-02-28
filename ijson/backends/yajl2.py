@@ -85,7 +85,10 @@ def basic_parse_basecoro(target, allow_comments=False, multiple_values=False):
         yajl.yajl_config(handle, YAJL_MULTIPLE_VALUES, 1)
     try:
         while True:
-            buffer = (yield)
+            try:
+                buffer = (yield)
+            except GeneratorExit:
+                buffer = b''
             if buffer:
                 result = yajl.yajl_parse(handle, buffer, len(buffer))
             else:

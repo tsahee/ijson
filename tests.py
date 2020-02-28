@@ -460,10 +460,7 @@ class Coroutines(object):
         coro = routine(events, *args, **kwargs)
         for datum in self.inputiter(json_content):
             coro.send(datum)
-        try:
-            coro.send(self.empty_string)
-        except StopIteration:
-            pass
+        coro.close()
         return events
 
     def first(self, routine, json_content, *args, **kwargs):
@@ -473,10 +470,7 @@ class Coroutines(object):
             coro.send(datum)
             if events:
                 return events[0]
-        try:
-            coro.send(self.empty_string)
-        except StopIteration:
-            pass
+        coro.close()
         return None
 
 
@@ -511,7 +505,6 @@ def generate_test_cases(module, base_class):
                     'supports_multiple_values': name != 'yajl',
                     'warn_on_string_stream': name != 'python' and not IS_PY2,
                     'inputiter': bytesiter if name != 'python' else striter,
-                    'empty_string': b'' if name != 'python' else ''
                 },
             )
         except ImportError:

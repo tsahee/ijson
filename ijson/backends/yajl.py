@@ -80,7 +80,10 @@ def basic_parse_basecoro(target, allow_comments=False, check_utf8=False):
     handle = yajl.yajl_alloc(byref(callbacks), byref(config), None, None)
     try:
         while True:
-            buffer = (yield)
+            try:
+                buffer = (yield)
+            except GeneratorExit:
+                buffer = b''
             if buffer:
                 result = yajl.yajl_parse(handle, buffer, len(buffer))
             else:

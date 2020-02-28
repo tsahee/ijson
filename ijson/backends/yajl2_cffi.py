@@ -196,7 +196,10 @@ def basic_parse_basecoro(target, **config):
     handle = yajl_init(scope, target.send, **config)
     try:
         while True:
-            buffer = (yield)
+            try:
+                buffer = (yield)
+            except GeneratorExit:
+                buffer = b''
             yajl_parse(handle, buffer)
             if not buffer:
                 break

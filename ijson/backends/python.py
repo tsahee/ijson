@@ -27,7 +27,10 @@ def Lexer(target):
     give parse_value the possibility of raising custom exceptions due to missing
     content.
     """
-    data = (yield)
+    try:
+        data = (yield)
+    except GeneratorExit:
+        data = ''
     buf = data
     pos = 0
     discarded = 0
@@ -50,7 +53,10 @@ def Lexer(target):
                         else:
                             break
                     except ValueError:
-                        data = (yield)
+                        try:
+                            data = (yield)
+                        except GeneratorExit:
+                            data = ''
                         if not data:
                             raise common.IncompleteJSONError('Incomplete string lexeme')
                         buf += data
@@ -58,7 +64,10 @@ def Lexer(target):
                 pos = end + 1
             else:
                 while lexeme not in UNARY_LEXEMES and match.end() == len(buf):
-                    data = (yield)
+                    try:
+                        data = (yield)
+                    except GeneratorExit:
+                        data = ''
                     if not data:
                         break
                     buf += data
@@ -69,7 +78,10 @@ def Lexer(target):
         else:
             # Don't ask data from an already exhausted source
             if data:
-                data = (yield)
+                try:
+                    data = (yield)
+                except GeneratorExit:
+                    data = ''
             if not data:
                 # Normally should raise StopIteration, but can raise
                 # IncompleteJSONError too, which is the point of sending EOF

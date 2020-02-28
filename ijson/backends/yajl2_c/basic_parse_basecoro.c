@@ -227,8 +227,16 @@ static PyObject* basic_parse_basecoro_send(PyObject *self, PyObject *args)
 	return ret;
 }
 
+static PyObject* basic_parse_basecoro_close(PyObject *self, PyObject *args)
+{
+	BasicParseBasecoro *gen = (BasicParseBasecoro *)self;
+	N_N(ijson_yajl_parse(gen->h, NULL, 0));
+	Py_RETURN_NONE;
+}
+
 static PyMethodDef basic_parse_basecoro_methods[] = {
 	{"send", basic_parse_basecoro_send, METH_VARARGS, "coroutine's send method"},
+	{"close", basic_parse_basecoro_close, METH_VARARGS, "coroutine's close method"},
 	{NULL, NULL, 0, NULL}
 };
 

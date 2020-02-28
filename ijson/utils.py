@@ -49,13 +49,19 @@ def coros2gen(source, *coro_pipeline):
     '''
     events = sendable_list()
     f = chain(events, *coro_pipeline)
-    for value in source:
-        try:
-            f.send(value)
-        except StopIteration:
+    try:
+        for value in source:
+            try:
+                f.send(value)
+            except StopIteration:
+                for event in events:
+                    yield event
+                return
             for event in events:
                 yield event
-            return
-        for event in events:
-            yield event
-        del events[:]
+            del events[:]
+    except GeneratorExit:
+        try:
+            f.close()
+        except:
+            pass
