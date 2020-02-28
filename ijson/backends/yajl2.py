@@ -29,8 +29,8 @@ _callback_data = [
     ('boolean', C_INT, lambda v: bool(v)),
     # "integer" and "double" aren't actually yielded by yajl since "number"
     # takes precedence if defined
-    ('integer', C_LONG, lambda v, l: int(string_at(v, l))),
-    ('double', C_DOUBLE, lambda v, l: float(string_at(v, l))),
+    ('integer', C_LONG, lambda *_args: None),
+    ('double', C_DOUBLE, lambda *_args: None),
     ('number', C_STR, lambda v, l: common.number(b2s(string_at(v, l)))),
     ('string', C_STR, lambda v, l: string_at(v, l).decode('utf-8')),
     ('start_map', C_EMPTY, lambda: None),

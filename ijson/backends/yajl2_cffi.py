@@ -97,18 +97,6 @@ def boolean(val):
     return bool(val)
 
 
-@ffi.callback('int(void *ctx, long long integerVal)')
-@append_event_to_ctx('integer')
-def integer(val):
-    return int(val)
-
-
-@ffi.callback('int(void *ctx, double doubleVal)')
-@append_event_to_ctx('double')
-def double(val):
-    return float(val)
-
-
 @ffi.callback('int(void *ctx, const char *numberVal, size_t numberLen)')
 @append_event_to_ctx('number')
 def number(val, length):
@@ -154,7 +142,7 @@ def end_array():
 _callback_data = (
     # For more information about callbacks,
     # take a look at the ctypes backend
-    null, boolean, integer, double, number, string,
+    null, boolean, ffi.NULL, ffi.NULL, number, string,
     start_map, map_key, end_map, start_array, end_array
 )
 

@@ -45,18 +45,6 @@ static int boolean(void * ctx, int val) {
 	return add_event_and_value(ctx, enames.boolean_ename, bval);
 }
 
-static int integer(void * ctx, long long integerVal) {
-	PyObject *val;
-	Z_N(val = PyLong_FromLongLong(integerVal));
-	return add_event_and_value(ctx, enames.integer_ename, val);
-}
-
-static int double_cb(void * ctx, double doubleVal) {
-	PyObject *val;
-	Z_N(val = PyFloat_FromDouble(doubleVal));
-	return add_event_and_value(ctx, enames.double_ename, val);
-}
-
 static int number(void * ctx, const char *numberVal, size_t numberLen) {
 
 	// If original string has a dot or an "e/E" we return a Decimal
@@ -131,7 +119,7 @@ static int end_array(void *ctx) {
 }
 
 static yajl_callbacks callbacks = {
-	null, boolean, integer, double_cb, number, string_cb,
+	null, boolean, NULL, NULL, number, string_cb,
 	start_map, map_key, end_map, start_array, end_array
 };
 
