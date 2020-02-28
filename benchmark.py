@@ -148,17 +148,23 @@ def run_benchmarks(args, benchmark_func=None, fname=None):
     for backend_name, backend in args.backends.items():
 
         # Get correct method and prepare its arguments
-        method = args.method + '_async' if args.run_async else args.method
+        method = args.method
+        if args.run_async:
+            method += '_async'
+        elif args.run_coro:
+            method += '_coro'
         method = getattr(backend, method)
         method_args = ()
         if args.method in ('items', 'kvitems'):
             method_args = args.prefix,
         method_kwargs = {
             'multiple_values': args.multiple_values,
-            'buf_size': args.bufsize
         }
+        if not args.run_coro:
+            method_kwargs['buf_size'] = args.bufsize
 
         # Prepare reader
+        reader = None
         if not benchmark_func:
             reader = open(fname, 'rb')
         else:
@@ -173,6 +179,20 @@ def run_benchmarks(args, benchmark_func=None, fname=None):
                     loop.run_until_complete(_run_async(method, reader, *method_args, **method_kwargs))
                 finally:
                     loop.close()
+        elif args.run_coro:
+            def run():
+                from ijson.utils import sendable_list
+                events = sendable_list()
+                coro = method(events, *method_args, **method_kwargs)
+                if reader:
+                    chunks = iter(lambda: reader.read(args.bufsize), b'')
+                else:
+                    chunks = (data[pos:pos + args.bufsize]
+                              for pos in range(0, len(data), args.bufsize))
+                for chunk in chunks:
+                    coro.send(chunk)
+                    del events[:]
+                coro.close()
         else:
             def run():
                 for _ in method(reader, *method_args, **method_kwargs):
@@ -215,6 +235,8 @@ def main():
         help='Content has multiple JSON values, useful when used with -i')
     parser.add_argument('-M', '--method', choices=['basic_parse', 'parse', 'kvitems', 'items'],
                         help='The method to benchmark', default='basic_parse')
+    parser.add_argument('-c', '--coro', action='store_true', default=False,
+                        dest='run_coro', help='Benchmark coroutine methods')
     if compat.IS_PY35:
         parser.add_argument('-a', '--async', action='store_true', default=False,
                             dest='run_async', help='Benchmark asyncio-enabled methods')
