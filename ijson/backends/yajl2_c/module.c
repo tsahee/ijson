@@ -28,6 +28,17 @@ static PyMethodDef yajl2_methods[] = {
 	{NULL, NULL, 0, NULL}        /* Sentinel */
 };
 
+PyObject* ijson_return_self(PyObject *self)
+{
+	Py_INCREF(self);
+	return self;
+}
+
+PyObject* ijson_return_none(PyObject *self)
+{
+	Py_RETURN_NONE;
+}
+
 /* Module initialization */
 
 /* Support for Python 2/3 */

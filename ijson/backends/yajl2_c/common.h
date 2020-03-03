@@ -79,4 +79,10 @@ extern PyObject *Decimal;
 		} \
 	}
 
+/* Common function used by __iter__ method in coroutines/generators */
+PyObject* ijson_return_self(PyObject *self);
+
+/* Common function used by empty methods in coroutines/generators */
+PyObject* ijson_return_none(PyObject *self);
+
 #endif /* COMMON_H */
