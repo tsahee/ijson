@@ -40,17 +40,6 @@ static void items_basecoro_dealloc(ItemsBasecoro *self)
 	Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
-static PyObject* items_basecoro_iter(PyObject *self)
-{
-	Py_INCREF(self);
-	return self;
-}
-
-static PyObject* items_basecoro_iternext(PyObject *self)
-{
-	Py_RETURN_NONE;
-}
-
 PyObject* items_basecoro_send_impl(PyObject *self, PyObject *path, PyObject *event, PyObject *value)
 {
 	ItemsBasecoro *coro = (ItemsBasecoro *)self;
@@ -113,7 +102,7 @@ PyTypeObject ItemsBasecoro_Type = {
 	.tp_init = (initproc)items_basecoro_init,
 	.tp_dealloc = (destructor)items_basecoro_dealloc,
 	.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_ITER,
-	.tp_iter = items_basecoro_iter,
-	.tp_iternext = items_basecoro_iternext,
+	.tp_iter = ijson_return_self,
+	.tp_iternext = ijson_return_none,
 	.tp_methods = items_basecoro_methods
 };

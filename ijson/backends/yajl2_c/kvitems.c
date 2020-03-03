@@ -39,12 +39,6 @@ static void kvitemsgen_dealloc(KVItemsGen *self)
 	Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
-static PyObject* kvitemsgen_iter(PyObject *self)
-{
-	Py_INCREF(self);
-	return self;
-}
-
 static PyObject* kvitemsgen_iternext(PyObject *self)
 {
 	KVItemsGen *gen = (KVItemsGen *)self;
@@ -66,6 +60,6 @@ PyTypeObject KVItemsGen_Type = {
 	.tp_init = (initproc)kvitemsgen_init,
 	.tp_dealloc = (destructor)kvitemsgen_dealloc,
 	.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_ITER,
-	.tp_iter = kvitemsgen_iter,
+	.tp_iter = ijson_return_self,
 	.tp_iternext = kvitemsgen_iternext
 };

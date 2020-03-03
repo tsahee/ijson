@@ -32,11 +32,6 @@ static void parsegen_dealloc(ParseGen *self) {
 	Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
-static PyObject* parsegen_iter(PyObject *self) {
-	Py_INCREF(self);
-	return self;
-}
-
 static PyObject* parsegen_iternext(PyObject *self)
 {
 	ParseGen *gen = (ParseGen *)self;
@@ -55,6 +50,6 @@ PyTypeObject ParseGen_Type = {
 	.tp_init = (initproc)parsegen_init,
 	.tp_dealloc = (destructor)parsegen_dealloc,
 	.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_ITER,
-	.tp_iter = parsegen_iter,
+	.tp_iter = ijson_return_self,
 	.tp_iternext = parsegen_iternext
 };

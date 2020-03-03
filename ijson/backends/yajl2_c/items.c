@@ -39,12 +39,6 @@ static void itemsgen_dealloc(ItemsGen *self)
 	Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
-static PyObject* itemsgen_iter(PyObject *self)
-{
-	Py_INCREF(self);
-	return self;
-}
-
 static PyObject* itemsgen_iternext(PyObject *self)
 {
 	ItemsGen *gen = (ItemsGen *)self;
@@ -66,6 +60,6 @@ PyTypeObject ItemsGen_Type = {
 	.tp_init = (initproc)itemsgen_init,
 	.tp_dealloc = (destructor)itemsgen_dealloc,
 	.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_ITER,
-	.tp_iter = itemsgen_iter,
+	.tp_iter = ijson_return_self,
 	.tp_iternext = itemsgen_iternext
 };

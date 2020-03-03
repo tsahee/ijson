@@ -39,23 +39,12 @@ static void parse_basecoro_dealloc(ParseBasecoro *self)
 	Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
-static PyObject* parse_basecoro_iter(PyObject *self)
-{
-	Py_INCREF(self);
-	return self;
-}
-
 #define CONCAT(tgt, first, second) \
 	do { \
 		tgt = PyUnicode_Concat(first, second); \
 		Py_DECREF(first); \
 		N_N(tgt); \
 	} while(0);
-
-static PyObject* parse_basecoro_iternext(PyObject *self)
-{
-	Py_RETURN_NONE;
-}
 
 PyObject* parse_basecoro_send_impl(PyObject *self, PyObject *event, PyObject *value)
 {
@@ -156,7 +145,7 @@ PyTypeObject ParseBasecoro_Type = {
 	.tp_init = (initproc)parse_basecoro_init,
 	.tp_dealloc = (destructor)parse_basecoro_dealloc,
 	.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_ITER,
-	.tp_iter = parse_basecoro_iter,
-	.tp_iternext = parse_basecoro_iternext,
+	.tp_iter = ijson_return_self,
+	.tp_iternext = ijson_return_none,
 	.tp_methods = parse_basecoro_methods
 };

@@ -41,17 +41,6 @@ static void kvitems_basecoro_dealloc(KVItemsBasecoro *self)
 	Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
-static PyObject* kvitems_basecoro_iter(PyObject *self)
-{
-	Py_INCREF(self);
-	return self;
-}
-
-static PyObject* kvitems_basecoro_iternext(PyObject *self)
-{
-	Py_RETURN_NONE;
-}
-
 PyObject* kvitems_basecoro_send_impl(PyObject *self, PyObject *path, PyObject *event, PyObject *value)
 {
 	KVItemsBasecoro *coro = (KVItemsBasecoro *)self;
@@ -128,7 +117,7 @@ PyTypeObject KVItemsBasecoro_Type = {
 	.tp_init = (initproc)kvitems_basecoro_init,
 	.tp_dealloc = (destructor)kvitems_basecoro_dealloc,
 	.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_ITER,
-	.tp_iter = kvitems_basecoro_iter,
-	.tp_iternext = kvitems_basecoro_iternext,
+	.tp_iter = ijson_return_self,
+	.tp_iternext = ijson_return_none,
 	.tp_methods = kvitems_basecoro_methods
 };
