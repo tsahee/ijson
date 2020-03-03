@@ -1,6 +1,6 @@
 # Changelog
 
-## Development version
+## [3.0rc2]
 
 * Fixed known problem with 3.0rc1,
   namely checking that asynchronous files are opened
@@ -109,3 +109,4 @@
 [2.6.0]: https://github.com/ICRAR/ijson/releases/tag/v2.6.0
 [2.6.1]: https://github.com/ICRAR/ijson/releases/tag/v2.6.1
 [3.0rc1]: https://github.com/ICRAR/ijson/releases/tag/v3.0rc1
+[3.0rc2]: https://github.com/ICRAR/ijson/releases/tag/v3.0rc2
