@@ -25,7 +25,7 @@
  * */
 #define RETURN_X_IF_COND(statement, X, cond) \
 	do { \
-		if( (statement) cond ) { \
+		if ((statement) cond) { \
 			return X; \
 		} \
 	} while(0);
@@ -36,7 +36,7 @@
 #define N_M1(stmt)    RETURN_X_IF_COND(stmt, NULL, == -1)
 #define N_N(stmt)     RETURN_X_IF_COND(stmt, NULL, == NULL)
 #define N_Z(stmt)     RETURN_X_IF_COND(stmt, NULL, == 0)
-#define N_NZ(stmt)     RETURN_X_IF_COND(stmt, NULL, != 0)
+#define N_NZ(stmt)    RETURN_X_IF_COND(stmt, NULL, != 0)
 #define Z_M1(stmt)    RETURN_X_IF_COND(stmt,    0, == -1)
 #define Z_N(stmt)     RETURN_X_IF_COND(stmt,    0, == NULL)
 #define Z_NZ(stmt)    RETURN_X_IF_COND(stmt,    0, != 0)
