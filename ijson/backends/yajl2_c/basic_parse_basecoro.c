@@ -201,21 +201,13 @@ static PyObject* basic_parse_basecoro_iternext(PyObject *self)
 	Py_RETURN_NONE;
 }
 
-static PyObject* basic_parse_basecoro_send(PyObject *self, PyObject *args)
+static PyObject* basic_parse_basecoro_send(PyObject *self, PyObject *arg)
 {
 	/* Preempt our execution, which might be very long */
 //	N_M1(PyErr_CheckSignals());
 
 	Py_buffer bufview;
-	const char *format =
-#if PY_MAJOR_VERSION >= 3
-	"y*"
-#else
-	"s*"
-#endif
-	":send";
-
-	N_Z(PyArg_ParseTuple(args, format, &bufview));
+	N_M1(PyObject_GetBuffer(arg, &bufview, PyBUF_SIMPLE));
 	BasicParseBasecoro *gen = (BasicParseBasecoro *)self;
 	PyObject *ret = ijson_yajl_parse(gen->h, bufview.buf, bufview.len);
 	if (ret != NULL && bufview.len == 0) {
@@ -235,8 +227,8 @@ static PyObject* basic_parse_basecoro_close(PyObject *self, PyObject *args)
 }
 
 static PyMethodDef basic_parse_basecoro_methods[] = {
-	{"send", basic_parse_basecoro_send, METH_VARARGS, "coroutine's send method"},
-	{"close", basic_parse_basecoro_close, METH_VARARGS, "coroutine's close method"},
+	{"send", basic_parse_basecoro_send, METH_O, "coroutine's send method"},
+	{"close", basic_parse_basecoro_close, METH_NOARGS, "coroutine's close method"},
 	{NULL, NULL, 0, NULL}
 };
 

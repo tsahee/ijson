@@ -131,16 +131,15 @@ PyObject* parse_basecoro_send_impl(PyObject *self, PyObject *event, PyObject *va
 	Py_RETURN_NONE;
 }
 
-static PyObject* parse_basecoro_send(PyObject *self, PyObject *args)
+static PyObject* parse_basecoro_send(PyObject *self, PyObject *tuple)
 {
-	PyObject *tuple = PyTuple_GetItem(args, 0);
 	PyObject *event = PyTuple_GetItem(tuple, 0);
 	PyObject *value = PyTuple_GetItem(tuple, 1);
 	return parse_basecoro_send_impl(self, event, value);
 }
 
 static PyMethodDef parse_basecoro_methods[] = {
-	{"send", parse_basecoro_send, METH_VARARGS, "coroutine's send method"},
+	{"send", parse_basecoro_send, METH_O, "coroutine's send method"},
 	{NULL, NULL, 0, NULL}
 };
 

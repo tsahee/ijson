@@ -100,9 +100,8 @@ PyObject* kvitems_basecoro_send_impl(PyObject *self, PyObject *path, PyObject *e
 	Py_RETURN_NONE;
 }
 
-static PyObject* kvitems_basecoro_send(PyObject *self, PyObject *args)
+static PyObject* kvitems_basecoro_send(PyObject *self, PyObject *tuple)
 {
-	PyObject *tuple = PyTuple_GetItem(args, 0);
 	PyObject *path  = PyTuple_GetItem(tuple, 0);
 	PyObject *event = PyTuple_GetItem(tuple, 1);
 	PyObject *value = PyTuple_GetItem(tuple, 2);
@@ -110,7 +109,7 @@ static PyObject* kvitems_basecoro_send(PyObject *self, PyObject *args)
 }
 
 static PyMethodDef kvitems_basecoro_methods[] = {
-	{"send", kvitems_basecoro_send, METH_VARARGS, "coroutine's send method"},
+	{"send", kvitems_basecoro_send, METH_O, "coroutine's send method"},
 	{NULL, NULL, 0, NULL}
 };
 
