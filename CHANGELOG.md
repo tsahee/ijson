@@ -1,5 +1,21 @@
 # Changelog
 
+## Development version
+
+* Fixed known problem with 3.0rc1,
+  namely checking that asynchronous files are opened
+  in the correct mode (i.e., binary).
+* Improved the protocol for user-facing coroutines,
+  where instead of having to send a final, empty bytes string
+  to finish the parsing process
+  users can simply call ``.close()`` on the coroutine.
+* Greatly increased testing of user-facing coroutines,
+  which in turn uncovered problems that were fixed.
+* Adding ability to benchmark coroutines
+  with ``benchmark.py``.
+* Including C code in coverage measurements,
+  and increased overall code coverage up to 99%.
+
 ## [3.0rc1]
 
 * Full re-design of ijson:
