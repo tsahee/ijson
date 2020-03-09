@@ -392,6 +392,13 @@ class IJsonTestsBase(object):
             else:
                 self.assertEqual(result, JSON_EVENTS + JSON_EVENTS + JSON_EVENTS)
 
+    def test_comments(self):
+        json = b'{"a": 2 /* a comment */}'
+        try:
+            self.all(self.basic_parse, json, allow_comments=True)
+        except ValueError:
+            if self.supports_comments:
+                raise
 
 class GeneratorSpecificTests(object):
     '''
@@ -503,6 +510,7 @@ def generate_test_cases(module, base_class):
                     'backend_name': name,
                     'backend': import_module('ijson.backends.%s' % name),
                     'supports_multiple_values': name != 'yajl',
+                    'supports_comments': name != 'python',
                     'warn_on_string_stream': name != 'python' and not IS_PY2,
                     'inputiter': bytesiter if name != 'python' else striter,
                 },
