@@ -400,7 +400,18 @@ class IJsonTestsBase(object):
             if self.supports_comments:
                 raise
 
-class GeneratorSpecificTests(object):
+class FileBasedTests(object):
+
+    def test_string_stream(self):
+        with warnings.catch_warnings(record=True) as warns:
+            events = self.all(self.basic_parse, b2s(JSON))
+            self.assertEqual(events, JSON_EVENTS)
+        if self.warn_on_string_stream:
+            self.assertEqual(len(warns), 1)
+            self.assertEqual(DeprecationWarning, warns[0].category)
+
+
+class GeneratorSpecificTests(FileBasedTests):
     '''
     Base class for parsing tests that is used to create test cases for each
     available backends.
@@ -427,14 +438,6 @@ class GeneratorSpecificTests(object):
         buf_size = JSON.index(b'   ') + 1
         events = self.all(self.basic_parse, JSON, buf_size=buf_size)
         self.assertEqual(events, JSON_EVENTS)
-
-    def test_string_stream(self):
-        with warnings.catch_warnings(record=True) as warns:
-            events = self.all(self.basic_parse, b2s(JSON))
-            self.assertEqual(events, JSON_EVENTS)
-        if self.warn_on_string_stream:
-            self.assertEqual(len(warns), 1)
-            self.assertEqual(DeprecationWarning, warns[0].category)
 
     def test_item_building_greediness(self):
         self._test_item_iteration_validity(BytesIO)
@@ -528,7 +531,8 @@ generate_test_cases(globals(), Generators)
 generate_test_cases(globals(), Coroutines)
 if compat.IS_PY35:
     import tests_asyncio
-    generate_test_cases(globals(), tests_asyncio.Async)
+    Async = type('Async', (tests_asyncio.Async, FileBasedTests), {})
+    generate_test_cases(globals(), Async)
 
 if __name__ == '__main__':
     unittest.main()
