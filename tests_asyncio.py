@@ -3,10 +3,15 @@
 import asyncio
 import io
 
+from ijson import compat
+
 
 class AsyncReader(object):
     def __init__(self, data):
-        self.data = io.BytesIO(data)
+        if type(data) == compat.bytetype:
+            self.data = io.BytesIO(data)
+        else:
+            self.data = io.StringIO(data)
 
     async def read(self, n=-1):
         return self.data.read(n)

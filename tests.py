@@ -430,7 +430,7 @@ class GeneratorSpecificTests(object):
 
     def test_string_stream(self):
         with warnings.catch_warnings(record=True) as warns:
-            events = list(self.backend.basic_parse(StringIO(b2s(JSON))))
+            events = self.all(self.basic_parse, b2s(JSON))
             self.assertEqual(events, JSON_EVENTS)
         if self.warn_on_string_stream:
             self.assertEqual(len(warns), 1)
@@ -486,11 +486,16 @@ class Generators(GeneratorSpecificTests):
 
     suffix = ''
 
+    def _reader(self, json):
+        if type(json) == compat.bytetype:
+            return BytesIO(json)
+        return StringIO(json)
+
     def all(self, routine, json_content, *args, **kwargs):
-        return list(routine(BytesIO(json_content), *args, **kwargs))
+        return list(routine(self._reader(json_content), *args, **kwargs))
 
     def first(self, routine, json_content, *args, **kwargs):
-        return next(routine(BytesIO(json_content), *args, **kwargs))
+        return next(routine(self._reader(json_content), *args, **kwargs))
 
 
 def generate_test_cases(module, base_class):
