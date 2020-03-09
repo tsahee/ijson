@@ -235,7 +235,7 @@ def parse_string(symbol):
     return scanstring(symbol, 1)[0]
 
 
-def basic_parse_basecoro(target, multiple_values=False):
+def basic_parse_basecoro(target, multiple_values=False, allow_comments=False):
     '''
     Iterator yielding unprefixed events.
 
@@ -243,6 +243,8 @@ def basic_parse_basecoro(target, multiple_values=False):
 
     - file: a readable file-like object with JSON input
     '''
+    if allow_comments:
+        raise ValueError("Comments are not supported by the python backend")
     return Lexer(parse_value(target, multiple_values))
 
 
