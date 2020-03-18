@@ -14,6 +14,8 @@
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 
+#include "coro_utils.h"
+
 /**
  * reading_generator_t type definition
  */
@@ -28,15 +30,6 @@ typedef struct _reading_generator {
 } reading_generator_t;
 
 /**
- * A tuple defining how to create an object
- */
-typedef struct _object_creation_info {
-	PyTypeObject *type;
-	PyObject *args;
-	PyObject *kwargs;
-} object_creation_info;
-
-/**
  * Initialises a reading_generator_t object from the given arguments, which
  * should contain a file-like object and a buffer size (optional).
  *
@@ -47,7 +40,7 @@ typedef struct _object_creation_info {
  *  events to the events list
  * @return 0 if successful, -1 in case of an error
  */
-int reading_generator_init(reading_generator_t *self, PyObject *args, object_creation_info *coro_pipeline);
+int reading_generator_init(reading_generator_t *self, PyObject *args, pipeline_node *coro_pipeline);
 
 /**
  * Deallocates all resources associated to the given reading_generator_t object.

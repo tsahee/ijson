@@ -18,7 +18,7 @@
  */
 static int parsegen_init(ParseGen *self, PyObject *args, PyObject *kwargs)
 {
-	object_creation_info coro_pipeline[] = {
+	pipeline_node coro_pipeline[] = {
 		{&ParseBasecoro_Type, NULL, NULL},
 		{&BasicParseBasecoro_Type, NULL, kwargs},
 		{NULL}

@@ -15,35 +15,7 @@
 #include "reading_generator.h"
 
 
-static PyObject *chain(PyObject *sink, object_creation_info *coro_pipeline)
-{
-	PyObject *coro = sink;
-	int element = 0;
-	while (1) {
-		object_creation_info coro_info = coro_pipeline[element++];
-		if (coro_info.type == NULL) {
-			break;
-		}
-		PyObject *coro_args;
-		if (coro_info.args) {
-			int nargs = PyTuple_Size(coro_info.args);
-			N_N(coro_args = PyTuple_New(nargs + 1));
-			PyTuple_SET_ITEM(coro_args, 0, coro);
-			int i;
-			for (i = 0; i != nargs; i++) {
-				PyTuple_SET_ITEM(coro_args, i + 1, PySequence_GetItem(coro_info.args, i));
-			}
-		}
-		else {
-			N_N(coro_args = PyTuple_Pack(1, coro));
-		}
-		N_N(coro = PyObject_Call((PyObject *)coro_info.type, coro_args, coro_info.kwargs));
-		Py_DECREF(coro_args);
-	}
-	return coro;
-}
-
-int reading_generator_init(reading_generator_t *self, PyObject *args, object_creation_info *coro_pipeline)
+int reading_generator_init(reading_generator_t *self, PyObject *args, pipeline_node *coro_pipeline)
 {
 	PyObject *file;
 	Py_ssize_t buf_size = 64 * 1024;

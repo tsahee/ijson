@@ -21,7 +21,7 @@ static int itemsgen_init(ItemsGen *self, PyObject *args, PyObject *kwargs)
 {
 	PyObject *reading_args = PySequence_GetSlice(args, 0, 2);
 	PyObject *items_args = PyTuple_Pack(2, PySequence_GetItem(args, 2), PySequence_GetItem(args, 3));
-	object_creation_info coro_pipeline[] = {
+	pipeline_node coro_pipeline[] = {
 		{&ItemsBasecoro_Type, items_args, NULL},
 		{&ParseBasecoro_Type, NULL, NULL},
 		{&BasicParseBasecoro_Type, NULL, kwargs},
