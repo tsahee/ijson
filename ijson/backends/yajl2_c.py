@@ -21,6 +21,10 @@ def basic_parse(file, **kwargs):
     buf_size = kwargs.pop('buf_size', 64 * 1024)
     return _yajl2.basic_parse(f, buf_size, **kwargs)
 
+def basic_parse_async(file, **kwargs):
+    buf_size = kwargs.pop('buf_size', 64 * 1024)
+    return _yajl2.basic_parse_async(file, buf_size, **kwargs)
+
 @utils.coroutine
 def parse_basecoro(target, **kwargs):
     return _yajl2.parse_basecoro(target.send, **kwargs)
