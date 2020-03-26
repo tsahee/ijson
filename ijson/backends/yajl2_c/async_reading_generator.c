@@ -136,11 +136,7 @@ static PyObject *async_reading_generator_next(PyObject *self)
 	Py_XDECREF(ptraceback);
 
 	Py_buffer view;
-	int conv = PyObject_GetBuffer(buffer, &view, PyBUF_SIMPLE);
-	if (conv < 0) {
-		Py_DECREF(buffer);
-		return NULL;
-	}
+	N_M1(PyObject_GetBuffer(buffer, &view, PyBUF_SIMPLE));
 	gen->file_exhausted = (view.len == 0);
 	BasicParseBasecoro *basic_parse_basecoro = (BasicParseBasecoro *)gen->coro;
 	PyObject *res = ijson_yajl_parse(basic_parse_basecoro->h, view.buf, view.len);
