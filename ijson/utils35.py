@@ -34,15 +34,15 @@ class string_reader_async(compat.utf8reader):
                 break
         return sdata
 
-async def _check_file_reader(f, use_string_reader):
-    """Returns an asynchronous file-like object that reads bytes"""
+async def _get_read(f, use_string_reader=False):
+    """Returns an awaitable read function that reads the requested type"""
     if use_string_reader:
         if type(await f.read(0)) == compat.bytetype:
             f = string_reader_async(f)
-        return f
+        return f.read
     if type(await f.read(0)) == compat.bytetype:
-        return f
-    return compat._warn_and_return(utf8reader_async(f))
+        return f.read
+    return compat._warn_and_return(utf8reader_async(f).read)
 
 class sendable_deque(collections.deque):
     '''Like utils.sendable_list, but for deque objects'''
@@ -62,21 +62,20 @@ class async_iterable(object):
         self.f = f
         self.buf_size = buf_size
         self.use_string_reader = use_string_reader
-        self.checked_file = False
+        self.read = None
 
     def __aiter__(self):
         return self
 
     async def __anext__(self):
-        if not self.checked_file:
-            self.f = await _check_file_reader(self.f, self.use_string_reader)
-            self.checked_file = True
+        if not self.read:
+            self.read = await _get_read(self.f, self.use_string_reader)
         if self.events:
             return self.events.popleft()
         if self.coro_finished:
             raise StopAsyncIteration
         while True:
-            data = await self.f.read(self.buf_size)
+            data = await self.read(self.buf_size)
             try:
                 self.coro.send(data)
                 if self.events:
