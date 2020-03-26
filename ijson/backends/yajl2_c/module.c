@@ -9,6 +9,7 @@
  */
 
 #include "common.h"
+#include "async_reading_generator.h"
 #include "basic_parse.h"
 #include "basic_parse_basecoro.h"
 #include "parse.h"
@@ -77,6 +78,9 @@ MOD_INIT(_yajl2)
 	ADD_TYPE("kvitems", KVItemsGen_Type);
 	ADD_TYPE("items_basecoro", ItemsBasecoro_Type);
 	ADD_TYPE("items", ItemsGen_Type);
+#if PY_VERSION_HEX >= 0x03050000
+	ADD_TYPE("_async_reading_iterator", AsyncReadingGeneratorType);
+#endif // PY_VERSION_HEX >= 0x03050000
 
 	dot = STRING_FROM_UTF8(".", 1);
 	item = STRING_FROM_UTF8("item", 4);
