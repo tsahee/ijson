@@ -19,6 +19,7 @@
 #include "items.h"
 #include "items_basecoro.h"
 #include "kvitems.h"
+#include "kvitems_async.h"
 #include "kvitems_basecoro.h"
 
 enames_t enames;
@@ -84,6 +85,7 @@ MOD_INIT(_yajl2)
 	ADD_TYPE("_async_reading_iterator", AsyncReadingGeneratorType);
 	ADD_TYPE("basic_parse_async", BasicParseAsync_Type);
 	ADD_TYPE("parse_async", ParseAsync_Type);
+	ADD_TYPE("kvitems_async", KVItemsAsync_Type);
 #endif // PY_VERSION_HEX >= 0x03050000
 
 	dot = STRING_FROM_UTF8(".", 1);

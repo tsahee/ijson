@@ -47,6 +47,10 @@ def kvitems(file, prefix, map_type=None, **kwargs):
     buf_size = kwargs.pop('buf_size', 64 * 1024)
     return _yajl2.kvitems(f, buf_size, prefix, map_type, **kwargs)
 
+def kvitems_async(file, prefix, map_type=None, **kwargs):
+    buf_size = kwargs.pop('buf_size', 64 * 1024)
+    return _yajl2.kvitems_async(file, buf_size, prefix, map_type, **kwargs)
+
 @utils.coroutine
 def items_basecoro(target, prefix, map_type=None, **kwargs):
     return _yajl2.items_basecoro(target.send, prefix, map_type, **kwargs)
