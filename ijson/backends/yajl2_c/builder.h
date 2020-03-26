@@ -12,6 +12,7 @@
 #define BUILDER_H
 
 #include <assert.h>
+#include "common.h"
 
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
