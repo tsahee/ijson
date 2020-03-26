@@ -317,5 +317,6 @@ def enrich_backend(backend, use_string_reader=False):
         if compat.IS_PY35:
             from . import utils35
             async_name = gen_name + '_async'
-            factory = getattr(utils35, '_make_' + async_name)
-            backend[async_name] = factory(backend, use_string_reader)
+            if async_name not in backend:
+                factory = getattr(utils35, '_make_' + async_name)
+                backend[async_name] = factory(backend, use_string_reader)
