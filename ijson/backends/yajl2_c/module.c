@@ -17,6 +17,7 @@
 #include "parse_async.h"
 #include "parse_basecoro.h"
 #include "items.h"
+#include "items_async.h"
 #include "items_basecoro.h"
 #include "kvitems.h"
 #include "kvitems_async.h"
@@ -86,6 +87,7 @@ MOD_INIT(_yajl2)
 	ADD_TYPE("basic_parse_async", BasicParseAsync_Type);
 	ADD_TYPE("parse_async", ParseAsync_Type);
 	ADD_TYPE("kvitems_async", KVItemsAsync_Type);
+	ADD_TYPE("items_async", ItemsAsync_Type);
 #endif // PY_VERSION_HEX >= 0x03050000
 
 	dot = STRING_FROM_UTF8(".", 1);

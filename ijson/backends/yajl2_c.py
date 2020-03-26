@@ -60,4 +60,8 @@ def items(file, prefix, map_type=None, **kwargs):
     buf_size = kwargs.pop('buf_size', 64 * 1024)
     return _yajl2.items(f, buf_size, prefix, map_type, **kwargs)
 
+def items_async(file, prefix, map_type=None, **kwargs):
+    buf_size = kwargs.pop('buf_size', 64 * 1024)
+    return _yajl2.items_async(file, buf_size, prefix, map_type, **kwargs)
+
 common.enrich_backend(globals())
