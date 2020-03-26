@@ -410,6 +410,11 @@ class FileBasedTests(object):
             self.assertEqual(len(warns), 1)
             self.assertEqual(DeprecationWarning, warns[0].category)
 
+    def test_different_buf_sizes(self):
+        for buf_size in (1, 4, 16, 64, 256, 1024, 4098):
+            events = self.all(self.basic_parse, JSON, buf_size=buf_size)
+            self.assertEqual(events, JSON_EVENTS)
+
 
 class GeneratorSpecificTests(FileBasedTests):
     '''
