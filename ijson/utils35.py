@@ -1,6 +1,7 @@
 '''
 Python3.5+ specific utilities
 '''
+import codecs
 import collections
 
 from ijson import utils, common, compat
@@ -17,12 +18,21 @@ class utf8reader_async(compat.utf8reader):
 
 class string_reader_async(compat.utf8reader):
     """
-    Takes a utf8-encoded string asynchronous reader and asynchronously reads
-    bytes out of it
+    Takes an asynchronous utf-8 bytes reader and asynchronously reads strings
+    out of it
     """
+
+    def __init__(self, *args, **kwargs):
+        super(string_reader_async, self).__init__(*args, **kwargs)
+        self.decoder = codecs.getincrementaldecoder('utf-8')()
+
     async def read(self, n):
-        data = await self.str_reader.read(n)
-        return data.decode('utf-8')
+        while True:
+            bdata = await self.str_reader.read(n)
+            sdata = self.decoder.decode(bdata)
+            if bool(bdata) == bool(sdata):
+                break
+        return sdata
 
 async def _check_file_reader(f, use_string_reader):
     """Returns an asynchronous file-like object that reads bytes"""
