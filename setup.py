@@ -86,7 +86,7 @@ if platform.python_implementation() == 'CPython':
     if yajl_present():
         yajl_ext = Extension('ijson.backends._yajl2',
                              language='c',
-                             sources = glob.glob('ijson/backends/yajl2_c/*.c'),
+                             sources = sorted(glob.glob('ijson/backends/yajl2_c/*.c')),
                              include_dirs = ['ijson/backends/yajl2_c'],
                              libraries = ['yajl'])
         setupArgs['ext_modules'] = [yajl_ext]
