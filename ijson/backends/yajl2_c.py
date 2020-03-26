@@ -34,6 +34,10 @@ def parse(file, **kwargs):
     buf_size = kwargs.pop('buf_size', 64 * 1024)
     return _yajl2.parse(f, buf_size, **kwargs)
 
+def parse_async(file, **kwargs):
+    buf_size = kwargs.pop('buf_size', 64 * 1024)
+    return _yajl2.parse_async(file, buf_size, **kwargs)
+
 @utils.coroutine
 def kvitems_basecoro(target, prefix, map_type=None, **kwargs):
     return _yajl2.kvitems_basecoro(target.send, prefix, map_type, **kwargs)

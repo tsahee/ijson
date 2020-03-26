@@ -14,6 +14,7 @@
 #include "basic_parse_async.h"
 #include "basic_parse_basecoro.h"
 #include "parse.h"
+#include "parse_async.h"
 #include "parse_basecoro.h"
 #include "items.h"
 #include "items_basecoro.h"
@@ -82,6 +83,7 @@ MOD_INIT(_yajl2)
 #if PY_VERSION_HEX >= 0x03050000
 	ADD_TYPE("_async_reading_iterator", AsyncReadingGeneratorType);
 	ADD_TYPE("basic_parse_async", BasicParseAsync_Type);
+	ADD_TYPE("parse_async", ParseAsync_Type);
 #endif // PY_VERSION_HEX >= 0x03050000
 
 	dot = STRING_FROM_UTF8(".", 1);
