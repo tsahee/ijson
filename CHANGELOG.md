@@ -1,6 +1,6 @@
 # Changelog
 
-## Development version
+## [3.0rc3]
 
 * Implemented all asynchronous iterables (i.e., ``*_async`` functions)
   in C for the ``yajl2_c`` backend for increased performance.
@@ -117,3 +117,4 @@
 [2.6.1]: https://github.com/ICRAR/ijson/releases/tag/v2.6.1
 [3.0rc1]: https://github.com/ICRAR/ijson/releases/tag/v3.0rc1
 [3.0rc2]: https://github.com/ICRAR/ijson/releases/tag/v3.0rc2
+[3.0rc3]: https://github.com/ICRAR/ijson/releases/tag/v3.0rc3
