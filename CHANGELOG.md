@@ -1,5 +1,12 @@
 # Changelog
 
+## Development version
+
+* Implemented all asynchronous iterables (i.e., ``*_async`` functions)
+  in C for the ``yajl2_c`` backend for increased performance.
+* Adding Windows builds via AppVeyor, generating binary wheels
+  for Python 3.5+.
+
 ## [3.0rc2]
 
 * Fixed known problem with 3.0rc1,
