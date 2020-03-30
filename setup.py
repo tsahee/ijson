@@ -83,12 +83,23 @@ def yajl_present():
 
 # Conditional compilation of the yajl_c backend
 if platform.python_implementation() == 'CPython':
-    if yajl_present():
+    extra_sources = []
+    extra_include_dirs = []
+    libs = ['yajl']
+    embed_yajl = os.environ.get('IJSON_EMBED_YAJL', None) == '1'
+    if not embed_yajl:
+        have_yajl = yajl_present()
+    else:
+        extra_sources = sorted(glob.glob(os.path.join('yajl', 'src', '*.c')))
+        extra_sources.remove(os.path.join('yajl', 'src', 'yajl_version.c'))
+        extra_include_dirs = ['yajl', os.path.join('yajl', 'src')]
+        libs = []
+    if embed_yajl or have_yajl:
         yajl_ext = Extension('ijson.backends._yajl2',
                              language='c',
-                             sources = sorted(glob.glob('ijson/backends/yajl2_c/*.c')),
-                             include_dirs = ['ijson/backends/yajl2_c'],
-                             libraries = ['yajl'])
+                             sources=sorted(glob.glob('ijson/backends/yajl2_c/*.c')) + extra_sources,
+                             include_dirs=['ijson/backends/yajl2_c'] + extra_include_dirs,
+                             libraries=libs)
         setupArgs['ext_modules'] = [yajl_ext]
 
 setup(**setupArgs)
