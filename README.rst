@@ -1,6 +1,9 @@
 .. image:: https://travis-ci.com/ICRAR/ijson.svg?branch=master
     :target: https://travis-ci.com/ICRAR/ijson
 
+.. image:: https://ci.appveyor.com/api/projects/status/32wiho6ojw3eakp8/branch/master?svg=true
+    :target: https://ci.appveyor.com/project/rtobar/ijson/branch/master
+
 .. image:: https://coveralls.io/repos/github/ICRAR/ijson/badge.svg?branch=master
     :target: https://coveralls.io/github/ICRAR/ijson?branch=master
 
