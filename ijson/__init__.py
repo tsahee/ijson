@@ -15,7 +15,7 @@ the same API and are faster under CPython.
 '''
 from ijson.common import JSONError, IncompleteJSONError, ObjectBuilder, compat
 
-from ijson.utils import coroutine
+from ijson.utils import coroutine, sendable_list
 from .version import __version__
 
 def _default_backend():
