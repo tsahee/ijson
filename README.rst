@@ -27,7 +27,10 @@
 ijson
 =====
 
-Ijson is an iterative JSON parser with a standard Python iterator interfaces.
+Ijson is an iterative JSON parser with standard Python iterator interfaces.
+
+.. contents::
+   :local:
 
 
 Usage
@@ -193,6 +196,36 @@ they receive a single ``target`` argument,
 which should be a coroutine-like object
 (anything implementing a ``send`` method)
 through which results will be published.
+
+
+Options
+=======
+
+Additional options are supported by **all** ijson functions
+to give users more fine-grained control over certain operations:
+
+- The ``multiple_values`` option (defaults to ``False``)
+  controls whether multiple top-level values are supported.
+  JSON content should contain a single top-level value
+  (see `the JSON Grammar <https://tools.ietf.org/html/rfc7159#section-2>`_).
+  However there are plenty of JSON files out in the wild
+  that contain multiple top-level values,
+  often separated by newlines.
+  By default ijson will fail to process these
+  with a ``parse error: trailing garbage`` error
+  unless ``multiple_values=True`` is specified.
+- Similarly the ``allow_comments`` option (defaults to ``False``)
+  controls whether C-style comments (e.g., ``/* a comment */``),
+  which are not supported by the JSON standard,
+  are allowed in the content or not.
+- For functions taking a file-like object,
+  and additional ``buf_size`` option (defaults to ``65536`` or 64KB)
+  specifies the amount of bytes the library
+  should attempt to read each time.
+- The ``items`` and ``kvitems`` functions, and all their variants,
+  have an optional ``map_type`` argument (defaults to ``dict``)
+  used to construct objects from the JSON stream.
+  This should be a dict-like type supporting item assignment.
 
 
 Events
