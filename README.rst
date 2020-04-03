@@ -181,11 +181,9 @@ instead of letting the library do it:
    f = urlopen('http://.../')
    chunk = f.read(buf_size)
    while chunk:
-      try:
-         coro.send(chunk)
-      except StopIteration:
-            break
+      coro.send(chunk)
       chunk = f.read()
+   coro.close()
 
 All four ijson iterators
 have a ``*_coro`` counterpart
