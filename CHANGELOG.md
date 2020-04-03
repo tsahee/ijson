@@ -1,5 +1,10 @@
 # Changelog
 
+## Development version
+
+* Exposing backend's name under ``<backend>.backend``,
+  and default backend's name under ``ijson.backend``.
+
 ## [3.0rc3]
 
 * Implemented all asynchronous iterables (i.e., ``*_async`` functions)

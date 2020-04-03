@@ -299,6 +299,7 @@ library:
 
 Importing the top level library as ``import ijson``
 uses the first available backend in the same order of the list above.
+Its name is recorded under ``ijson.backend``.
 
 
 Acknowledgements
