@@ -300,7 +300,7 @@ def _make_kvitems(backend, use_string_reader):
 
 def enrich_backend(backend, use_string_reader=False):
     '''
-    Provides a backend with any missing coroutines/generators/async-generators
+    Provides a backend with any missing coroutines/generators/async-iterables
     it might be missing by using the generic ones written in python.
     '''
     backend['backend'] = backend['__name__'].split('.')[-1]
