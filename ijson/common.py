@@ -303,6 +303,7 @@ def enrich_backend(backend, use_string_reader=False):
     Provides a backend with any missing coroutines/generators/async-generators
     it might be missing by using the generic ones written in python.
     '''
+    backend['backend'] = backend['__name__'].split('.')[-1]
     for gen_name in ('basic_parse', 'parse', 'items', 'kvitems'):
         basecoro_name = gen_name + '_basecoro'
         if basecoro_name not in backend:

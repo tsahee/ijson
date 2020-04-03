@@ -42,4 +42,4 @@ if compat.IS_PY35:
     parse_async = backend.parse_async
     items_async = backend.items_async
     kvitems_async = backend.kvitems_async
-del backend
+backend = backend.backend
