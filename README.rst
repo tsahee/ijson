@@ -195,6 +195,26 @@ which should be a coroutine-like object
 (anything implementing a ``send`` method)
 through which results will be published.
 
+An alternative to providing a coroutine
+is to use ``ijson.sendable_list`` to accumulate results,
+providing the list is cleared after each parsing iteration,
+like this:
+
+.. code-block:: python
+
+   import ijson
+
+   events = ijson.sendable_list()
+   coro = ijson.items_coro(events, 'earth.europe.item')
+   f = urlopen('http://.../')
+   chunk = f.read(buf_size)
+   while chunk:
+      coro.send(chunk)
+      process_accumulated_events(events)
+      del events[:]
+   coro.close()
+   process_accumulated_events(events)
+
 
 Options
 =======

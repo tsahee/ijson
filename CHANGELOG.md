@@ -4,6 +4,7 @@
 
 * Exposing backend's name under ``<backend>.backend``,
   and default backend's name under ``ijson.backend``.
+* Exposing ``ijson.sendable_list`` to users in case it comes in handy.
 
 ## [3.0rc3]
 
