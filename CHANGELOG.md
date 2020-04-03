@@ -1,6 +1,6 @@
 # Changelog
 
-## Development version
+## [3.0]
 
 * Exposing backend's name under ``<backend>.backend``,
   and default backend's name under ``ijson.backend``.
@@ -124,3 +124,4 @@
 [3.0rc1]: https://github.com/ICRAR/ijson/releases/tag/v3.0rc1
 [3.0rc2]: https://github.com/ICRAR/ijson/releases/tag/v3.0rc2
 [3.0rc3]: https://github.com/ICRAR/ijson/releases/tag/v3.0rc3
+[3.0]: https://github.com/ICRAR/ijson/releases/tag/v3.0
