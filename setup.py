@@ -99,7 +99,8 @@ if platform.python_implementation() == 'CPython':
                              language='c',
                              sources=sorted(glob.glob('ijson/backends/yajl2_c/*.c')) + extra_sources,
                              include_dirs=['ijson/backends/yajl2_c'] + extra_include_dirs,
-                             libraries=libs)
+                             libraries=libs,
+                             depends=glob.glob('ijson/backends/yajl2_c/*.h'))
         setupArgs['ext_modules'] = [yajl_ext]
 
 setup(**setupArgs)
