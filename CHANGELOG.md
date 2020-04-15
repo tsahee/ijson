@@ -1,5 +1,16 @@
 # Changelog
 
+## Development version
+
+* Adding back the ``parse``, ``kvitems`` and ``items`` functions
+  under the ``ijson.common`` module (#27).
+  These functions take an events iterable instead of a file
+  and are backend-independent (which is not great for performance).
+  They were accidentaly removed in the redesign of ijson 3.0,
+  which is why they are coming back.
+  In the future they will slowly transition into being
+  backend-specific rather than independent.
+
 ## [3.0]
 
 * Exposing backend's name under ``<backend>.backend``,
