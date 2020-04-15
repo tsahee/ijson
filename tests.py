@@ -465,6 +465,68 @@ class GeneratorSpecificTests(FileBasedTests):
                 self.assertEqual(expected_item, next(iterable))
 
 
+    COMMON_DATA = b'''
+        {
+            "skip": "skip_value",
+            "c": {"d": "e", "f": "g"},
+            "list": [{"o1": 1}, {"o2": 2}]
+        }'''
+
+    COMMON_PARSE = [
+        ('', 'start_map', None),
+        ('', 'map_key', 'skip'),
+        ('skip', 'string', 'skip_value'),
+        ('', 'map_key', 'c'),
+        ('c', 'start_map', None),
+        ('c', 'map_key', 'd'),
+        ('c.d', 'string', 'e'),
+        ('c', 'map_key', 'f'),
+        ('c.f', 'string', 'g'),
+        ('c', 'end_map', None),
+        ('', 'map_key', 'list'),
+        ('list', 'start_array', None),
+        ('list.item', 'start_map', None),
+        ('list.item', 'map_key', 'o1'),
+        ('list.item.o1', 'number', 1),
+        ('list.item', 'end_map', None),
+        ('list.item', 'start_map', None),
+        ('list.item', 'map_key', 'o2'),
+        ('list.item.o2', 'number', 2),
+        ('list.item', 'end_map', None),
+        ('list', 'end_array', None),
+        ('', 'end_map', None),
+    ]
+
+    def _skip_parse_events(self, events):
+        skip_value = None
+        for prefix, _, value in events:
+            if prefix == 'skip':
+                skip_value = value
+                break
+        self.assertEqual(skip_value, 'skip_value')
+
+    def _test_common_routine(self, routine, *args, **kwargs):
+        base_routine_name = kwargs.pop('base_routine_name', 'parse')
+        base_routine = getattr(self.backend, base_routine_name)
+        events = base_routine(self._reader(self.COMMON_DATA))
+        if base_routine_name == 'parse':
+            self._skip_parse_events(events)
+        # Rest of events can still be used
+        return list(routine(events, *args))
+
+    def test_common_parse(self):
+        results = self._test_common_routine(common.parse,
+                                            base_routine_name='basic_parse')
+        self.assertEqual(self.COMMON_PARSE, results)
+
+    def test_common_kvitems(self):
+        results = self._test_common_routine(common.kvitems, 'c')
+        self.assertEqual([("d", "e"), ("f", "g")], results)
+
+    def test_common_items(self):
+        results = self._test_common_routine(common.items, 'list.item')
+        self.assertEqual([{"o1": 1}, {"o2": 2}], results)
+
 class Coroutines(object):
     '''Test adaptation for coroutines'''
 

@@ -298,6 +298,30 @@ def _make_kvitems(backend, use_string_reader):
     return kvitems
 
 
+def parse(events):
+    """Like ijson.parse, but takes events generated via ijson.basic_parse instead
+    of a file"""
+    return utils.coros2gen(events,
+        (parse_basecoro, (), {})
+    )
+
+
+def kvitems(events, prefix, map_type=None):
+    """Like ijson.kvitems, but takes events generated via ijson.parse instead of
+    a file"""
+    return utils.coros2gen(events,
+        (kvitems_basecoro, (prefix,), {'map_type': map_type})
+    )
+
+
+def items(events, prefix, map_type=None):
+    """Like ijson.items, but takes events generated via ijson.parse instead of
+    a file"""
+    return utils.coros2gen(events,
+        (items_basecoro, (prefix,), {'map_type': map_type})
+    )
+
+
 def enrich_backend(backend, use_string_reader=False):
     '''
     Provides a backend with any missing coroutines/generators/async-iterables
