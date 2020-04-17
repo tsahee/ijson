@@ -116,11 +116,8 @@ class progress_message(object):
 if compat.IS_PY35:
     exec('''
 class AsyncReader(object):
-    def __init__(self, data, use_str):
-        if use_str:
-            self.data = io.StringIO(data.decode('utf8'))
-        else:
-            self.data = io.BytesIO(data)
+    def __init__(self, data):
+        self.data = io.BytesIO(data)
 
     async def read(self, n=-1):
         return self.data.read(n)
@@ -168,7 +165,7 @@ def run_benchmarks(args, benchmark_func=None, fname=None):
         if not benchmark_func:
             reader = open(fname, 'rb')
         else:
-            reader = AsyncReader(data, backend_name == 'python') if args.run_async else io.BytesIO(data)
+            reader = AsyncReader(data) if args.run_async else io.BytesIO(data)
 
         # Prepare function that will run the benchmark
         if args.run_async:
