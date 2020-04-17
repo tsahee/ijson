@@ -326,6 +326,90 @@ uses the first available backend in the same order of the list above.
 Its name is recorded under ``ijson.backend``.
 
 
+FAQ
+===
+
+#. **Q**: Does ijson work with ``bytes`` or ``str`` objects?
+
+   **A**: In short: both are accepted as input, outputs are only ``str``.
+
+   All ijson functions expecting a file-like object
+   should ideally be given one
+   that is opened in binary mode
+   (i.e., its ``read`` function returns ``bytes`` objects, not ``str``).
+   However if a text-mode file object is given
+   then the library will automatically
+   encode the strings into UTF-8 bytes.
+   A warning is currently issued (but not visible by default)
+   alerting users about this automatic conversion.
+
+   On the other hand ijson always returns text data
+   (JSON string values, object member names, event names, etc)
+   as ``str`` objects in python 3,
+   and ``unicode`` objects in python 2.7.
+   This mimics the behavior of the system ``json`` module.
+
+#. **Q**: How are numbers dealt with?
+
+   **A**: ijson returns ``int`` values for integers
+   and ``decimal.Decimal`` values for floating-point numbers.
+   This is mostly because of historical reasons.
+   In the future an option might be added
+   to use a different type (e.g., ``float``).
+
+#. **Q**: I'm getting an ``UnicodeDecodeError``, or an ``IncompleteJSONError`` with no message
+
+   **A**: This error is caused by byte sequences that are not valid in UTF-8.
+   In other words, the data given to ijson is not *really* UTF-8 encoded,
+   or at least not properly.
+
+   Depending on where the data comes from you have different options:
+
+   * If you have control over the source of the data, fix it.
+
+   * If you have a way to intercept the data flow,
+     do so and pass it through a "byte corrector".
+     For instance, if you have a shell pipeline
+     feeding data through ``stdin`` into your process
+     you can add something like ``... | iconv -f utf8 -t utf8 -c | ...``
+     in between to correct invalid byte sequences.
+
+   * If you are working purely in python,
+     you can create a UTF-8 decoder
+     using codecs' `incrementaldecoder <https://docs.python.org/3/library/codecs.html#codecs.getincrementaldecoder>`_
+     to leniently decode your bytes into strings,
+     and feed those strings (using a file-like class) into ijson
+     (see our `string_reader_async internal class <https://github.com/ICRAR/ijson/blob/0157f3c65a7986970030d3faa75979ee205d3806/ijson/utils35.py#L19>`_
+     for some inspiration).
+
+   In the future ijson might offer something out of the box
+   to deal with invalid UTF-8 byte sequences.
+
+#. **Q**: I'm getting ``parse error: trailing garbage`` or ``Additional data found`` errors
+
+   **A**: This error signals that the input
+   contains more data than the top-level JSON value it's meant to contain.
+   This is *usually* caused by JSON data sources
+   containing multiple values, and is *usually* solved
+   by passing the ``multiple_values=True`` to the ijson function in use.
+   See the options_ section for details.
+
+#. Are there any differences between the backends?
+
+   Apart from their performance,
+   all backends are designed to support the same capabilities.
+   There are however some small known differences:
+
+   * The ``yajl`` backend doesn't support ``multiple_values=True``.
+     It also doesn't complain about additional data
+     found after the end of the top-level JSON object.
+
+   * The ``python`` backend doesn't support ``allow_comments=True``
+     It also internally works with ``str`` objects, not ``bytes``,
+     but this is an internal detail that users shouldn't need to worry about,
+     and might change in the future.
+
+
 Acknowledgements
 ================
 
