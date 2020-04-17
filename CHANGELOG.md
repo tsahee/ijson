@@ -18,6 +18,9 @@
   (by internally avoiding unnecessary string concatenations).
   Local tests show a performance improvement of up to ~15%,
   but milage might vary depending on your use case and system.
+* New ``ijson.get_backend`` function
+  for users to import a backend programatically
+  (without having to manually use importlib).
 * ``ijson.common.number`` is marked as deprecated,
   and will be removed on some later release.
 

@@ -6,6 +6,7 @@ from decimal import Decimal
 import threading
 from importlib import import_module
 
+import ijson
 from ijson import common, utils, compat
 from ijson.compat import BytesIO, StringIO, b2s, IS_PY2, bytetype
 import warnings
@@ -690,7 +691,7 @@ def generate_test_cases(module, base_class):
                 (base_class, IJsonTestsBase, unittest.TestCase),
                 {
                     'backend_name': name,
-                    'backend': import_module('ijson.backends.%s' % name),
+                    'backend': ijson.get_backend(name),
                     'supports_multiple_values': name != 'yajl',
                     'supports_comments': name != 'python',
                     'warn_on_string_stream': name != 'python' and not IS_PY2,

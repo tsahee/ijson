@@ -10,13 +10,13 @@ Benchmarking utility for ijson
 '''
 import argparse
 import collections
-import importlib
 import io
 import os
 import sys
 import time
 
 
+import ijson
 from ijson import compat
 
 _benchmarks = collections.OrderedDict()
@@ -80,7 +80,7 @@ def load_backends():
     backends = collections.OrderedDict()
     for backend_name in BACKEND_NAMES:
         try:
-            backends[backend_name] = importlib.import_module('ijson.backends.' + backend_name)
+            backends[backend_name] = ijson.get_backend(backend_name)
         except ImportError:
             continue
     return backends

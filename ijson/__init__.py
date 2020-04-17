@@ -18,11 +18,15 @@ from ijson.common import JSONError, IncompleteJSONError, ObjectBuilder, compat
 from ijson.utils import coroutine, sendable_list
 from .version import __version__
 
-def _default_backend():
+def get_backend(backend):
+    """Import the backend named ``backend``"""
     import importlib
+    return importlib.import_module('ijson.backends.' + backend)
+
+def _default_backend():
     for backend in ('yajl2_c', 'yajl2_cffi', 'yajl2', 'yajl', 'python'):
         try:
-            return importlib.import_module('ijson.backends.' + backend)
+            return get_backend(backend)
         except ImportError:
             continue
     raise ImportError('no backends available')

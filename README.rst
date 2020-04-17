@@ -339,6 +339,15 @@ Importing the top level library as ``import ijson``
 uses the first available backend in the same order of the list above.
 Its name is recorded under ``ijson.backend``.
 
+You can also use the ``ijson.get_backend`` function
+to get a specific backend based on a name:
+
+.. code-block:: python
+
+    backend = ijson.get_backend('yajl2_c')
+    for item in backend.items(...):
+        # ...
+
 
 Performance tips
 ================
