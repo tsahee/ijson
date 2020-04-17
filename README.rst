@@ -336,8 +336,10 @@ library:
         # ...
 
 Importing the top level library as ``import ijson``
-uses the first available backend in the same order of the list above.
-Its name is recorded under ``ijson.backend``.
+uses the first available backend in the same order of the list above,
+and its name is recorded under ``ijson.backend``.
+If the ``IJSON_BACKEND`` environment variable is set
+its value takes precedence and is used to select the default backend.
 
 You can also use the ``ijson.get_backend`` function
 to get a specific backend based on a name:

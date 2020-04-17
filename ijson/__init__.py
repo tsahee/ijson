@@ -24,6 +24,9 @@ def get_backend(backend):
     return importlib.import_module('ijson.backends.' + backend)
 
 def _default_backend():
+    import os
+    if 'IJSON_BACKEND' in os.environ:
+        return get_backend(os.environ['IJSON_BACKEND'])
     for backend in ('yajl2_c', 'yajl2_cffi', 'yajl2', 'yajl', 'python'):
         try:
             return get_backend(backend)

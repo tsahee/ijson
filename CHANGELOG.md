@@ -21,6 +21,8 @@
 * New ``ijson.get_backend`` function
   for users to import a backend programatically
   (without having to manually use importlib).
+* New ``IJSON_BACKEND`` environment variable
+  can be used to choose the default backend to be exposed by ijson.
 * ``ijson.common.number`` is marked as deprecated,
   and will be removed on some later release.
 
