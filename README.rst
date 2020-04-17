@@ -60,7 +60,9 @@ High-level interfaces
 ---------------------
 
 Most common usage is having ijson yield native Python objects out of a JSON
-stream located under a prefix. Here's how to process all European cities:
+stream located under a prefix.
+This is done using the ``items`` function.
+Here's how to process all European cities:
 
 .. code-block::  python
 
@@ -72,11 +74,11 @@ stream located under a prefix. Here's how to process all European cities:
     for city in cities:
         do_something_with(city)
 
-For how to build a prefix see the Prefix section below.
+For how to build a prefix see the prefix_ section below.
 
 Other times it might be useful to iterate over object members
 rather than objects themselves (e.g., when objects are too big).
-In that case one can use the ``kvitems`` functions instead:
+In that case one can use the ``kvitems`` function instead:
 
 .. code-block::  python
 
@@ -94,7 +96,8 @@ Lower-level interfaces
 
 Sometimes when dealing with a particularly large JSON payload it may worth to
 not even construct individual Python objects and react on individual events
-immediately producing some result:
+immediately producing some result.
+This is achieved using the ``parse`` function:
 
 .. code-block::  python
 
@@ -113,7 +116,8 @@ immediately producing some result:
     stream.write('</geo>')
 
 Even more bare-bones is the ability to react on individual events
-without even calculating a prefix:
+without even calculating a prefix
+using the ``basic_parse`` function:
 
 .. code-block:: python
 
@@ -155,7 +159,8 @@ and hence are "pull" interfaces,
 with the library reading data as necessary.
 If for whatever reason it's not possible to use such method,
 you can still **push** data
-through yet a different interface: coroutines.
+through yet a different interface: `coroutines <https://www.python.org/dev/peps/pep-0342/>`_
+(via generators, not ``asyncio`` coroutines).
 Coroutines effectively allow users
 to send data to them at any point in time,
 with a final *target* coroutine-like object
@@ -179,10 +184,8 @@ instead of letting the library do it:
 
    coro = ijson.items_coro(print_cities(), 'earth.europe.item')
    f = urlopen('http://.../')
-   chunk = f.read(buf_size)
-   while chunk:
+   for chunk in iter(functools.partial(f.read, buf_size)):
       coro.send(chunk)
-      chunk = f.read()
    coro.close()
 
 All four ijson iterators
@@ -207,14 +210,15 @@ like this:
    events = ijson.sendable_list()
    coro = ijson.items_coro(events, 'earth.europe.item')
    f = urlopen('http://.../')
-   chunk = f.read(buf_size)
-   while chunk:
+   for chunk in iter(functools.partial(f.read, buf_size)):
       coro.send(chunk)
       process_accumulated_events(events)
       del events[:]
    coro.close()
    process_accumulated_events(events)
 
+
+.. _options:
 
 Options
 =======
@@ -237,7 +241,7 @@ to give users more fine-grained control over certain operations:
   which are not supported by the JSON standard,
   are allowed in the content or not.
 - For functions taking a file-like object,
-  and additional ``buf_size`` option (defaults to ``65536`` or 64KB)
+  an additional ``buf_size`` option (defaults to ``65536`` or 64KB)
   specifies the amount of bytes the library
   should attempt to read each time.
 - The ``items`` and ``kvitems`` functions, and all their variants,
@@ -265,6 +269,8 @@ Events will be one of the following:
 - ``null``, ``boolean``, ``integer``, ``double``, ``number`` and ``string``
   all indicate actual content, which is stored in the associated value.
 
+
+.. _prefix:
 
 Prefix
 ======
