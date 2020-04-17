@@ -1,6 +1,6 @@
 # Changelog
 
-## Development version
+## [3.0.1]
 
 * Adding back the ``parse``, ``kvitems`` and ``items`` functions
   under the ``ijson.common`` module (#27).
@@ -136,3 +136,4 @@
 [3.0rc2]: https://github.com/ICRAR/ijson/releases/tag/v3.0rc2
 [3.0rc3]: https://github.com/ICRAR/ijson/releases/tag/v3.0rc3
 [3.0]: https://github.com/ICRAR/ijson/releases/tag/v3.0
+[3.0.1]: https://github.com/ICRAR/ijson/releases/tag/v3.0.1
