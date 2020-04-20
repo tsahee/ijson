@@ -211,12 +211,9 @@ def number(str_value):
     warnings.warn("number() function will be removed in a later release", DeprecationWarning)
     return integer_or_decimal(str_value)
 
-def file_source(f, use_string_reader, buf_size=64*1024):
+def file_source(f, buf_size=64*1024):
     '''A generator that yields data from a file-like object'''
-    if use_string_reader:
-        f = compat.string_reader(f)
-    else:
-        f = compat.bytes_reader(f)
+    f = compat.bytes_reader(f)
     while True:
         data = f.read(buf_size)
         yield data
@@ -289,37 +286,37 @@ def _make_kvitems_coro(backend):
     return kvitems
 
 
-def _make_basic_parse(backend, use_string_reader):
+def _make_basic_parse(backend):
     def basic_parse(f, buf_size=64*1024, **config):
         return utils.coros2gen(
-            file_source(f, use_string_reader, buf_size=buf_size),
+            file_source(f, buf_size=buf_size),
             *_basic_parse_pipeline(backend, config)
         )
     return basic_parse
 
 
-def _make_parse(backend, use_string_reader):
+def _make_parse(backend):
     def parse(f, buf_size=64*1024, **config):
         return utils.coros2gen(
-            file_source(f, use_string_reader, buf_size=buf_size),
+            file_source(f, buf_size=buf_size),
             *_parse_pipeline(backend, config)
         )
     return parse
 
 
-def _make_items(backend, use_string_reader):
+def _make_items(backend):
     def items(f, prefix, map_type=None, buf_size=64*1024, **config):
         return utils.coros2gen(
-            file_source(f, use_string_reader, buf_size=buf_size),
+            file_source(f, buf_size=buf_size),
             *_items_pipeline(backend, prefix, map_type, config)
         )
     return items
 
 
-def _make_kvitems(backend, use_string_reader):
+def _make_kvitems(backend):
     def kvitems(f, prefix, map_type=None, buf_size=64*1024, **config):
         return utils.coros2gen(
-            file_source(f, use_string_reader, buf_size=buf_size),
+            file_source(f, buf_size=buf_size),
             *_kvitems_pipeline(backend, prefix, map_type, config)
         )
     return kvitems
@@ -349,7 +346,7 @@ def items(events, prefix, map_type=None):
     )
 
 
-def enrich_backend(backend, use_string_reader=False):
+def enrich_backend(backend):
     '''
     Provides a backend with any missing coroutines/generators/async-iterables
     it might be missing by using the generic ones written in python.
@@ -365,10 +362,10 @@ def enrich_backend(backend, use_string_reader=False):
             backend[coro_name] = factory(backend)
         if gen_name not in backend:
             factory = globals()['_make_' + gen_name]
-            backend[gen_name] = factory(backend, use_string_reader)
+            backend[gen_name] = factory(backend)
         if compat.IS_PY35:
             from . import utils35
             async_name = gen_name + '_async'
             if async_name not in backend:
                 factory = getattr(utils35, '_make_' + async_name)
-                backend[async_name] = factory(backend, use_string_reader)
+                backend[async_name] = factory(backend)

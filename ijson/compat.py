@@ -2,7 +2,6 @@
 Python2/Python3 compatibility utilities.
 '''
 
-import codecs
 import sys
 import warnings
 
@@ -52,9 +51,3 @@ def bytes_reader(f):
     if type(f.read(0)) == bytetype:
         return f
     return _warn_and_return(utf8reader(f))
-
-def string_reader(f):
-    """Returns a file-like object that reads utf-8 encoded strings"""
-    if type(f.read(0)) == bytetype:
-        f = codecs.getreader('utf-8')(f)
-    return f
