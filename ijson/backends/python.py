@@ -5,6 +5,7 @@ from json.decoder import scanstring
 import re
 
 from ijson import common, utils
+import codecs
 
 
 LEXEME_RE = re.compile(r'[a-z0-9eE\.\+-]+|\S')
@@ -18,6 +19,25 @@ class UnexpectedSymbol(common.JSONError):
             'Unexpected symbol %r at %d' % (symbol, pos)
         )
 
+
+@utils.coroutine
+def utf8_encoder(target):
+    decoder = codecs.getincrementaldecoder('utf-8')()
+    decode = decoder.decode
+    send = target.send
+    while True:
+        try:
+            final = False
+            bdata = (yield)
+        except GeneratorExit:
+            final = True
+            bdata = b''
+        sdata = decode(bdata, final)
+        if sdata:
+            send(sdata)
+        elif not bdata:
+            target.close()
+            break
 
 @utils.coroutine
 def Lexer(target):
@@ -251,7 +271,7 @@ def basic_parse_basecoro(target, multiple_values=False, allow_comments=False,
     '''
     if allow_comments:
         raise ValueError("Comments are not supported by the python backend")
-    return Lexer(parse_value(target, multiple_values, use_float))
+    return utf8_encoder(Lexer(parse_value(target, multiple_values, use_float)))
 
 
-common.enrich_backend(globals(), use_string_reader=True)
+common.enrich_backend(globals())

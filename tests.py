@@ -4,7 +4,6 @@ import collections
 import unittest
 from decimal import Decimal
 import threading
-from importlib import import_module
 
 import ijson
 from ijson import common, utils, compat
@@ -291,36 +290,21 @@ else:
     def bytesiter(self, x):
         for b in x:
             yield bytes([b])
-    def striter(self, x):
-        x = x.decode('utf8')
-        for s in x:
-            yield s
 
 class SingleReadFile(object):
     '''A bytes file that can be read only once'''
-
-    str_type = bytetype
 
     def __init__(self, raw_value):
         self.raw_value = raw_value
 
     def read(self, size=-1):
         if size == 0:
-            return self.str_type()
+            return bytetype()
         val = self.raw_value
         if not val:
             raise AssertionError('read twice')
-        self.raw_value = self.str_type()
+        self.raw_value = bytetype()
         return val
-
-
-class SingleReadFileStr(SingleReadFile):
-    '''Like SingleReadFile, but reads strings'''
-
-    str_type = str
-
-    def __init__(self, raw_value):
-        super(SingleReadFileStr, self).__init__(b2s(raw_value))
 
 class IJsonTestsBase(object):
     '''
@@ -554,14 +538,11 @@ class GeneratorSpecificTests(FileBasedTests):
         self._test_item_iteration_validity(BytesIO)
 
     def test_lazy_file_reading(self):
-        file_type = SingleReadFile
-        if self.backend.__name__.endswith('.python'):
-            if IS_PY2:
-                # We know it doesn't work because because the decoder itself
-                # is quite eager on its reading
-                return
-            file_type = SingleReadFileStr
-        self._test_item_iteration_validity(file_type)
+        if self.backend_name == 'python' and IS_PY2:
+            # We know it doesn't work because because the decoder itself
+            # is quite eager on its reading
+            return
+        self._test_item_iteration_validity(SingleReadFile)
 
     def _test_item_iteration_validity(self, file_type):
         for json in PARTIAL_ARRAY_JSONS:
@@ -695,7 +676,7 @@ def generate_test_cases(module, base_class):
                     'supports_multiple_values': name != 'yajl',
                     'supports_comments': name != 'python',
                     'warn_on_string_stream': name != 'python' and not IS_PY2,
-                    'inputiter': bytesiter if name != 'python' else striter,
+                    'inputiter': bytesiter
                 },
             )
         except ImportError:
