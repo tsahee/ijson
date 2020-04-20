@@ -47,7 +47,7 @@ def basic_parse_basecoro(target, allow_comments=False, multiple_values=False,
             if result != _yajl2_ctypes_common.YAJL_OK:
                 error = _yajl2_ctypes_common.yajl_get_error(yajl, handle, buffer)
                 exception = common.IncompleteJSONError if result == _yajl2_ctypes_common.YAJL_INSUFFICIENT_DATA else common.JSONError
-                raise exception(error.decode('utf-8'))
+                raise exception(error)
             if not buffer:
                 break
     finally:

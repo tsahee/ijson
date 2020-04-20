@@ -221,6 +221,7 @@ INVALID_JSONS = [
     b'[1, 2] dangling junk',   # dangling junk
     b'}',                      # no corresponding opening token
     b']',                      # no corresponding opening token
+    b'"\xa8"'                  # invalid UTF-8 byte sequence
 ]
 YAJL1_PASSING_INVALID = INVALID_JSONS[6]
 INCOMPLETE_JSONS = [

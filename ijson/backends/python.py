@@ -32,7 +32,14 @@ def utf8_encoder(target):
         except GeneratorExit:
             final = True
             bdata = b''
-        sdata = decode(bdata, final)
+        try:
+            sdata = decode(bdata, final)
+        except UnicodeDecodeError as e:
+            try:
+                target.close()
+            except:
+                pass
+            raise common.IncompleteJSONError(e)
         if sdata:
             send(sdata)
         elif not bdata:

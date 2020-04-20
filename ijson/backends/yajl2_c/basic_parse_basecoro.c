@@ -163,7 +163,22 @@ PyObject* ijson_yajl_parse(yajl_handle handle, char *buffer, size_t length)
 		// An actual problem with the JSON data (otherwise a user error)
 		if (status != yajl_status_client_canceled) {
 			unsigned char *perror = yajl_get_error(handle, 1, (unsigned char *)buffer, length);
-			PyErr_SetString(IncompleteJSONError, (char *)perror);
+			PyObject *error_obj = PyUnicode_FromString((char *)perror);
+			// error about invalid UTF8 byte sequences can't be converted to string
+			// automatically, so we show the bytes instead
+			if (!error_obj) {
+				PyErr_Clear();
+#if PY_MAJOR_VERSION >= 3
+				error_obj = PyBytes_FromString((char *)perror);
+#else
+				error_obj = PyString_FromString((char *)perror);
+#endif
+				PyErr_Clear();
+			}
+			PyErr_SetObject(IncompleteJSONError, error_obj);
+			if (error_obj) {
+				Py_DECREF(error_obj);
+			}
 			yajl_free_error(handle, perror);
 		}
 		return NULL;

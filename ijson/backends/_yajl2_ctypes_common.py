@@ -62,5 +62,9 @@ def make_callbaks(send, use_float):
 def yajl_get_error(yajl, handle, buffer):
     perror = yajl.yajl_get_error(handle, 1, buffer, len(buffer))
     error = cast(perror, c_char_p).value
+    try:
+        error = error.decode('utf-8')
+    except UnicodeDecodeError:
+        pass
     yajl.yajl_free_error(handle, perror)
     return error

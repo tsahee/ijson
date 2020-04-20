@@ -18,7 +18,7 @@ class Config(Structure):
 
 
 @utils.coroutine
-def basic_parse_basecoro(target, allow_comments=False, check_utf8=False,
+def basic_parse_basecoro(target, allow_comments=False,
                          use_float=False):
     '''
     Iterator yielding unprefixed events.
@@ -31,7 +31,7 @@ def basic_parse_basecoro(target, allow_comments=False, check_utf8=False,
     - buf_size: a size of an input buffer
     '''
     callbacks = _yajl2_ctypes_common.make_callbaks(target.send, use_float)
-    config = Config(allow_comments, check_utf8)
+    config = Config(allow_comments, True)
     handle = yajl.yajl_alloc(byref(callbacks), byref(config), None, None)
     try:
         while True:
@@ -45,7 +45,7 @@ def basic_parse_basecoro(target, allow_comments=False, check_utf8=False,
                 result = yajl.yajl_parse_complete(handle)
             if result == _yajl2_ctypes_common.YAJL_ERROR:
                 error = _yajl2_ctypes_common.yajl_get_error(yajl, handle, buffer)
-                raise common.JSONError(error.decode('utf-8'))
+                raise common.JSONError(error)
             elif not buffer:
                 if result == _yajl2_ctypes_common.YAJL_INSUFFICIENT_DATA:
                     raise common.IncompleteJSONError('Incomplete JSON data')

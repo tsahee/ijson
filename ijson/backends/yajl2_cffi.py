@@ -186,7 +186,11 @@ def yajl_parse(handle, buffer):
 
     if result != YAJL_OK:
         perror = yajl.yajl_get_error(handle, 1, buffer, len(buffer))
-        error = b2s(ffi.string(perror))
+        error = ffi.string(perror)
+        try:
+            error = error.decode('utf8')
+        except UnicodeDecodeError:
+            pass
         yajl.yajl_free_error(handle, perror)
         exception = common.IncompleteJSONError if result == YAJL_INSUFFICIENT_DATA else common.JSONError
         raise exception(error)
