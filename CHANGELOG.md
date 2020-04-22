@@ -1,5 +1,9 @@
 # Changelog
 
+## Development version
+
+* Fixed memory leak in ``yajl2_c`` backend's ``parse`` functionality (#28).
+
 ## [3.0.1]
 
 * Adding back the ``parse``, ``kvitems`` and ``items`` functions
