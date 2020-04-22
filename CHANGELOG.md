@@ -1,6 +1,6 @@
 # Changelog
 
-## Development version
+## [3.0.2]
 
 * Fixed memory leak in ``yajl2_c`` backend's ``parse`` functionality (#28).
 
@@ -141,3 +141,4 @@
 [3.0rc3]: https://github.com/ICRAR/ijson/releases/tag/v3.0rc3
 [3.0]: https://github.com/ICRAR/ijson/releases/tag/v3.0
 [3.0.1]: https://github.com/ICRAR/ijson/releases/tag/v3.0.1
+[3.0.2]: https://github.com/ICRAR/ijson/releases/tag/v3.0.2
