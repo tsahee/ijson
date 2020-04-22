@@ -99,6 +99,7 @@ PyObject* parse_basecoro_send_impl(PyObject *self, PyObject *event, PyObject *va
 			Py_DECREF(last_path);
 		}
 		N_M1(PyList_Append(gen->path, new_path));
+		Py_DECREF(new_path);
 	}
 	else if (event == enames.start_map_ename) {
 		Py_INCREF(Py_None);
