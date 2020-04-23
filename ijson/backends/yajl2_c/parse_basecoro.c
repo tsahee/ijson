@@ -90,16 +90,16 @@ PyObject* parse_basecoro_send_impl(PyObject *self, PyObject *event, PyObject *va
 		PyObject *last_path;
 		N_N(last_path = PySequence_GetItem(gen->path, npaths - 1));
 
-		PyObject *new_path;
 		if (PyUnicode_GET_SIZE(last_path) > 0) {
+			PyObject *new_path;
 			CONCAT(new_path, last_path, dotitem);
+			N_M1(PyList_Append(gen->path, new_path));
+			Py_DECREF(new_path);
 		}
 		else {
-			new_path = item;
+			N_M1(PyList_Append(gen->path, item));
 			Py_DECREF(last_path);
 		}
-		N_M1(PyList_Append(gen->path, new_path));
-		Py_DECREF(new_path);
 	}
 	else if (event == enames.start_map_ename) {
 		Py_INCREF(Py_None);
