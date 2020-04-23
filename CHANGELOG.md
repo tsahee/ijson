@@ -1,5 +1,10 @@
 # Changelog
 
+## Development version
+
+* Fixed segmentation fault in ``yajl2_c`` backend's ``parse``
+  caused by the previous fix introduced in 3.0.2 (#29).
+
 ## [3.0.2]
 
 * Fixed memory leak in ``yajl2_c`` backend's ``parse`` functionality (#28).
