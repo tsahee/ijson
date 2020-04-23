@@ -1,6 +1,6 @@
 # Changelog
 
-## Development version
+## [3.0.3]
 
 * Fixed segmentation fault in ``yajl2_c`` backend's ``parse``
   caused by the previous fix introduced in 3.0.2 (#29).
@@ -147,3 +147,4 @@
 [3.0]: https://github.com/ICRAR/ijson/releases/tag/v3.0
 [3.0.1]: https://github.com/ICRAR/ijson/releases/tag/v3.0.1
 [3.0.2]: https://github.com/ICRAR/ijson/releases/tag/v3.0.2
+[3.0.3]: https://github.com/ICRAR/ijson/releases/tag/v3.0.3
