@@ -193,6 +193,23 @@ JSON_EVENTS = [
         ('end_array', None),
     ('end_map', None),
 ]
+
+# Like JSON, but with an additional top-level array structure
+ARRAY_JSON = b'[' + JSON + b']'
+ARRAY_JSON_EVENTS = (
+    [('start_array', None)] +
+    JSON_EVENTS +
+    [('end_array', None)]
+)
+ARRAY_JSON_PARSE_EVENTS = (
+    [('', 'start_array', None)] +
+    [('.'.join(filter(None, ('item', p))), t, e) for p, t, e in JSON_PARSE_EVENTS] +
+    [('', 'end_array', None)]
+)
+ARRAY_JSON_OBJECT = [JSON_OBJECT]
+
+
+
 SCALAR_JSON = b'0'
 INVALID_JSONS = [
     b'["key", "value",]',      # trailing comma
@@ -341,6 +358,27 @@ class IJsonTestsBase(object):
     def test_kvitems_different_underlying_types(self):
         kvitems = self.all(self.kvitems, JSON, 'docs.item.meta')
         self.assertEqual(JSON_KVITEMS_META, kvitems)
+
+    def test_basic_parse_array(self):
+        events = self.all(self.basic_parse, ARRAY_JSON)
+        self.assertEqual(events, ARRAY_JSON_EVENTS)
+
+    def test_basic_parse_array_threaded(self):
+        thread = threading.Thread(target=self.test_basic_parse_array)
+        thread.start()
+        thread.join()
+
+    def test_parse_array(self):
+        events = self.all(self.parse, ARRAY_JSON)
+        self.assertEqual(events, ARRAY_JSON_PARSE_EVENTS)
+
+    def test_items_array(self):
+        events = self.all(self.items, ARRAY_JSON, '')
+        self.assertEqual(events, [ARRAY_JSON_OBJECT])
+
+    def test_kvitems_array(self):
+        kvitems = self.all(self.kvitems, ARRAY_JSON, 'item.docs.item')
+        self.assertEqual(JSON_KVITEMS, kvitems)
 
     def test_scalar(self):
         events = self.all(self.basic_parse, SCALAR_JSON)
