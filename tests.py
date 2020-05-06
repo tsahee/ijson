@@ -218,7 +218,9 @@ INVALID_JSONS = [
     b'{"key": "value" "key"}', # no comma
     b'{"key"  "value"}',       # no colon
     b'invalid',                # unknown lexeme
-    b'[1, 2] dangling junk'    # dangling junk
+    b'[1, 2] dangling junk',   # dangling junk
+    b'}',                      # no corresponding opening token
+    b']',                      # no corresponding opening token
 ]
 YAJL1_PASSING_INVALID = INVALID_JSONS[6]
 INCOMPLETE_JSONS = [
