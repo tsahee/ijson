@@ -254,6 +254,34 @@ PARTIAL_ARRAY_JSONS = [
     (b'[{"abc": [0, 1]},', {'abc': [0, 1]}),
 ]
 
+items_test_case = collections.namedtuple('items_test_case', 'json, prefix, kvitems, items')
+EMPTY_MEMBER_TEST_CASES = {
+    'simple': items_test_case(
+        b'{"a": {"": {"b": 1, "c": 2}}}',
+        'a.',
+        [("b", 1), ("c", 2)],
+        [{"b": 1, "c": 2}]
+    ),
+    'embedded': items_test_case(
+        b'{"a": {"": {"": {"b": 1, "c": 2}}}}',
+        'a..',
+        [("b", 1), ("c", 2)],
+        [{"b": 1, "c": 2}]
+    ),
+    'top_level': items_test_case(
+        b'{"": 1, "a": 2}',
+        '',
+        [("", 1), ("a", 2)],
+        [{"": 1, "a": 2}]
+    ),
+    'top_level_embedded': items_test_case(
+        b'{"": {"": 1}, "a": 2}',
+        '',
+        [("", {"": 1}), ("a", 2)],
+        [{"": {"": 1}, "a": 2}]
+    )
+}
+
 
 if compat.IS_PY2:
     def bytesiter(self, x):
@@ -439,6 +467,25 @@ class IJsonTestsBase(object):
         except ValueError:
             if self.supports_comments:
                 raise
+
+    def _test_empty_member(self, test_case):
+        pairs = self.all(self.kvitems, test_case.json, test_case.prefix)
+        self.assertEqual(test_case.kvitems, pairs)
+        objects = self.all(self.items, test_case.json, test_case.prefix)
+        self.assertEqual(test_case.items, objects)
+
+    def test_empty_member(self):
+        self._test_empty_member(EMPTY_MEMBER_TEST_CASES['simple'])
+
+    def test_embedded_empty_member(self):
+        self._test_empty_member(EMPTY_MEMBER_TEST_CASES['embedded'])
+
+    def test_top_level_empty_member(self):
+        self._test_empty_member(EMPTY_MEMBER_TEST_CASES['top_level'])
+
+    def test_top_level_embedded_empty_member(self):
+        self._test_empty_member(EMPTY_MEMBER_TEST_CASES['top_level_embedded'])
+
 
 class FileBasedTests(object):
 
