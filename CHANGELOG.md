@@ -1,5 +1,19 @@
 # Changelog
 
+## [Development version]
+
+* Fixed errors triggered by JSON documents
+  where the top-level value is an object containing
+  an empty-named member (e.g., ``{"": 1}``).
+  Although such documents are valid JSON,
+  they broke basic assumptions made
+  by the ``kvitems`` and ``items`` functions
+  (and all their variants)
+  in all backends,
+  producing different types of unexpected failures,
+  including segmentation faults, raising unexpected exceptions,
+  and producing wrong results.
+
 ## [3.0.3]
 
 * Fixed segmentation fault in ``yajl2_c`` backend's ``parse``
