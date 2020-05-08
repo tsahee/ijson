@@ -143,11 +143,15 @@ def items_basecoro(target, prefix, map_type=None):
         current, event, value = (yield)
         if current == prefix:
             if event in ('start_map', 'start_array'):
+                object_depth = 1
                 builder = ObjectBuilder(map_type=map_type)
-                end_event = event.replace('start', 'end')
-                while (current, event) != (prefix, end_event):
+                while object_depth:
                     builder.event(event, value)
                     current, event, value = (yield)
+                    if event in ('start_map', 'start_array'):
+                        object_depth += 1
+                    elif event in ('end_map', 'end_array'):
+                        object_depth -= 1
                 del builder.containers[:]
                 target.send(builder.value)
             else:
@@ -164,12 +168,21 @@ def kvitems_basecoro(target, prefix, map_type=None):
     while True:
         path, event, value = (yield)
         while path == prefix and event == 'map_key':
+            object_depth = 0
             key = value
             builder = ObjectBuilder(map_type=map_type)
             path, event, value = (yield)
-            while path != prefix:
+            if event == 'start_map':
+                object_depth += 1
+            while (
+                (event != 'map_key' or object_depth != 0) and
+                (event != 'end_map' or object_depth != -1)):
                 builder.event(event, value)
                 path, event, value = (yield)
+                if event == 'start_map':
+                    object_depth += 1
+                elif event == 'end_map':
+                    object_depth -= 1
             del builder.containers[:]
             target.send((key, builder.value))
 
