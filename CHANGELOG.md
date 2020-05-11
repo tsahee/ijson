@@ -1,6 +1,6 @@
 # Changelog
 
-## [Development version]
+## [3.0.4]
 
 * Fixed errors triggered by JSON documents
   where the top-level value is an object containing
@@ -162,3 +162,4 @@
 [3.0.1]: https://github.com/ICRAR/ijson/releases/tag/v3.0.1
 [3.0.2]: https://github.com/ICRAR/ijson/releases/tag/v3.0.2
 [3.0.3]: https://github.com/ICRAR/ijson/releases/tag/v3.0.3
+[3.0.4]: https://github.com/ICRAR/ijson/releases/tag/v3.0.4
