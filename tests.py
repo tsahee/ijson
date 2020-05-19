@@ -690,5 +690,19 @@ if compat.IS_PY35:
     Async = type('Async', (tests_asyncio.Async, FileBasedTests), {})
     generate_test_cases(globals(), Async)
 
+
+class Misc(unittest.TestCase):
+    """Miscelaneous unit tests"""
+
+    def test_common_number_is_deprecated(self):
+        with warnings.catch_warnings(record=True) as warns:
+            # 2.7 needs to enable the "always" filter to let warnings go through
+            if compat.IS_PY2:
+                warnings.simplefilter("always")
+            common.number("1")
+        self.assertEqual(len(warns), 1)
+        self.assertEqual(DeprecationWarning, warns[0].category)
+
+
 if __name__ == '__main__':
     unittest.main()

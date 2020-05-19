@@ -2,6 +2,8 @@
 Backend independent higher level interfaces, common exceptions.
 '''
 import decimal
+import warnings
+
 from ijson import compat, utils
 
 
@@ -187,7 +189,7 @@ def kvitems_basecoro(target, prefix, map_type=None):
             target.send((key, builder.value))
 
 
-def number(str_value):
+def integer_or_decimal(str_value):
     '''
     Converts string with a numeric value into an int or a Decimal.
     Used in different backends for consistent number representation.
@@ -196,6 +198,9 @@ def number(str_value):
         return int(str_value)
     return decimal.Decimal(str_value)
 
+def number(str_value):
+    warnings.warn("number() function will be removed in a later release", DeprecationWarning)
+    return integer_or_decimal(str_value)
 
 def file_source(f, use_string_reader, buf_size=64*1024):
     '''A generator that yields data from a file-like object'''

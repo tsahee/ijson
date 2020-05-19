@@ -1,5 +1,10 @@
 # Changelog
 
+## Development version
+
+* ``ijson.common.number`` is marked as deprecated,
+  and will be removed on some later release.
+
 ## [3.0.4]
 
 * Fixed errors triggered by JSON documents

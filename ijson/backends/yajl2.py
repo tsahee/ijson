@@ -31,7 +31,7 @@ _callback_data = [
     # takes precedence if defined
     ('integer', C_LONG, lambda *_args: None),
     ('double', C_DOUBLE, lambda *_args: None),
-    ('number', C_STR, lambda v, l: common.number(b2s(string_at(v, l)))),
+    ('number', C_STR, lambda v, l: common.integer_or_decimal(b2s(string_at(v, l)))),
     ('string', C_STR, lambda v, l: string_at(v, l).decode('utf-8')),
     ('start_map', C_EMPTY, lambda: None),
     ('map_key', C_STR, lambda v, l: string_at(v, l).decode('utf-8')),

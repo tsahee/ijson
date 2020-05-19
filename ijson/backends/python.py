@@ -188,7 +188,7 @@ def parse_value(target, multivalue):
             # A number
             else:
                 try:
-                    number = common.number(symbol)
+                    number = common.integer_or_decimal(symbol)
                 except:
                     raise UnexpectedSymbol(symbol, pos)
                 else:

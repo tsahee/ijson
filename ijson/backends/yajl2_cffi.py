@@ -100,7 +100,7 @@ def boolean(val):
 @ffi.callback('int(void *ctx, const char *numberVal, size_t numberLen)')
 @append_event_to_ctx('number')
 def number(val, length):
-    return common.number(b2s(ffi.string(val, maxlen=length)))
+    return common.integer_or_decimal(b2s(ffi.string(val, maxlen=length)))
 
 
 @ffi.callback('int(void *ctx, const unsigned char *stringVal, size_t stringLen)')
