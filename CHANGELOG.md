@@ -2,6 +2,16 @@
 
 ## Development version
 
+* A new ``use_float`` option has been added to all backends
+  to control whether ``float`` values should be returned
+  for non-integer numbers instead of ``Decimal`` objects.
+  Using this option trades loss of precision
+  (which most applications probably don't care)
+  for performance (which most application do care about).
+  Historically ijson has returned ``Decimal`` objects,
+  and therefore the option defaults to ``False``
+  for backwards compatibility,
+  but in later releases this default could change to ``True``.
 * ``ijson.common.number`` is marked as deprecated,
   and will be removed on some later release.
 
