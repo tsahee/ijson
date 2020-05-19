@@ -18,7 +18,8 @@ class Config(Structure):
 
 
 @utils.coroutine
-def basic_parse_basecoro(target, allow_comments=False, check_utf8=False):
+def basic_parse_basecoro(target, allow_comments=False, check_utf8=False,
+                         use_float=False):
     '''
     Iterator yielding unprefixed events.
 
@@ -29,7 +30,7 @@ def basic_parse_basecoro(target, allow_comments=False, check_utf8=False):
     - check_utf8: if True, parser will cause an error if input is invalid utf-8
     - buf_size: a size of an input buffer
     '''
-    callbacks = _yajl2_ctypes_common.make_callbaks(target.send)
+    callbacks = _yajl2_ctypes_common.make_callbaks(target.send, use_float)
     config = Config(allow_comments, check_utf8)
     handle = yajl.yajl_alloc(byref(callbacks), byref(config), None, None)
     try:
