@@ -1,8 +1,8 @@
 '''
 Pure-python parsing backend.
 '''
-import re
 from json.decoder import scanstring
+import re
 
 from ijson import common, utils
 
