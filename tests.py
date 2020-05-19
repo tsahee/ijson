@@ -244,7 +244,6 @@ STRINGS_JSON = br'''
     "special\t": "\b\f\n\r\t"
 }
 '''
-NUMBERS_JSON = b'[1, 1.0, 1E2]'
 SURROGATE_PAIRS_JSON = br'"\uD83D\uDCA9"'
 PARTIAL_ARRAY_JSONS = [
     (b'[1,', 1),
@@ -426,9 +425,28 @@ class IJsonTestsBase(object):
         self.assertEqual(parsed_string, '💩')
 
     def test_numbers(self):
-        events = self.all(self.basic_parse, NUMBERS_JSON)
-        types = [type(value) for event, value in events if event == 'number']
-        self.assertEqual(types, [int, Decimal, Decimal])
+        """Check that numbers are correctly parsed"""
+
+        def assert_numbers(json, expected_float_type, *numbers, **kwargs):
+            events = self.all(self.basic_parse, json, **kwargs)
+            values = [value for event, value in events if event == 'number']
+            float_types = set(type(value) for event, value in events if event == 'number')
+            float_types -= {int}
+            self.assertEqual(1, len(float_types))
+            self.assertEqual(next(iter(float_types)), expected_float_type)
+            self.assertSequenceEqual(numbers, values)
+
+        NUMBERS_JSON = b'[1, 1.0, 1E2]'
+        assert_numbers(NUMBERS_JSON, Decimal, 1, Decimal("1.0"), Decimal("1e2"))
+        assert_numbers(NUMBERS_JSON, float, 1, 1., 100., use_float=True)
+        assert_numbers(b'1e400', Decimal, Decimal('1e400'))
+        assert_numbers(b'1e-400', Decimal, Decimal('1e-400'))
+        assert_numbers(b'1e-400', float, 0., use_float=True)
+        try:
+            assert_numbers(b'1e400', float, float('inf'), use_float=True)
+            self.fail("Overflow error expected")
+        except common.JSONError:
+            pass
 
     def test_incomplete(self):
         for json in INCOMPLETE_JSONS:
