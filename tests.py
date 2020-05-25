@@ -635,6 +635,8 @@ class Coroutines(object):
             if events:
                 return events[0]
         coro.close()
+        if events:
+            return events[0]
         return None
 
 
