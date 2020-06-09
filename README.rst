@@ -407,9 +407,9 @@ FAQ
    by passing the ``multiple_values=True`` to the ijson function in use.
    See the options_ section for details.
 
-#. Are there any differences between the backends?
+#. **Q**: Are there any differences between the backends?
 
-   Apart from their performance,
+   **A**: Apart from their performance,
    all backends are designed to support the same capabilities.
    There are however some small known differences:
 
