@@ -21,6 +21,7 @@ typedef struct {
     PyObject_HEAD
     PyObject *target_send;
     PyObject *path;
+    int join_path;
 } ParseBasecoro;
 
 /**
