@@ -305,6 +305,8 @@ the prefix works as the selection
 for which objects should be automatically built and returned by ijson.
 
 
+.. _backends:
+
 Backends
 ========
 
@@ -337,6 +339,32 @@ Importing the top level library as ``import ijson``
 uses the first available backend in the same order of the list above.
 Its name is recorded under ``ijson.backend``.
 
+
+Performance tips
+================
+
+In more-or-less decreasing order,
+these are the most common actions you can take
+to ensure you get most of the performance
+out of ijson:
+
+- Make sure you use the fastest backend available.
+  See backends_ for details.
+- If you know your JSON data
+  contains only numbers that are "well behaved"
+  consider turning on the ``use_float`` option.
+  See options_ for details.
+- Make sure you feed ijson with binary data
+  instead of text data.
+  See faq_ #1 for details.
+- Play with the ``buf_size`` option,
+  as depending on your data source and your system
+  a value different from the default
+  might show better performance.
+  See options_ for details.
+
+
+.. _faq:
 
 FAQ
 ===
