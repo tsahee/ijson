@@ -23,6 +23,13 @@
   (without having to manually use importlib).
 * New ``IJSON_BACKEND`` environment variable
   can be used to choose the default backend to be exposed by ijson.
+* Unicode decoding errors are now reported
+  more clearly to users.
+  In the past there was a mix
+  of empty messages and error types.
+  Now the error type is always the same
+  and there should always be an error messages
+  indicating the offending byte sequence.
 * ``ijson.common.number`` is marked as deprecated,
   and will be removed on some later release.
 
