@@ -12,6 +12,12 @@
   and therefore the option defaults to ``False``
   for backwards compatibility,
   but in later releases this default could change to ``True``.
+* Improved the performance
+  of the ``items`` and ``kvitems`` methods
+  of the ``yajl2_c`` backend
+  (by internally avoiding unnecessary string concatenations).
+  Local tests show a performance improvement of up to ~15%,
+  but milage might vary depending on your use case and system.
 * ``ijson.common.number`` is marked as deprecated,
   and will be removed on some later release.
 
