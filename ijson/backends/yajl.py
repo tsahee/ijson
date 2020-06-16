@@ -18,7 +18,7 @@ class Config(Structure):
 
 
 @utils.coroutine
-def basic_parse_basecoro(target, allow_comments=False,
+def basic_parse_basecoro(target, allow_comments=False, multiple_values=False,
                          use_float=False):
     '''
     Iterator yielding unprefixed events.
@@ -30,6 +30,8 @@ def basic_parse_basecoro(target, allow_comments=False,
     - check_utf8: if True, parser will cause an error if input is invalid utf-8
     - buf_size: a size of an input buffer
     '''
+    if multiple_values:
+        raise ValueError("yajl backend doesn't support multiple_values")
     callbacks = _yajl2_ctypes_common.make_callbaks(target.send, use_float)
     config = Config(allow_comments, True)
     handle = yajl.yajl_alloc(byref(callbacks), byref(config), None, None)

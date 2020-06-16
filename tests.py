@@ -449,10 +449,13 @@ class IJsonTestsBase(object):
                 self.all(self.basic_parse, json)
 
     def test_multiple_values(self):
+        """Test that the multiple_values flag works"""
         if not self.supports_multiple_values:
+            with self.assertRaises(ValueError):
+                self.all(self.basic_parse, "", multiple_values=True)
             return
-        items = lambda x, **kwargs: self.items(x, '', **kwargs)
         multiple_json = JSON + JSON + JSON
+        items = lambda x, **kwargs: self.items(x, '', **kwargs)
         for func in (self.basic_parse, items):
             with self.assertRaises(common.JSONError):
                 self.all(func, multiple_json)
