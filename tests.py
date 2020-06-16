@@ -286,7 +286,6 @@ EMPTY_MEMBER_TEST_CASES = {
 if compat.IS_PY2:
     def bytesiter(self, x):
         return x
-    striter = bytesiter
 else:
     def bytesiter(self, x):
         for b in x:
