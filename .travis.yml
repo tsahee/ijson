@@ -10,6 +10,8 @@ matrix:
     - python: "3.4"
     - python: "3.5"
       env: UPLOAD_C_COVERAGE=yes
+    - python: "3.5"
+      env: YAJL_VERSION=cant_find_it
     - python: "3.6"
     - python: "3.7"
     - python: "3.7"
@@ -24,14 +26,16 @@ install:
   - |
     if [ -n "$YAJL_VERSION" ]; then
       sudo apt purge -y libyajl-dev libyajl2
-    fi
-    if [ -n "$YAJL_VERSION"  -a "$YAJL_VERSION" != none ]; then
-      wget https://github.com/lloyd/yajl/archive/${YAJL_VERSION}.zip
-      unzip ${YAJL_VERSION}.zip
-      cd yajl-${YAJL_VERSION}
-      ./configure && make all && sudo make install
-      sudo ldconfig
-      cd ..
+      if [ "$YAJL_VERSION" = cant_find_it ]; then
+        export YAJL_DLL=/usr/lib/libyajl_cannot_be_found.so
+      elif [ "$YAJL_VERSION" != none ]; then
+        wget https://github.com/lloyd/yajl/archive/${YAJL_VERSION}.zip
+        unzip ${YAJL_VERSION}.zip
+        cd yajl-${YAJL_VERSION}
+        ./configure && make all && sudo make install
+        sudo ldconfig
+        cd ..
+      fi
     fi
   - pip install cffi pytest-cov
   - CFLAGS='--coverage' LDFLAGS='--coverage' python setup.py develop
