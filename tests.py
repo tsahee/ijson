@@ -675,7 +675,7 @@ def generate_test_cases(module, base_class):
                     'backend': ijson.get_backend(name),
                     'supports_multiple_values': name != 'yajl',
                     'supports_comments': name != 'python',
-                    'warn_on_string_stream': name != 'python' and not IS_PY2,
+                    'warn_on_string_stream': not IS_PY2,
                     'inputiter': bytesiter
                 },
             )
