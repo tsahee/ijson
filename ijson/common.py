@@ -303,36 +303,36 @@ def is_iterable(x):
 
 
 def _make_basic_parse_gen(backend):
-    def basic_parse_gen(f, buf_size=64*1024, **config):
+    def basic_parse_gen(file_obj, buf_size=64*1024, **config):
         return utils.coros2gen(
-            file_source(f, buf_size=buf_size),
+            file_source(file_obj, buf_size=buf_size),
             *_basic_parse_pipeline(backend, config)
         )
     return basic_parse_gen
 
 
 def _make_parse_gen(backend):
-    def parse_gen(f, buf_size=64*1024, **config):
+    def parse_gen(file_obj, buf_size=64*1024, **config):
         return utils.coros2gen(
-            file_source(f, buf_size=buf_size),
+            file_source(file_obj, buf_size=buf_size),
             *_parse_pipeline(backend, config)
         )
     return parse_gen
 
 
 def _make_items_gen(backend):
-    def items_gen(f, prefix, map_type=None, buf_size=64*1024, **config):
+    def items_gen(file_obj, prefix, map_type=None, buf_size=64*1024, **config):
         return utils.coros2gen(
-            file_source(f, buf_size=buf_size),
+            file_source(file_obj, buf_size=buf_size),
             *_items_pipeline(backend, prefix, map_type, config)
         )
     return items_gen
 
 
 def _make_kvitems_gen(backend):
-    def kvitems_gen(f, prefix, map_type=None, buf_size=64*1024, **config):
+    def kvitems_gen(file_obj, prefix, map_type=None, buf_size=64*1024, **config):
         return utils.coros2gen(
-            file_source(f, buf_size=buf_size),
+            file_source(file_obj, buf_size=buf_size),
             *_kvitems_pipeline(backend, prefix, map_type, config)
         )
     return kvitems_gen
