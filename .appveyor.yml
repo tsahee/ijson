@@ -32,7 +32,7 @@ build: off
 test_script:
   - "set IJSON_EMBED_YAJL=1"
   - "%PYTHON%\\python.exe setup.py develop"
-  - "%PYTHON%\\python.exe -mpytest tests.py -v"
+  - "%PYTHON%\\python.exe -mpytest -v"
 
 after_test:
   - "%PYTHON%\\python.exe setup.py bdist_wheel"

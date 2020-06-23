@@ -711,8 +711,8 @@ def generate_test_cases(module, base_class):
 generate_test_cases(globals(), Generators)
 generate_test_cases(globals(), Coroutines)
 if compat.IS_PY35:
-    import tests_asyncio
-    Async = type('Async', (tests_asyncio.Async, FileBasedTests), {})
+    from . import _test_asyncio
+    Async = type('Async', (_test_asyncio.Async, FileBasedTests), {})
     generate_test_cases(globals(), Async)
 
 

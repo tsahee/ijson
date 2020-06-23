@@ -41,7 +41,7 @@ install:
   - CFLAGS='--coverage' LDFLAGS='--coverage' python setup.py develop
 script:
   - python -mdoctest ijson/common.py
-  - pytest tests.py -v --cov
+  - pytest -v --cov
 after_success:
  - |
    if [ "$UPLOAD_C_COVERAGE" = yes ]; then
