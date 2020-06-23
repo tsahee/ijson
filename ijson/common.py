@@ -406,9 +406,15 @@ def _make_kvitems(backend):
     return kvitems
 
 
+_common_functions_warn = '''
+Don't use the ijson.common.* functions; instead go directly with the ijson.* ones.
+See the documentation for more information.
+'''
+
 def parse(events):
     """Like ijson.parse, but takes events generated via ijson.basic_parse instead
     of a file"""
+    warnings.warn(_common_functions_warn, DeprecationWarning)
     return utils.coros2gen(events,
         (parse_basecoro, (), {})
     )
@@ -417,6 +423,7 @@ def parse(events):
 def kvitems(events, prefix, map_type=None):
     """Like ijson.kvitems, but takes events generated via ijson.parse instead of
     a file"""
+    warnings.warn(_common_functions_warn, DeprecationWarning)
     return utils.coros2gen(events,
         (kvitems_basecoro, (prefix,), {'map_type': map_type})
     )
@@ -425,6 +432,7 @@ def kvitems(events, prefix, map_type=None):
 def items(events, prefix, map_type=None):
     """Like ijson.items, but takes events generated via ijson.parse instead of
     a file"""
+    warnings.warn(_common_functions_warn, DeprecationWarning)
     return utils.coros2gen(events,
         (items_basecoro, (prefix,), {'map_type': map_type})
     )

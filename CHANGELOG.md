@@ -26,6 +26,10 @@
   They also accept iterables,
   in which case they behave like the ``ijson.common.*`` functions,
   allowing users to tap into the event pipeline.
+* ``ijson.common`` routines ``parse``, ``items`` and ``kvitems``
+  are marked as deprecated.
+  Users should use the ``ijson.*`` routines instead,
+  which now accept event iterables.
 * New ``ijson.get_backend`` function
   for users to import a backend programatically
   (without having to manually use importlib).

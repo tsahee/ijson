@@ -621,17 +621,23 @@ class GeneratorSpecificTests(FileBasedTests):
         return list(routine(events, *args))
 
     def test_common_parse(self):
-        results = self._test_common_routine(common.parse,
-                                            base_routine_name='basic_parse')
+        with warning_catcher() as warns:
+            results = self._test_common_routine(common.parse,
+                                                base_routine_name='basic_parse')
         self.assertEqual(self.COMMON_PARSE, results)
+        self.assertEqual(len(warns), 1)
 
     def test_common_kvitems(self):
-        results = self._test_common_routine(common.kvitems, 'c')
+        with warning_catcher() as warns:
+            results = self._test_common_routine(common.kvitems, 'c')
         self.assertEqual([("d", "e"), ("f", "g")], results)
+        self.assertEqual(len(warns), 1)
 
     def test_common_items(self):
-        results = self._test_common_routine(common.items, 'list.item')
+        with warning_catcher() as warns:
+            results = self._test_common_routine(common.items, 'list.item')
         self.assertEqual([{"o1": 1}, {"o2": 2}], results)
+        self.assertEqual(len(warns), 1)
 
 class Coroutines(object):
     '''Test adaptation for coroutines'''
