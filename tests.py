@@ -291,6 +291,22 @@ else:
         for b in x:
             yield bytes([b])
 
+
+class warning_catcher(object):
+    '''Encapsulates proper warning catch-all logic in python 2.7 and 3'''
+
+    def __init__(self):
+        self.catcher = warnings.catch_warnings(record=True)
+
+    def __enter__(self):
+        ret = self.catcher.__enter__()
+        if compat.IS_PY2:
+            warnings.simplefilter("always")
+        return ret
+
+    def __exit__(self, *args):
+        self.catcher.__exit__(*args)
+
 class SingleReadFile(object):
     '''A bytes file that can be read only once'''
 
@@ -496,7 +512,7 @@ class IJsonTestsBase(object):
 class FileBasedTests(object):
 
     def test_string_stream(self):
-        with warnings.catch_warnings(record=True) as warns:
+        with warning_catcher() as warns:
             events = self.all(self.basic_parse, b2s(JSON))
             self.assertEqual(events, JSON_EVENTS)
         if self.warn_on_string_stream:
@@ -698,10 +714,7 @@ class Misc(unittest.TestCase):
     """Miscelaneous unit tests"""
 
     def test_common_number_is_deprecated(self):
-        with warnings.catch_warnings(record=True) as warns:
-            # 2.7 needs to enable the "always" filter to let warnings go through
-            if compat.IS_PY2:
-                warnings.simplefilter("always")
+        with warning_catcher() as warns:
             common.number("1")
         self.assertEqual(len(warns), 1)
         self.assertEqual(DeprecationWarning, warns[0].category)
