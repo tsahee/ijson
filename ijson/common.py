@@ -279,12 +279,12 @@ def _make_items_coro(backend):
 
 
 def _make_kvitems_coro(backend):
-    def kvitems(target, prefix, map_type=None, **config):
+    def kvitems_coro(target, prefix, map_type=None, **config):
         return utils.chain(
             target,
             *_kvitems_pipeline(backend, prefix, map_type, config)
         )
-    return kvitems
+    return kvitems_coro
 
 
 def is_async_file(x):
