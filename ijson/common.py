@@ -302,40 +302,40 @@ def is_iterable(x):
     return hasattr(x, '__iter__')
 
 
-def _make_basic_parse(backend):
-    def basic_parse(f, buf_size=64*1024, **config):
+def _make_basic_parse_gen(backend):
+    def basic_parse_gen(f, buf_size=64*1024, **config):
         return utils.coros2gen(
             file_source(f, buf_size=buf_size),
             *_basic_parse_pipeline(backend, config)
         )
-    return basic_parse
+    return basic_parse_gen
 
 
-def _make_parse(backend):
-    def parse(f, buf_size=64*1024, **config):
+def _make_parse_gen(backend):
+    def parse_gen(f, buf_size=64*1024, **config):
         return utils.coros2gen(
             file_source(f, buf_size=buf_size),
             *_parse_pipeline(backend, config)
         )
-    return parse
+    return parse_gen
 
 
-def _make_items(backend):
-    def items(f, prefix, map_type=None, buf_size=64*1024, **config):
+def _make_items_gen(backend):
+    def items_gen(f, prefix, map_type=None, buf_size=64*1024, **config):
         return utils.coros2gen(
             file_source(f, buf_size=buf_size),
             *_items_pipeline(backend, prefix, map_type, config)
         )
-    return items
+    return items_gen
 
 
-def _make_kvitems(backend):
-    def kvitems(f, prefix, map_type=None, buf_size=64*1024, **config):
+def _make_kvitems_gen(backend):
+    def kvitems_gen(f, prefix, map_type=None, buf_size=64*1024, **config):
         return utils.coros2gen(
             file_source(f, buf_size=buf_size),
             *_kvitems_pipeline(backend, prefix, map_type, config)
         )
-    return kvitems
+    return kvitems_gen
 
 
 def parse(events):
@@ -377,7 +377,7 @@ def enrich_backend(backend):
             factory = globals()['_make_' + coro_name]
             backend[coro_name] = factory(backend)
         if gen_name not in backend:
-            factory = globals()['_make_' + gen_name]
+            factory = globals()['_make_' + gen_name + '_gen']
             backend[gen_name] = factory(backend)
         if compat.IS_PY35:
             from . import utils35
