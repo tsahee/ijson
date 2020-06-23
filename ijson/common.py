@@ -2,6 +2,7 @@
 Backend independent higher level interfaces, common exceptions.
 '''
 import decimal
+import inspect
 import warnings
 
 from ijson import compat, utils
@@ -284,6 +285,21 @@ def _make_kvitems_coro(backend):
             *_kvitems_pipeline(backend, prefix, map_type, config)
         )
     return kvitems
+
+
+def is_async_file(x):
+    """True if x has an asynchronous `read` method"""
+    return compat.IS_PY35 and hasattr(x, 'read') and inspect.iscoroutinefunction(x.read)
+
+
+def is_file(x):
+    """True if x has a `read` method"""
+    return hasattr(x, 'read')
+
+
+def is_iterable(x):
+    """True if x can be iterated over"""
+    return hasattr(x, '__iter__')
 
 
 def _make_basic_parse(backend):
