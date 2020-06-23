@@ -646,7 +646,7 @@ class Coroutines(object):
 class Generators(GeneratorSpecificTests):
     '''Test adaptation for generators'''
 
-    suffix = ''
+    suffix = '_gen'
 
     def _reader(self, json):
         if type(json) == compat.bytetype:

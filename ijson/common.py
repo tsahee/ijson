@@ -338,6 +338,74 @@ def _make_kvitems_gen(backend):
     return kvitems_gen
 
 
+def _make_basic_parse(backend):
+    def basic_parse(source, buf_size=64*1024, **config):
+        if is_async_file(source):
+            return backend['basic_parse_async'](
+                source, buf_size=buf_size, **config
+            )
+        elif is_file(source):
+            return backend['basic_parse_gen'](
+                source, buf_size=buf_size, **config
+            )
+        raise ValueError("Unknown source type: %r" % type(source))
+    return basic_parse
+
+
+def _make_parse(backend):
+    def parse(source, buf_size=64*1024, **config):
+        if is_async_file(source):
+            return backend['parse_async'](
+                source, buf_size=buf_size, **config
+            )
+        elif is_file(source):
+            return backend['parse_gen'](
+                source, buf_size=buf_size, **config
+            )
+        elif is_iterable(source):
+            return utils.coros2gen(source,
+                (parse_basecoro, (), {})
+            )
+        raise ValueError("Unknown source type: %r" % type(source))
+    return parse
+
+
+def _make_items(backend):
+    def items(source, prefix, map_type=None, buf_size=64*1024, **config):
+        if is_async_file(source):
+            return backend['items_async'](
+                source, prefix, map_type=map_type, buf_size=buf_size, **config
+            )
+        elif is_file(source):
+            return backend['items_gen'](
+                source, prefix, map_type=map_type, buf_size=buf_size, **config
+            )
+        elif is_iterable(source):
+            return utils.coros2gen(source,
+                (backend['items_basecoro'], (prefix,), {'map_type': map_type})
+            )
+        raise ValueError("Unknown source type: %r" % type(source))
+    return items
+
+
+def _make_kvitems(backend):
+    def kvitems(source, prefix, map_type=None, buf_size=64*1024, **config):
+        if is_async_file(source):
+            return backend['kvitems_async'](
+                source, prefix, map_type=map_type, buf_size=buf_size, **config
+            )
+        elif is_file(source):
+            return backend['kvitems_gen'](
+                source, prefix, map_type=map_type, buf_size=buf_size, **config
+            )
+        elif is_iterable(source):
+            return utils.coros2gen(source,
+                (backend['kvitems_basecoro'], (prefix,), {'map_type': map_type})
+            )
+        raise ValueError("Unknown source type: %r" % type(source))
+    return kvitems
+
+
 def parse(events):
     """Like ijson.parse, but takes events generated via ijson.basic_parse instead
     of a file"""
@@ -368,20 +436,23 @@ def enrich_backend(backend):
     it might be missing by using the generic ones written in python.
     '''
     backend['backend'] = backend['__name__'].split('.')[-1]
-    for gen_name in ('basic_parse', 'parse', 'items', 'kvitems'):
-        basecoro_name = gen_name + '_basecoro'
+    for name in ('basic_parse', 'parse', 'items', 'kvitems'):
+        basecoro_name = name + '_basecoro'
         if basecoro_name not in backend:
             backend[basecoro_name] = globals()[basecoro_name]
-        coro_name = gen_name + '_coro'
+        coro_name = name + '_coro'
         if coro_name not in backend:
             factory = globals()['_make_' + coro_name]
             backend[coro_name] = factory(backend)
+        gen_name = name + '_gen'
         if gen_name not in backend:
-            factory = globals()['_make_' + gen_name + '_gen']
+            factory = globals()['_make_' + gen_name]
             backend[gen_name] = factory(backend)
         if compat.IS_PY35:
             from . import utils35
-            async_name = gen_name + '_async'
+            async_name = name + '_async'
             if async_name not in backend:
                 factory = getattr(utils35, '_make_' + async_name)
                 backend[async_name] = factory(backend)
+        factory = globals()['_make_' + name]
+        backend[name] = factory(backend)

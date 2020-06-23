@@ -27,7 +27,7 @@ def _itemlike_pipeline(itemslike_coro, prefix, map_type, config):
 def basic_parse_basecoro(target, **kwargs):
     return _yajl2.basic_parse_basecoro(target.send, **kwargs)
 
-def basic_parse(file, **kwargs):
+def basic_parse_gen(file, **kwargs):
     f = compat.bytes_reader(file)
     buf_size = _get_buf_size(kwargs)
     return _yajl2.basic_parse(f, buf_size, **kwargs)
@@ -40,7 +40,7 @@ def basic_parse_async(file, **kwargs):
 def parse_basecoro(target, **kwargs):
     return _yajl2.parse_basecoro(target.send, **kwargs)
 
-def parse(file, **kwargs):
+def parse_gen(file, **kwargs):
     f = compat.bytes_reader(file)
     buf_size = _get_buf_size(kwargs)
     return _yajl2.parse(f, buf_size, **kwargs)
@@ -49,12 +49,17 @@ def parse_async(file, **kwargs):
     buf_size = _get_buf_size(kwargs)
     return _yajl2.parse_async(file, buf_size, **kwargs)
 
+
+@utils.coroutine
+def kvitems_basecoro(target, prefix, map_type=None, **kwargs):
+    return _yajl2.kvitems_basecoro(target.send, prefix, map_type, **kwargs)
+
 def kvitems_coro(target, prefix, map_type=None, **config):
     return utils.chain(target.send,
         *_itemlike_pipeline(_yajl2.kvitems_basecoro, prefix, map_type, config)
     )
 
-def kvitems(file, prefix, map_type=None, **kwargs):
+def kvitems_gen(file, prefix, map_type=None, **kwargs):
     f = compat.bytes_reader(file)
     buf_size = _get_buf_size(kwargs)
     prefix = _get_prefix(prefix)
@@ -65,12 +70,17 @@ def kvitems_async(file, prefix, map_type=None, **kwargs):
     prefix = _get_prefix(prefix)
     return _yajl2.kvitems_async(file, buf_size, prefix, map_type, **kwargs)
 
+
+@utils.coroutine
+def items_basecoro(target, prefix, map_type=None, **kwargs):
+    return _yajl2.items_basecoro(target.send, prefix, map_type, **kwargs)
+
 def items_coro(target, prefix, map_type=None, **config):
     return utils.chain(target.send,
         *_itemlike_pipeline(_yajl2.items_basecoro, prefix, map_type, config)
     )
 
-def items(file, prefix, map_type=None, **kwargs):
+def items_gen(file, prefix, map_type=None, **kwargs):
     f = compat.bytes_reader(file)
     buf_size = _get_buf_size(kwargs)
     prefix = _get_prefix(prefix)
