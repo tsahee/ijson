@@ -1,8 +1,10 @@
 import unittest
 
-from ijson import common
+from ijson import common, compat
 
 from .test_base import warning_catcher
+from test.test_base import JSON, JSON_EVENTS, JSON_PARSE_EVENTS, JSON_OBJECT,\
+    generate_backend_specific_tests, JSON_KVITEMS
 
 
 class Misc(unittest.TestCase):
@@ -13,3 +15,53 @@ class Misc(unittest.TestCase):
             common.number("1")
         self.assertEqual(len(warns), 1)
         self.assertEqual(DeprecationWarning, warns[0].category)
+
+class MainEntryPoints(object):
+
+    def _assert_invalid_type(self, routine, *args, **kwargs):
+        # Functions are not valid inputs
+        with self.assertRaises(ValueError):
+            routine(lambda _: JSON, *args, **kwargs)
+
+    def _assert_file(self, expected_results, routine, *args, **kwargs):
+        results = list(routine(compat.BytesIO(JSON), *args, **kwargs))
+        self.assertEqual(expected_results, results)
+
+    def _assert_async_file(self, expected_results, routine, *args, **kwargs):
+        if not compat.IS_PY35:
+            return
+        from ._test_async import get_all
+        results = get_all(routine, JSON, *args, **kwargs)
+        self.assertEqual(expected_results, results)
+
+    def _assert_events(self, expected_results, previous_routine, routine, *args, **kwargs):
+        events = previous_routine(compat.BytesIO(JSON))
+        # Using a different generator to make the point that we can chain
+        # user-provided code
+        def event_yielder():
+            for evt in events:
+                yield evt
+        results = list(routine(event_yielder(), *args, **kwargs))
+        self.assertEqual(expected_results, results)
+
+    def _assert_entry_point(self, expected_results, previous_routine, routine,
+                            *args, **kwargs):
+        self._assert_invalid_type(routine, *args, **kwargs)
+        self._assert_file(expected_results, routine, *args, **kwargs)
+        self._assert_async_file(expected_results, routine, *args, **kwargs)
+        if previous_routine:
+            self._assert_events(expected_results, previous_routine, routine, *args, **kwargs)
+
+    def test_rich_basic_parse(self):
+        self._assert_entry_point(JSON_EVENTS, None, self.basic_parse)
+
+    def test_rich_parse(self):
+        self._assert_entry_point(JSON_PARSE_EVENTS, self.basic_parse, self.parse)
+
+    def test_rich_items(self):
+        self._assert_entry_point([JSON_OBJECT], self.parse, self.items, '')
+
+    def test_rich_kvitems(self):
+        self._assert_entry_point(JSON_KVITEMS, self.parse, self.kvitems, 'docs.item')
+
+generate_backend_specific_tests(globals(), 'MainEntryPoints', '', MainEntryPoints)
