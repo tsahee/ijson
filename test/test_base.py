@@ -299,16 +299,24 @@ class warning_catcher(object):
         self.catcher.__exit__(*args)
 
 
-class IJsonTestsBase(object):
+class BackendSpecificTestCase(object):
     '''
-    Base class with common tests for all backends and iteration methods.
-    Subclasses implement `all()` and `first()` to collect events coming from
-    a particuliar method, and also provide a `suffix` member that indicates
-    which method is being tested.
+    Base class for backend-specific tests, gives ability to easily and
+    generically reference different methods on the backend. It requires
+    subclasses to define a `backend` member with the backend module, and a
+    `suffix` attribute indicating the method flavour to obtain.
     '''
 
     def __getattr__(self, name):
-        return getattr(self.backend, name + self.suffix)
+        return getattr(self.backend, name + self.method_suffix)
+
+
+class IJsonTestsBase(object):
+    '''
+    Base class with common tests for all iteration methods.
+    Subclasses implement `all()` and `first()` to collect events coming from
+    a particuliar method.
+    '''
 
     def test_basic_parse(self):
         events = self.get_all(self.basic_parse, JSON)
@@ -502,28 +510,38 @@ class FileBasedTests(object):
             self.assertEqual(events, JSON_EVENTS)
 
 
-def generate_test_cases(module, classname, suffix, *bases):
-    for name in ['python', 'yajl', 'yajl2', 'yajl2_cffi', 'yajl2_c']:
+def generate_backend_specific_tests(module, classname_prefix, method_suffix,
+                                    *bases, **kwargs):
+    for backend in ['python', 'yajl', 'yajl2', 'yajl2_cffi', 'yajl2_c']:
         try:
             classname = '%s%sTests' % (
-                ''.join(p.capitalize() for p in name.split('_')),
-                classname
+                ''.join(p.capitalize() for p in backend.split('_')),
+                classname_prefix
             )
             if IS_PY2:
                 classname = classname.encode('ascii')
 
-            _bases = bases + (IJsonTestsBase, unittest.TestCase)
-            module[classname] = type(classname, _bases,
-                {
-                    'suffix': suffix,
-                    'get_all': lambda self, *args, **kwargs: module['get_all'](*args, **kwargs),
-                    'get_first': lambda self, *args, **kwargs: module['get_first'](*args, **kwargs),
-                    'backend_name': name,
-                    'backend': ijson.get_backend(name),
-                    'supports_multiple_values': name != 'yajl',
-                    'supports_comments': name != 'python',
-                    'warn_on_string_stream': not IS_PY2
-                },
-            )
+            _bases = bases + (BackendSpecificTestCase, unittest.TestCase)
+            _members = {
+                'backend_name': backend,
+                'backend': ijson.get_backend(backend),
+                'method_suffix': method_suffix,
+                'warn_on_string_stream': not IS_PY2
+            }
+            members = kwargs.get('members', lambda _: {})
+            _members.update(members(backend))
+            module[classname] = type(classname, _bases, _members)
         except ImportError:
             pass
+
+
+def generate_test_cases(module, classname, method_suffix, *bases):
+        _bases = bases + (IJsonTestsBase,)
+        members = lambda name: {
+            'get_all': lambda self, *args, **kwargs: module['get_all'](*args, **kwargs),
+            'get_first': lambda self, *args, **kwargs: module['get_first'](*args, **kwargs),
+            'supports_multiple_values': name != 'yajl',
+            'supports_comments': name != 'python',
+        }
+        return generate_backend_specific_tests(module, classname, method_suffix,
+                                               members=members, *_bases)
