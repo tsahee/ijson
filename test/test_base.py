@@ -502,20 +502,22 @@ class FileBasedTests(object):
             self.assertEqual(events, JSON_EVENTS)
 
 
-def generate_test_cases(module, base_class):
+def generate_test_cases(module, classname, suffix, *bases):
     for name in ['python', 'yajl', 'yajl2', 'yajl2_cffi', 'yajl2_c']:
         try:
             classname = '%s%sTests' % (
                 ''.join(p.capitalize() for p in name.split('_')),
-                base_class.__name__
+                classname
             )
             if IS_PY2:
                 classname = classname.encode('ascii')
 
-            module[classname] = type(
-                classname,
-                (base_class, IJsonTestsBase, unittest.TestCase),
+            _bases = bases + (IJsonTestsBase, unittest.TestCase)
+            module[classname] = type(classname, _bases,
                 {
+                    'suffix': suffix,
+                    'get_all': lambda self, *args, **kwargs: module['get_all'](*args, **kwargs),
+                    'get_first': lambda self, *args, **kwargs: module['get_first'](*args, **kwargs),
                     'backend_name': name,
                     'backend': ijson.get_backend(name),
                     'supports_multiple_values': name != 'yajl',

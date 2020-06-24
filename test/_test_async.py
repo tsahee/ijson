@@ -42,15 +42,3 @@ def get_first(routine, json_content, *args, **kwargs):
                 return
     _run(run())
     return events[0]
-
-
-class Async(object):
-    '''Test adaptation for async generators'''
-
-    suffix = '_async'
-
-    def get_all(self, *args, **kwargs):
-        return get_all(*args, **kwargs)
-
-    def get_first(self, *args, **kwargs):
-        return get_first(*args, **kwargs)

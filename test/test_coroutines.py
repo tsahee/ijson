@@ -33,16 +33,4 @@ def get_first(routine, json_content, *args, **kwargs):
         return events[0]
     return None
 
-
-class Coroutines(object):
-    '''Test adaptation for coroutines'''
-
-    suffix = '_coro'
-
-    def get_all(self, *args, **kwargs):
-        return get_all(*args, **kwargs)
-
-    def get_first(self, *args, **kwargs):
-        return get_first(*args, **kwargs)
-
-generate_test_cases(globals(), Coroutines)
+generate_test_cases(globals(), 'Coroutines', '_coro')

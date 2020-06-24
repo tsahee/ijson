@@ -151,15 +151,4 @@ def get_first(routine, json_content, *args, **kwargs):
     return next(routine(_reader(json_content), *args, **kwargs))
 
 
-class Generators(GeneratorSpecificTests):
-    '''Test adaptation for generators'''
-
-    suffix = '_gen'
-
-    def get_all(self, *args, **kwargs):
-        return get_all(*args, **kwargs)
-
-    def get_first(self, *args, **kwargs):
-        return get_first(*args, **kwargs)
-
-generate_test_cases(globals(), Generators)
+generate_test_cases(globals(), 'Generators', '_gen', GeneratorSpecificTests)
