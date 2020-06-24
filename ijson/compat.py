@@ -13,11 +13,13 @@ IS_PY35 = sys.version_info[0:2] >= (3, 5)
 if IS_PY2:
     b2s = lambda s: s
     bytetype = str
+    texttype = unicode
     from StringIO import StringIO
     BytesIO = StringIO
 else:
     b2s = lambda b: b.decode('utf-8')
     bytetype = bytes
+    texttype = str
     from io import BytesIO, StringIO
 
 class utf8reader(object):
