@@ -111,7 +111,7 @@ class GeneratorSpecificTests(FileBasedTests):
     def _test_common_routine(self, routine, *args, **kwargs):
         base_routine_name = kwargs.pop('base_routine_name', 'parse')
         base_routine = getattr(self.backend, base_routine_name)
-        events = base_routine(self._reader(self.COMMON_DATA))
+        events = base_routine(compat.BytesIO(self.COMMON_DATA))
         if base_routine_name == 'parse':
             self._skip_parse_events(events)
         # Rest of events can still be used
@@ -137,20 +137,29 @@ class GeneratorSpecificTests(FileBasedTests):
         self.assertEqual(len(warns), 1)
 
 
+def _reader(json):
+    if type(json) == compat.bytetype:
+        return compat.BytesIO(json)
+    return compat.StringIO(json)
+
+
+def get_all(routine, json_content, *args, **kwargs):
+    return list(routine(_reader(json_content), *args, **kwargs))
+
+
+def get_first(routine, json_content, *args, **kwargs):
+    return next(routine(_reader(json_content), *args, **kwargs))
+
+
 class Generators(GeneratorSpecificTests):
     '''Test adaptation for generators'''
 
     suffix = '_gen'
 
-    def _reader(self, json):
-        if type(json) == compat.bytetype:
-            return compat.BytesIO(json)
-        return compat.StringIO(json)
+    def get_all(self, *args, **kwargs):
+        return get_all(*args, **kwargs)
 
-    def get_all(self, routine, json_content, *args, **kwargs):
-        return list(routine(self._reader(json_content), *args, **kwargs))
-
-    def get_first(self, routine, json_content, *args, **kwargs):
-        return next(routine(self._reader(json_content), *args, **kwargs))
+    def get_first(self, *args, **kwargs):
+        return get_first(*args, **kwargs)
 
 generate_test_cases(globals(), Generators)

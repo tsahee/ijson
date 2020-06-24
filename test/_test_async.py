@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*-
 
 import asyncio
+import contextlib
 import io
 
 from ijson import compat
@@ -16,32 +17,40 @@ class AsyncReader(object):
     async def read(self, n=-1):
         return self.data.read(n)
 
+
+
+def _run(f):
+    with contextlib.closing(asyncio.new_event_loop()) as loop:
+        loop.run_until_complete(f)
+
+
+def get_all(routine, json_content, *args, **kwargs):
+    events = []
+    async def run():
+        async for event in routine(AsyncReader(json_content), *args, **kwargs):
+            events.append(event)
+    _run(run())
+    return events
+
+
+def get_first(routine, json_content, *args, **kwargs):
+    events = []
+    async def run():
+        async for event in routine(AsyncReader(json_content), *args, **kwargs):
+            events.append(event)
+            if events:
+                return
+    _run(run())
+    return events[0]
+
+
 class Async(object):
     '''Test adaptation for async generators'''
 
     suffix = '_async'
 
-    def _run(self, f):
-        loop = asyncio.new_event_loop()
-        try:
-            loop.run_until_complete(f)
-        finally:
-            loop.close()
+    def get_all(self, *args, **kwargs):
+        return get_all(*args, **kwargs)
 
-    def get_all(self, routine, json_content, *args, **kwargs):
-        events = []
-        async def run():
-            async for event in routine(AsyncReader(json_content), *args, **kwargs):
-                events.append(event)
-        self._run(run())
-        return events
-
-    def get_first(self, routine, json_content, *args, **kwargs):
-        events = []
-        async def run():
-            async for event in routine(AsyncReader(json_content), *args, **kwargs):
-                events.append(event)
-                if events:
-                    return
-        self._run(run())
-        return events[0]
+    def get_first(self, *args, **kwargs):
+        return get_first(*args, **kwargs)
