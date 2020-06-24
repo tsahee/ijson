@@ -283,15 +283,6 @@ EMPTY_MEMBER_TEST_CASES = {
 }
 
 
-if compat.IS_PY2:
-    def bytesiter(self, x):
-        return x
-else:
-    def bytesiter(self, x):
-        for b in x:
-            yield bytes([b])
-
-
 class warning_catcher(object):
     '''Encapsulates proper warning catch-all logic in python 2.7 and 3'''
 
@@ -529,8 +520,7 @@ def generate_test_cases(module, base_class):
                     'backend': ijson.get_backend(name),
                     'supports_multiple_values': name != 'yajl',
                     'supports_comments': name != 'python',
-                    'warn_on_string_stream': not IS_PY2,
-                    'inputiter': bytesiter
+                    'warn_on_string_stream': not IS_PY2
                 },
             )
         except ImportError:
