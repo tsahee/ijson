@@ -23,7 +23,9 @@
   In particular they accept not only file-like objects,
   but also asynchronous file-like objects,
   behaving like their ``*_async`` counterparts.
-  They also accept iterables,
+  They also accept ``bytes`` and ``str`` objects direclty
+  (and ``unicode`` objects in python 2.7).
+  Finally, they also accept iterables,
   in which case they behave like the ``ijson.common.*`` functions,
   allowing users to tap into the event pipeline.
 * ``ijson.common`` routines ``parse``, ``items`` and ``kvitems``

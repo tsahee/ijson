@@ -128,6 +128,19 @@ using the ``basic_parse`` function:
                     if event == 'map_key' and value == 'name')
 
 
+``bytes``/``str`` support
+-------------------------
+
+Although not usually how they are meant to be run,
+all the functions above also accept
+``bytes`` and ``str`` objects (and ``unicode`` in python 2.7)
+directly as inputs.
+These are then internally wrapped into a file object,
+and further processed.
+This is useful for testing and prototyping,
+but probably not extremely useful in real-life scenarios.
+
+
 ``asyncio`` support
 -------------------
 
@@ -430,7 +443,7 @@ out of ijson:
 FAQ
 ===
 
-#. **Q**: Does ijson work with ``bytes`` or ``str`` objects?
+#. **Q**: Does ijson work with ``bytes`` or ``str`` values?
 
    **A**: In short: both are accepted as input, outputs are only ``str``.
 
