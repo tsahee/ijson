@@ -23,6 +23,25 @@ class MainEntryPoints(object):
         with self.assertRaises(ValueError):
             routine(lambda _: JSON, *args, **kwargs)
 
+    def _assert_bytes(self, expected_results, routine, *args, **kwargs):
+        results = list(routine(JSON, *args, **kwargs))
+        self.assertEqual(expected_results, results)
+
+    def _assert_str(self, expected_results, routine, *args, **kwargs):
+        with warning_catcher() as warns:
+            results = list(routine(compat.b2s(JSON), *args, **kwargs))
+        self.assertEqual(expected_results, results)
+        if self.warn_on_string_stream:
+            self.assertEqual(1, len(warns))
+
+    def _assert_unicode(self, expected_results, routine, *args, **kwargs):
+        if not compat.IS_PY2:
+            return
+        with warning_catcher() as warns:
+            results = list(routine(unicode(JSON, 'utf-8'), *args, **kwargs))
+        self.assertEqual(expected_results, results)
+        self.assertEqual(1, len(warns))
+
     def _assert_file(self, expected_results, routine, *args, **kwargs):
         results = list(routine(compat.BytesIO(JSON), *args, **kwargs))
         self.assertEqual(expected_results, results)
@@ -47,6 +66,9 @@ class MainEntryPoints(object):
     def _assert_entry_point(self, expected_results, previous_routine, routine,
                             *args, **kwargs):
         self._assert_invalid_type(routine, *args, **kwargs)
+        self._assert_bytes(expected_results, routine, *args, **kwargs)
+        self._assert_str(expected_results, routine, *args, **kwargs)
+        self._assert_unicode(expected_results, routine, *args, **kwargs)
         self._assert_file(expected_results, routine, *args, **kwargs)
         self._assert_async_file(expected_results, routine, *args, **kwargs)
         if previous_routine:

@@ -302,6 +302,14 @@ def is_iterable(x):
     return hasattr(x, '__iter__')
 
 
+def _get_source(source):
+    if isinstance(source, compat.bytetype):
+        return compat.BytesIO(source)
+    elif isinstance(source, compat.texttype):
+        return compat.StringIO(source)
+    return source
+
+
 def _make_basic_parse_gen(backend):
     def basic_parse_gen(file_obj, buf_size=64*1024, **config):
         return utils.coros2gen(
@@ -340,6 +348,7 @@ def _make_kvitems_gen(backend):
 
 def _make_basic_parse(backend):
     def basic_parse(source, buf_size=64*1024, **config):
+        source = _get_source(source)
         if is_async_file(source):
             return backend['basic_parse_async'](
                 source, buf_size=buf_size, **config
@@ -354,6 +363,7 @@ def _make_basic_parse(backend):
 
 def _make_parse(backend):
     def parse(source, buf_size=64*1024, **config):
+        source = _get_source(source)
         if is_async_file(source):
             return backend['parse_async'](
                 source, buf_size=buf_size, **config
@@ -372,6 +382,7 @@ def _make_parse(backend):
 
 def _make_items(backend):
     def items(source, prefix, map_type=None, buf_size=64*1024, **config):
+        source = _get_source(source)
         if is_async_file(source):
             return backend['items_async'](
                 source, prefix, map_type=map_type, buf_size=buf_size, **config
@@ -390,6 +401,7 @@ def _make_items(backend):
 
 def _make_kvitems(backend):
     def kvitems(source, prefix, map_type=None, buf_size=64*1024, **config):
+        source = _get_source(source)
         if is_async_file(source):
             return backend['kvitems_async'](
                 source, prefix, map_type=map_type, buf_size=buf_size, **config
