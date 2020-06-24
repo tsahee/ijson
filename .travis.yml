@@ -42,6 +42,7 @@ install:
 script:
   - python -mdoctest ijson/common.py
   - pytest -v --cov
+  - test "`IJSON_BACKEND=python coverage run -a <(echo 'import ijson; print(ijson.backend)')`" == python
 after_success:
  - |
    if [ "$UPLOAD_C_COVERAGE" = yes ]; then
