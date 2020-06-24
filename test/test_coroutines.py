@@ -8,7 +8,7 @@ class Coroutines(object):
 
     suffix = '_coro'
 
-    def all(self, routine, json_content, *args, **kwargs):
+    def get_all(self, routine, json_content, *args, **kwargs):
         events = utils.sendable_list()
         coro = routine(events, *args, **kwargs)
         for datum in self.inputiter(json_content):
@@ -16,7 +16,7 @@ class Coroutines(object):
         coro.close()
         return events
 
-    def first(self, routine, json_content, *args, **kwargs):
+    def get_first(self, routine, json_content, *args, **kwargs):
         events = utils.sendable_list()
         coro = routine(events, *args, **kwargs)
         for datum in self.inputiter(json_content):

@@ -320,7 +320,7 @@ class IJsonTestsBase(object):
         return getattr(self.backend, name + self.suffix)
 
     def test_basic_parse(self):
-        events = self.all(self.basic_parse, JSON)
+        events = self.get_all(self.basic_parse, JSON)
         self.assertEqual(events, JSON_EVENTS)
 
     def test_basic_parse_threaded(self):
@@ -329,54 +329,54 @@ class IJsonTestsBase(object):
         thread.join()
 
     def test_parse(self):
-        events = self.all(self.parse, JSON)
+        events = self.get_all(self.parse, JSON)
         self.assertEqual(events, JSON_PARSE_EVENTS)
 
     def test_items(self):
-        events = self.all(self.items, JSON, '')
+        events = self.get_all(self.items, JSON, '')
         self.assertEqual(events, [JSON_OBJECT])
 
     def test_items_twodictlevels(self):
         json = b'{"meta":{"view":{"columns":[{"id": -1}, {"id": -2}]}}}'
-        ids = self.all(self.items, json, 'meta.view.columns.item.id')
+        ids = self.get_all(self.items, json, 'meta.view.columns.item.id')
         self.assertEqual(2, len(ids))
         self.assertListEqual([-2,-1], sorted(ids))
 
     def test_map_type(self):
-        obj = self.first(self.items, JSON, '')
+        obj = self.get_first(self.items, JSON, '')
         self.assertTrue(isinstance(obj, dict))
-        obj = self.first(self.items, JSON, '', map_type=collections.OrderedDict)
+        obj = self.get_first(self.items, JSON, '', map_type=collections.OrderedDict)
         self.assertTrue(isinstance(obj, collections.OrderedDict))
 
     def test_kvitems(self):
-        kvitems = self.all(self.kvitems, JSON, 'docs.item')
+        kvitems = self.get_all(self.kvitems, JSON, 'docs.item')
         self.assertEqual(JSON_KVITEMS, kvitems)
 
     def test_kvitems_toplevel(self):
-        kvitems = self.all(self.kvitems, JSON, '')
+        kvitems = self.get_all(self.kvitems, JSON, '')
         self.assertEqual(1, len(kvitems))
         key, value = kvitems[0]
         self.assertEqual('docs', key)
         self.assertEqual(JSON_OBJECT['docs'], value)
 
     def test_kvitems_empty(self):
-        kvitems = self.all(self.kvitems, JSON, 'docs')
+        kvitems = self.get_all(self.kvitems, JSON, 'docs')
         self.assertEqual([], kvitems)
 
     def test_kvitems_twodictlevels(self):
         json = b'{"meta":{"view":{"columns":[{"id": -1}, {"id": -2}]}}}'
-        view = self.all(self.kvitems, json, 'meta.view')
+        view = self.get_all(self.kvitems, json, 'meta.view')
         self.assertEqual(1, len(view))
         key, value = view[0]
         self.assertEqual('columns', key)
         self.assertEqual([{'id': -1}, {'id': -2}], value)
 
     def test_kvitems_different_underlying_types(self):
-        kvitems = self.all(self.kvitems, JSON, 'docs.item.meta')
+        kvitems = self.get_all(self.kvitems, JSON, 'docs.item.meta')
         self.assertEqual(JSON_KVITEMS_META, kvitems)
 
     def test_basic_parse_array(self):
-        events = self.all(self.basic_parse, ARRAY_JSON)
+        events = self.get_all(self.basic_parse, ARRAY_JSON)
         self.assertEqual(events, ARRAY_JSON_EVENTS)
 
     def test_basic_parse_array_threaded(self):
@@ -385,29 +385,29 @@ class IJsonTestsBase(object):
         thread.join()
 
     def test_parse_array(self):
-        events = self.all(self.parse, ARRAY_JSON)
+        events = self.get_all(self.parse, ARRAY_JSON)
         self.assertEqual(events, ARRAY_JSON_PARSE_EVENTS)
 
     def test_items_array(self):
-        events = self.all(self.items, ARRAY_JSON, '')
+        events = self.get_all(self.items, ARRAY_JSON, '')
         self.assertEqual(events, [ARRAY_JSON_OBJECT])
 
     def test_kvitems_array(self):
-        kvitems = self.all(self.kvitems, ARRAY_JSON, 'item.docs.item')
+        kvitems = self.get_all(self.kvitems, ARRAY_JSON, 'item.docs.item')
         self.assertEqual(JSON_KVITEMS, kvitems)
 
     def test_scalar(self):
-        events = self.all(self.basic_parse, SCALAR_JSON)
+        events = self.get_all(self.basic_parse, SCALAR_JSON)
         self.assertEqual(events, [('number', 0)])
 
     def test_strings(self):
-        events = self.all(self.basic_parse, STRINGS_JSON)
+        events = self.get_all(self.basic_parse, STRINGS_JSON)
         strings = [value for event, value in events if event == 'string']
         self.assertEqual(strings, ['', '"', '\\', '\\\\', '\b\f\n\r\t'])
         self.assertTrue(('map_key', 'special\t') in events)
 
     def test_surrogate_pairs(self):
-        event = self.first(self.basic_parse, SURROGATE_PAIRS_JSON)
+        event = self.get_first(self.basic_parse, SURROGATE_PAIRS_JSON)
         parsed_string = event[1]
         self.assertEqual(parsed_string, '💩')
 
@@ -415,7 +415,7 @@ class IJsonTestsBase(object):
         """Check that numbers are correctly parsed"""
 
         def assert_numbers(json, expected_float_type, *numbers, **kwargs):
-            events = self.all(self.basic_parse, json, **kwargs)
+            events = self.get_all(self.basic_parse, json, **kwargs)
             values = [value for event, value in events if event == 'number']
             float_types = set(type(value) for event, value in events if event == 'number')
             float_types -= {int}
@@ -438,7 +438,7 @@ class IJsonTestsBase(object):
     def test_incomplete(self):
         for json in INCOMPLETE_JSONS:
             with self.assertRaises(common.IncompleteJSONError):
-                self.all(self.basic_parse, json)
+                self.get_all(self.basic_parse, json)
 
     def test_invalid(self):
         for json in INVALID_JSONS:
@@ -447,22 +447,22 @@ class IJsonTestsBase(object):
             if self.backend_name == 'yajl' and json == YAJL1_PASSING_INVALID:
                 continue
             with self.assertRaises(common.JSONError):
-                self.all(self.basic_parse, json)
+                self.get_all(self.basic_parse, json)
 
     def test_multiple_values(self):
         """Test that the multiple_values flag works"""
         if not self.supports_multiple_values:
             with self.assertRaises(ValueError):
-                self.all(self.basic_parse, "", multiple_values=True)
+                self.get_all(self.basic_parse, "", multiple_values=True)
             return
         multiple_json = JSON + JSON + JSON
         items = lambda x, **kwargs: self.items(x, '', **kwargs)
         for func in (self.basic_parse, items):
             with self.assertRaises(common.JSONError):
-                self.all(func, multiple_json)
+                self.get_all(func, multiple_json)
             with self.assertRaises(common.JSONError):
-                self.all(func, multiple_json, multiple_values=False)
-            result = self.all(func, multiple_json, multiple_values=True)
+                self.get_all(func, multiple_json, multiple_values=False)
+            result = self.get_all(func, multiple_json, multiple_values=True)
             if func == items:
                 self.assertEqual(result, [JSON_OBJECT, JSON_OBJECT, JSON_OBJECT])
             else:
@@ -471,15 +471,15 @@ class IJsonTestsBase(object):
     def test_comments(self):
         json = b'{"a": 2 /* a comment */}'
         try:
-            self.all(self.basic_parse, json, allow_comments=True)
+            self.get_all(self.basic_parse, json, allow_comments=True)
         except ValueError:
             if self.supports_comments:
                 raise
 
     def _test_empty_member(self, test_case):
-        pairs = self.all(self.kvitems, test_case.json, test_case.prefix)
+        pairs = self.get_all(self.kvitems, test_case.json, test_case.prefix)
         self.assertEqual(test_case.kvitems, pairs)
-        objects = self.all(self.items, test_case.json, test_case.prefix)
+        objects = self.get_all(self.items, test_case.json, test_case.prefix)
         self.assertEqual(test_case.items, objects)
 
     def test_empty_member(self):
@@ -499,7 +499,7 @@ class FileBasedTests(object):
 
     def test_string_stream(self):
         with warning_catcher() as warns:
-            events = self.all(self.basic_parse, b2s(JSON))
+            events = self.get_all(self.basic_parse, b2s(JSON))
             self.assertEqual(events, JSON_EVENTS)
         if self.warn_on_string_stream:
             self.assertEqual(len(warns), 1)
@@ -507,7 +507,7 @@ class FileBasedTests(object):
 
     def test_different_buf_sizes(self):
         for buf_size in (1, 4, 16, 64, 256, 1024, 4098):
-            events = self.all(self.basic_parse, JSON, buf_size=buf_size)
+            events = self.get_all(self.basic_parse, JSON, buf_size=buf_size)
             self.assertEqual(events, JSON_EVENTS)
 
 

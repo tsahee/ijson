@@ -28,7 +28,7 @@ class Async(object):
         finally:
             loop.close()
 
-    def all(self, routine, json_content, *args, **kwargs):
+    def get_all(self, routine, json_content, *args, **kwargs):
         events = []
         async def run():
             async for event in routine(AsyncReader(json_content), *args, **kwargs):
@@ -36,7 +36,7 @@ class Async(object):
         self._run(run())
         return events
 
-    def first(self, routine, json_content, *args, **kwargs):
+    def get_first(self, routine, json_content, *args, **kwargs):
         events = []
         async def run():
             async for event in routine(AsyncReader(json_content), *args, **kwargs):

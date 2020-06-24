@@ -31,7 +31,7 @@ class GeneratorSpecificTests(FileBasedTests):
     def test_utf8_split(self):
         buf_size = JSON.index(b'\xd1') + 1
         try:
-            self.all(self.basic_parse, JSON, buf_size=buf_size)
+            self.get_all(self.basic_parse, JSON, buf_size=buf_size)
         except UnicodeDecodeError:
             self.fail('UnicodeDecodeError raised')
 
@@ -42,12 +42,12 @@ class GeneratorSpecificTests(FileBasedTests):
 
     def test_boundary_lexeme(self):
         buf_size = JSON.index(b'false') + 1
-        events = self.all(self.basic_parse, JSON, buf_size=buf_size)
+        events = self.get_all(self.basic_parse, JSON, buf_size=buf_size)
         self.assertEqual(events, JSON_EVENTS)
 
     def test_boundary_whitespace(self):
         buf_size = JSON.index(b'   ') + 1
-        events = self.all(self.basic_parse, JSON, buf_size=buf_size)
+        events = self.get_all(self.basic_parse, JSON, buf_size=buf_size)
         self.assertEqual(events, JSON_EVENTS)
 
     def test_item_building_greediness(self):
@@ -147,10 +147,10 @@ class Generators(GeneratorSpecificTests):
             return compat.BytesIO(json)
         return compat.StringIO(json)
 
-    def all(self, routine, json_content, *args, **kwargs):
+    def get_all(self, routine, json_content, *args, **kwargs):
         return list(routine(self._reader(json_content), *args, **kwargs))
 
-    def first(self, routine, json_content, *args, **kwargs):
+    def get_first(self, routine, json_content, *args, **kwargs):
         return next(routine(self._reader(json_content), *args, **kwargs))
 
 generate_test_cases(globals(), Generators)
