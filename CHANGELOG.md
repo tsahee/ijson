@@ -1,6 +1,6 @@
 # Changelog
 
-## Development version
+## [3.1]
 
 * A new ``use_float`` option has been added to all backends
   to control whether ``float`` values should be returned
@@ -210,3 +210,4 @@
 [3.0.2]: https://github.com/ICRAR/ijson/releases/tag/v3.0.2
 [3.0.3]: https://github.com/ICRAR/ijson/releases/tag/v3.0.3
 [3.0.4]: https://github.com/ICRAR/ijson/releases/tag/v3.0.4
+[3.1]: https://github.com/ICRAR/ijson/releases/tag/v3.1
