@@ -39,7 +39,7 @@ setupArgs = dict(
         'Programming Language :: Python :: Implementation :: PyPy',
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
-    packages = find_packages(),
+    packages = find_packages(exclude=['test']),
 )
 
 # Check if the yajl library + headers are present
