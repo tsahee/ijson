@@ -15,6 +15,7 @@ class AsyncReader(object):
             self.data = io.StringIO(data)
 
     async def read(self, n=-1):
+        await asyncio.sleep(0)
         return self.data.read(n)
 
 
