@@ -88,25 +88,27 @@ static PyObject *async_reading_generator_next(PyObject *self)
 		return NULL;
 	}
 
-	if (gen->read_func == NULL) {
-		PyObject *utils35, *get_read_func, *get_read_coro;
-		N_N(utils35 = PyImport_ImportModule("ijson.utils35"));
-		N_N(get_read_func = PyObject_GetAttrString(utils35, "_get_read"));
-		N_N(get_read_coro = PyObject_CallFunctionObjArgs(get_read_func, gen->file, NULL));
-		N_N(gen->awaitable = PyObject_CallMethod(get_read_coro, "__await__", NULL));
-		assert(PyIter_Check(gen->awaitable));
-		Py_DECREF(get_read_coro);
-		Py_DECREF(get_read_func);
-		Py_DECREF(utils35);
-		Py_CLEAR(gen->file);
-	}
-
+	// prepare corresponding awaitable
 	if (gen->awaitable == NULL) {
-		PyObject *read_coro;
-		N_N(read_coro = PyObject_CallFunctionObjArgs(gen->read_func, gen->buf_size, NULL));
-		N_N(gen->awaitable = PyObject_CallMethod(read_coro, "__await__", NULL));
-		assert(PyIter_Check(gen->awaitable));
-		Py_DECREF(read_coro);
+		if (gen->read_func == NULL) {
+			PyObject *utils35, *get_read_func, *get_read_coro;
+			N_N(utils35 = PyImport_ImportModule("ijson.utils35"));
+			N_N(get_read_func = PyObject_GetAttrString(utils35, "_get_read"));
+			N_N(get_read_coro = PyObject_CallFunctionObjArgs(get_read_func, gen->file, NULL));
+			N_N(gen->awaitable = PyObject_CallMethod(get_read_coro, "__await__", NULL));
+			assert(PyIter_Check(gen->awaitable));
+			Py_DECREF(get_read_coro);
+			Py_DECREF(get_read_func);
+			Py_DECREF(utils35);
+			Py_CLEAR(gen->file);
+		}
+		else {
+			PyObject *read_coro;
+			N_N(read_coro = PyObject_CallFunctionObjArgs(gen->read_func, gen->buf_size, NULL));
+			N_N(gen->awaitable = PyObject_CallMethod(read_coro, "__await__", NULL));
+			assert(PyIter_Check(gen->awaitable));
+			Py_DECREF(read_coro);
+		}
 	}
 
 	// Propagate values/errors that are not StopIteration
