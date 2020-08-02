@@ -1,5 +1,13 @@
 # Changelog
 
+## Development version
+
+* Fixed two problems in the ``yajl2_c`` backend
+  related to `asyncio` support,
+  which prevented some objects
+  like those from ``aiofiles``
+  from working properly (#32).
+
 ## [3.1.post0]
 
 * Removed ``test`` package from binary distributions.
