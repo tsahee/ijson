@@ -30,7 +30,7 @@
   (by internally avoiding unnecessary string concatenations).
   Local tests show a performance improvement of up to ~15%,
   but milage might vary depending on your use case and system.
-* The "raw" funcionts ``basic_parse``, ``parse``, ``items`` and ``kvitems``
+* The "raw" functions ``basic_parse``, ``parse``, ``items`` and ``kvitems``
   can now be used with different types of inputs.
   In particular they accept not only file-like objects,
   but also asynchronous file-like objects,
