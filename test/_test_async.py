@@ -6,6 +6,8 @@ import io
 
 from ijson import compat
 
+from ._test_async_common import _get_all, _get_first
+
 
 class AsyncReader(object):
     def __init__(self, data):
@@ -18,28 +20,5 @@ class AsyncReader(object):
         await asyncio.sleep(0)
         return self.data.read(n)
 
-
-
-def _run(f):
-    with contextlib.closing(asyncio.new_event_loop()) as loop:
-        loop.run_until_complete(f)
-
-
-def get_all(routine, json_content, *args, **kwargs):
-    events = []
-    async def run():
-        async for event in routine(AsyncReader(json_content), *args, **kwargs):
-            events.append(event)
-    _run(run())
-    return events
-
-
-def get_first(routine, json_content, *args, **kwargs):
-    events = []
-    async def run():
-        async for event in routine(AsyncReader(json_content), *args, **kwargs):
-            events.append(event)
-            if events:
-                return
-    _run(run())
-    return events[0]
+get_all = _get_all(AsyncReader)
+get_first = _get_first(AsyncReader)
