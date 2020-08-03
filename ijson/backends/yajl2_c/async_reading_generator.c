@@ -116,16 +116,12 @@ static PyObject *async_reading_generator_next(PyObject *self)
 			N_N(read_coro = PyObject_CallFunctionObjArgs(gen->read_func, gen->buf_size, NULL));
 			// this can be a "normal" awaitable (has an __await__ method)
 			// or a function decorated with types.coroutine (a generator)
-			if (PyObject_HasAttrString(read_coro, "__await__")) {
-				N_N(gen->awaitable = PyObject_CallMethod(read_coro, "__await__", NULL));
-			}
-			else if (is_gen_coroutine(read_coro)) {
+			if (is_gen_coroutine(read_coro)) {
 				gen->awaitable = read_coro;
 				Py_INCREF(gen->awaitable);
 			}
 			else {
-				PyErr_SetString(PyExc_TypeError, "Expected an awaitable read method");
-				return NULL;
+				N_N(gen->awaitable = PyObject_CallMethod(read_coro, "__await__", NULL));
 			}
 			assert(PyIter_Check(gen->awaitable));
 			Py_DECREF(read_coro);
