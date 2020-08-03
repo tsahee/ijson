@@ -24,6 +24,7 @@ setupArgs = dict(
     license = 'BSD',
     description = 'Iterative JSON parser with a standard Python iterator interface',
     long_description = open('README.rst').read(),
+    long_description_content_type = 'text/x-rst',
 
     classifiers = [
         'Development Status :: 5 - Production/Stable',
