@@ -100,7 +100,7 @@ def boolean(val):
 @ffi.callback('int(void *ctx, long long integerVal)')
 @append_event_to_ctx('number')
 def integer(val):
-    return val
+    return int(val)
 
 
 @ffi.callback('int(void * ctx, double doubleVal)')
