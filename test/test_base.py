@@ -414,9 +414,12 @@ class IJsonTestsBase(object):
     def test_numbers(self):
         """Check that numbers are correctly parsed"""
 
-        def assert_numbers(json, expected_float_type, *numbers, **kwargs):
+        def get_numbers(json, **kwargs):
             events = self.get_all(self.basic_parse, json, **kwargs)
-            values = [value for event, value in events if event == 'number']
+            return events, [value for event, value in events if event == 'number']
+
+        def assert_numbers(json, expected_float_type, *numbers, **kwargs):
+            events, values = get_numbers(json, **kwargs)
             float_types = set(type(value) for event, value in events if event == 'number')
             float_types -= {int}
             self.assertEqual(1, len(float_types))
@@ -429,8 +432,17 @@ class IJsonTestsBase(object):
         assert_numbers(b'1e400', Decimal, Decimal('1e400'))
         assert_numbers(b'1e-400', Decimal, Decimal('1e-400'))
         assert_numbers(b'1e-400', float, 0., use_float=True)
+        # Test for 64-bit integers support when using use_float=True
         try:
-            assert_numbers(b'1e400', float, float('inf'), use_float=True)
+            past32bits = 2 ** 32 + 1
+            received = get_numbers(('%d' % past32bits).encode('utf8'), use_float=True)[1][0]
+            self.assertTrue(self.supports_64bit_integers)
+            self.assertEqual(past32bits, received)
+        except common.JSONError:
+            self.assertFalse(self.supports_64bit_integers)
+        # Check that numbers bigger than MAX_DOUBLE cannot be represented
+        try:
+            get_numbers(b'1e400', use_float=True)
             self.fail("Overflow error expected")
         except common.JSONError:
             pass
