@@ -32,7 +32,7 @@ def basic_parse_basecoro(target, allow_comments=False, multiple_values=False,
     '''
     if multiple_values:
         raise ValueError("yajl backend doesn't support multiple_values")
-    callbacks = _yajl2_ctypes_common.make_callbaks(target.send, use_float)
+    callbacks = _yajl2_ctypes_common.make_callbaks(target.send, use_float, 1)
     config = Config(allow_comments, True)
     handle = yajl.yajl_alloc(byref(callbacks), byref(config), None, None)
     try:
