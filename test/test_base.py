@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*-
 from __future__ import unicode_literals
 import collections
+import ctypes
 import unittest
 from decimal import Decimal
 import threading
@@ -526,7 +527,8 @@ def generate_backend_specific_tests(module, classname_prefix, method_suffix,
                 'backend_name': backend,
                 'backend': ijson.get_backend(backend),
                 'method_suffix': method_suffix,
-                'warn_on_string_stream': not IS_PY2
+                'warn_on_string_stream': not IS_PY2,
+                'supports_64bit_integers': not (backend == 'yajl' and ctypes.sizeof(ctypes.c_long) == 4)
             }
             members = kwargs.get('members', lambda _: {})
             _members.update(members(backend))
