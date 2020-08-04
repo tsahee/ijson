@@ -33,6 +33,21 @@ Ijson is an iterative JSON parser with standard Python iterator interfaces.
    :local:
 
 
+Installation
+============
+
+Ijson is hosted in PyPI, so you should be able to install it via ``pip``::
+
+  pip install ijson
+
+Binary wheels are provided
+for major platforms (Linux, MacOS, Windows)
+and python versions (2.7, 3.5+).
+These are built and published automatically
+using `cibuildwheel <https://cibuildwheel.readthedocs.io/en/stable/>`
+via GitHub actions.
+
+
 Usage
 =====
 
