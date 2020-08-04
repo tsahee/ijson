@@ -298,6 +298,11 @@ to give users more fine-grained control over certain operations:
   (which most applications will not care about)
   and will raise an exception when overflow occurs
   (e.g., if ``1e400`` is encountered).
+  This option also has the side-effect
+  that integer numbers bigger than ``2^64``
+  (but *sometimes* ``2^32``, see backends_)
+  will also raise an overflow error,
+  due to similar reasons.
   Future versions of ijson
   might change the default value of this option
   to ``True``.
@@ -518,6 +523,8 @@ FAQ
    * The ``yajl`` backend doesn't support ``multiple_values=True``.
      It also doesn't complain about additional data
      found after the end of the top-level JSON object.
+     When using ``use_float=True`` it also doesn't properly support
+     values greater than 2^32 in 32-bit platforms or Windows.
 
    * The ``python`` backend doesn't support ``allow_comments=True``
      It also internally works with ``str`` objects, not ``bytes``,

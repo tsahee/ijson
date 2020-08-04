@@ -7,6 +7,9 @@
   which prevented some objects
   like those from ``aiofiles``
   from working properly (#32).
+* Ironing out and documenting some corner cases
+  related to the use of ``use_float=True``
+  and its side-effect on integer number parsing.
 
 ## [3.1.post0]
 
