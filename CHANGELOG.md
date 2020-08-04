@@ -1,6 +1,6 @@
 # Changelog
 
-## Development version
+## [3.1.1]
 
 * Fixed two problems in the ``yajl2_c`` backend
   related to `asyncio` support,
@@ -227,3 +227,4 @@
 [3.0.4]: https://github.com/ICRAR/ijson/releases/tag/v3.0.4
 [3.1]: https://github.com/ICRAR/ijson/releases/tag/v3.1
 [3.1.post0]: https://github.com/ICRAR/ijson/releases/tag/v3.1.post0
+[3.1.1]: https://github.com/ICRAR/ijson/releases/tag/v3.1.1
