@@ -171,6 +171,7 @@ def parse_value(target, multivalue, use_float):
                 push(state)
             else:
                 raise common.JSONError('Additional data found')
+        assert state_stack
 
         if state == _PARSE_VALUE:
             # Simple, common cases
@@ -191,9 +192,7 @@ def parse_value(target, multivalue, use_float):
                 send(('start_array', None))
                 pos, symbol = (yield)
                 if (pos, symbol) == EOF:
-                    if state_stack:
-                        raise common.IncompleteJSONError('Incomplete JSON content')
-                    break
+                    raise common.IncompleteJSONError('Incomplete JSON content')
                 if symbol == ']':
                     send(('end_array', None))
                     pop()
@@ -206,9 +205,7 @@ def parse_value(target, multivalue, use_float):
                 send(('start_map', None))
                 pos, symbol = (yield)
                 if (pos, symbol) == EOF:
-                    if state_stack:
-                        raise common.IncompleteJSONError('Incomplete JSON content')
-                    break
+                    raise common.IncompleteJSONError('Incomplete JSON content')
                 if symbol == '}':
                     send(('end_map', None))
                     pop()
@@ -233,9 +230,7 @@ def parse_value(target, multivalue, use_float):
             send(('map_key', parse_string(symbol)))
             pos, symbol = (yield)
             if (pos, symbol) == EOF:
-                if state_stack:
-                    raise common.IncompleteJSONError('Incomplete JSON content')
-                break
+                raise common.IncompleteJSONError('Incomplete JSON content')
             if symbol != ':':
                 raise UnexpectedSymbol(symbol, pos)
             state_stack[-1] = _PARSE_OBJECT_END
