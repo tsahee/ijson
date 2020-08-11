@@ -17,15 +17,15 @@
 static int kvitems_basecoro_init(KVItemsBasecoro *self, PyObject *args, PyObject *kwargs)
 {
 	self->target_send = NULL;
-	self->builder = NULL;
 	self->prefix = NULL;
 	self->key = NULL;
+	builder_create(&self->builder);
 
 	PyObject *map_type;
 	M1_Z(PyArg_ParseTuple(args, "OOO", &(self->target_send), &(self->prefix), &map_type));
 	Py_INCREF(self->target_send);
 	Py_INCREF(self->prefix);
-	M1_N(self->builder = builder_create(map_type));
+	M1_M1(builder_init(&self->builder, map_type));
 
 	return 0;
 }
@@ -35,9 +35,7 @@ static void kvitems_basecoro_dealloc(KVItemsBasecoro *self)
 	Py_XDECREF(self->prefix);
 	Py_XDECREF(self->key);
 	Py_XDECREF(self->target_send);
-	if (self->builder) {
-		builder_destroy(self->builder);
-	}
+	builder_destroy(&self->builder);
 	Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -47,8 +45,8 @@ static int kvitems_basecoro_start_new_member(KVItemsBasecoro *coro, PyObject *ke
 	Py_XDECREF(coro->key);
 	coro->key = key;
 	Py_INCREF(coro->key);
-	M1_M1(builder_reset(coro->builder));
-	coro->builder->active = 1;
+	M1_M1(builder_reset(&coro->builder));
+	coro->builder.active = 1;
 	return 0;
 }
 
@@ -58,15 +56,15 @@ PyObject* kvitems_basecoro_send_impl(PyObject *self, PyObject *path, PyObject *e
 
 	PyObject *retval = NULL;
 	PyObject *retkey = NULL;
-	if (builder_isactive(coro->builder)) {
+	if (builder_isactive(&coro->builder)) {
 		coro->object_depth += (event == enames.start_map_ename);
 		coro->object_depth -= (event == enames.end_map_ename);
 		if ((event != enames.map_key_ename || coro->object_depth != 0) &&
 		    (event != enames.end_map_ename || coro->object_depth != -1)) {
-			N_M1(builder_event(coro->builder, event, value));
+			N_M1(builder_event(&coro->builder, event, value));
 		}
 		else {
-			retval = builder_value(coro->builder);
+			retval = builder_value(&coro->builder);
 			retkey = coro->key;
 			Py_INCREF(retkey);
 			if (event == enames.map_key_ename) {
@@ -74,7 +72,7 @@ PyObject* kvitems_basecoro_send_impl(PyObject *self, PyObject *path, PyObject *e
 			}
 			else {
 				Py_CLEAR(coro->key);
-				coro->builder->active = 0;
+				coro->builder.active = 0;
 			}
 		}
 	}

@@ -17,15 +17,15 @@
 static int items_basecoro_init(ItemsBasecoro *self, PyObject *args, PyObject *kwargs)
 {
 	self->target_send = NULL;
-	self->builder = NULL;
 	self->prefix = NULL;
 	self->object_depth = 0;
+	builder_create(&self->builder);
 
 	PyObject *map_type;
 	M1_Z(PyArg_ParseTuple(args, "OOO", &(self->target_send), &(self->prefix), &map_type));
 	Py_INCREF(self->target_send);
 	Py_INCREF(self->prefix);
-	M1_N(self->builder = builder_create(map_type));
+	M1_M1(builder_init(&self->builder, map_type));
 
 	return 0;
 }
@@ -34,9 +34,7 @@ static void items_basecoro_dealloc(ItemsBasecoro *self)
 {
 	Py_XDECREF(self->prefix);
 	Py_XDECREF(self->target_send);
-	if (self->builder) {
-		builder_destroy(self->builder);
-	}
+	builder_destroy(&self->builder);
 	Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -44,17 +42,17 @@ PyObject* items_basecoro_send_impl(PyObject *self, PyObject *path, PyObject *eve
 {
 	ItemsBasecoro *coro = (ItemsBasecoro *)self;
 
-	if (builder_isactive(coro->builder)) {
+	if (builder_isactive(&coro->builder)) {
 		coro->object_depth += (event == enames.start_map_ename || event == enames.start_array_ename);
 		coro->object_depth -= (event == enames.end_map_ename || event == enames.end_array_ename);
 		if (coro->object_depth > 0) {
-			N_M1( builder_event(coro->builder, event, value) );
+			N_M1( builder_event(&coro->builder, event, value) );
 		}
 		else {
-			PyObject *retval = builder_value(coro->builder);
+			PyObject *retval = builder_value(&coro->builder);
 			CORO_SEND(coro->target_send, retval);
 			Py_DECREF(retval);
-			N_M1(builder_reset(coro->builder));
+			N_M1(builder_reset(&coro->builder));
 		}
 	}
 	else {
@@ -63,7 +61,7 @@ PyObject* items_basecoro_send_impl(PyObject *self, PyObject *path, PyObject *eve
 		if (cmp) {
 			if (event == enames.start_map_ename || event == enames.start_array_ename) {
 				coro->object_depth = 1;
-				N_M1(builder_event(coro->builder, event, value));
+				N_M1(builder_event(&coro->builder, event, value));
 			}
 			else {
 				CORO_SEND(coro->target_send, value);

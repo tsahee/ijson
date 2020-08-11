@@ -32,28 +32,35 @@ typedef struct _builder {
 } builder_t;
 
 /**
- * Creates a new builder capable of assembling Python objects out of prefixed
- * events.
+ * Initializes an empty builder which can be safely destroyed.
  *
- * @param map_type The mapping type to use for constructing objects out of
- *  (key, value) pairs. If None then dict is used.
- * @return a new builder
+ * @param builder the builder to empty-initialize
  */
 static inline
-builder_t *builder_create(PyObject *map_type) {
+void builder_create(builder_t *builder)
+{
+	builder->value = NULL;
+	builder->map_type = NULL;
+	builder->value_stack = NULL;
+}
 
-	builder_t *builder = (builder_t *)calloc(sizeof(builder_t), 1);
-	if (!builder) {
-		PyErr_SetString(PyExc_MemoryError, "Not enough memory to create builder object");
-		return NULL;
-	}
-
-	N_N(builder->value_stack = PyList_New(0));
+/**
+ * Initialilzes a builder capable of assembling Python objects out of prefixed
+ * events.
+ *
+ * @param builder the builder to initialize
+ * @param map_type The mapping type to use for constructing objects out of
+ *  (key, value) pairs. If None then dict is used.
+ */
+static inline
+int builder_init(builder_t *builder, PyObject *map_type)
+{
+	M1_N(builder->value_stack = PyList_New(0));
 	if (map_type != Py_None) {
 		builder->map_type = map_type;
 		Py_INCREF(map_type);
 	}
-	return builder;
+	return 0;
 }
 
 /**
@@ -66,7 +73,6 @@ void builder_destroy(builder_t *builder)
 	Py_DECREF(builder->value_stack);
 	Py_XDECREF(builder->map_type);
 	Py_XDECREF(builder->value);
-	free(builder);
 }
 
 /**

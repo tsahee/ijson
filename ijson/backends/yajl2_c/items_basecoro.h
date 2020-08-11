@@ -18,8 +18,8 @@
  */
 typedef struct {
     PyObject_HEAD
+    builder_t builder;
     PyObject *target_send;
-    builder_t *builder;
     PyObject *prefix;
     int object_depth;
 } ItemsBasecoro;

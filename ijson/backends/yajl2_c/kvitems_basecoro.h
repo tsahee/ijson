@@ -21,8 +21,8 @@
  */
 typedef struct {
     PyObject_HEAD
+    builder_t builder;
     PyObject *target_send;
-    builder_t *builder;
     PyObject *prefix;
     PyObject *key;
     int object_depth;
