@@ -20,7 +20,7 @@
 static int kvitemsgen_init(KVItemsGen *self, PyObject *args, PyObject *kwargs)
 {
 	PyObject *reading_args = PySequence_GetSlice(args, 0, 2);
-	PyObject *kvitems_args = PyTuple_Pack(2, PySequence_GetItem(args, 2), PySequence_GetItem(args, 3));
+	PyObject *kvitems_args = PySequence_GetSlice(args, 2, 4);
 	PyObject *parse_args = PyTuple_Pack(1, Py_False);
 	pipeline_node coro_pipeline[] = {
 		{&KVItemsBasecoro_Type, kvitems_args, NULL},

@@ -32,6 +32,7 @@ PyObject *chain(PyObject *sink, pipeline_node *coro_pipeline)
 		}
 		else {
 			N_N(coro_args = PyTuple_Pack(1, coro));
+			Py_DECREF(coro);
 		}
 		N_N(coro = PyObject_Call((PyObject *)node.type, coro_args, node.kwargs));
 		Py_DECREF(coro_args);

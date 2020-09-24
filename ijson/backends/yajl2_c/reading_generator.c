@@ -29,6 +29,7 @@ int reading_generator_init(reading_generator_t *self, PyObject *args, pipeline_n
 		PyObject *pbuf_size = Py_BuildValue("n", buf_size);
 		self->buffer = PyObject_CallFunctionObjArgs((PyObject *)&PyByteArray_Type, pbuf_size, NULL);
 		M1_N(self->buffer);
+		Py_DECREF(pbuf_size);
 	}
 	else {
 		M1_N(self->read_func = PyObject_GetAttrString(file, "read"));
