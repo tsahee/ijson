@@ -1,5 +1,15 @@
 # Changelog
 
+## Development version
+
+* Fixed minor memory leaks
+  in the initialization methods
+  of the generators of the ``yajl2_c`` backend.
+  All generators
+  (i.e., ``basic_parse``, ``parse``, ``kvitems`` and ``items``)
+  in both their sync and async versions,
+  were affected.
+
 ## [3.1.1]
 
 * Fixed two problems in the ``yajl2_c`` backend
