@@ -98,7 +98,7 @@ def patch_yajl_sources():
 
 
 # Conditional compilation of the yajl_c backend
-if platform.python_implementation() == 'CPython':
+if True:
     extra_sources = []
     extra_include_dirs = []
     libs = ['yajl']
