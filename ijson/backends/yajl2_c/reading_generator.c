@@ -20,7 +20,6 @@ int reading_generator_init(reading_generator_t *self, PyObject *args, pipeline_n
 	PyObject *file;
 	Py_ssize_t buf_size = 64 * 1024;
 	M1_Z(PyArg_ParseTuple(args, "On", &file, &buf_size));
-	Py_INCREF(file);
 
 	// Handle both "read" and "readinto" functions.
 	// The latter allocates a bytearray, which is how we distinguish between
@@ -37,7 +36,6 @@ int reading_generator_init(reading_generator_t *self, PyObject *args, pipeline_n
 		self->buffer = NULL;
 	}
 
-	Py_DECREF(file);
 	M1_N(self->events = PyList_New(0));
 	self->pos = 0;
 	self->finished = 0;
