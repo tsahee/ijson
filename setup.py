@@ -97,27 +97,25 @@ def patch_yajl_sources():
     return patched_sources
 
 
-# Conditional compilation of the yajl_c backend
-if True:
-    extra_sources = []
-    extra_include_dirs = []
-    libs = ['yajl']
-    embed_yajl = os.environ.get('IJSON_EMBED_YAJL', None) == '1'
-    if not embed_yajl:
-        have_yajl = yajl_present()
-    else:
-        yajl_sources = patch_yajl_sources()
-        extra_sources = sorted(glob.glob(os.path.join(yajl_sources, 'src', '*.c')))
-        extra_sources.remove(os.path.join(yajl_sources, 'src', 'yajl_version.c'))
-        extra_include_dirs = [yajl_sources, os.path.join(yajl_sources, 'src')]
-        libs = []
-    if embed_yajl or have_yajl:
-        yajl_ext = Extension('ijson.backends._yajl2',
-                             language='c',
-                             sources=sorted(glob.glob('ijson/backends/yajl2_c/*.c')) + extra_sources,
-                             include_dirs=['ijson/backends/yajl2_c'] + extra_include_dirs,
-                             libraries=libs,
-                             depends=glob.glob('ijson/backends/yajl2_c/*.h'))
-        setupArgs['ext_modules'] = [yajl_ext]
+extra_sources = []
+extra_include_dirs = []
+libs = ['yajl']
+embed_yajl = os.environ.get('IJSON_EMBED_YAJL', None) == '1'
+if not embed_yajl:
+    have_yajl = yajl_present()
+else:
+    yajl_sources = patch_yajl_sources()
+    extra_sources = sorted(glob.glob(os.path.join(yajl_sources, 'src', '*.c')))
+    extra_sources.remove(os.path.join(yajl_sources, 'src', 'yajl_version.c'))
+    extra_include_dirs = [yajl_sources, os.path.join(yajl_sources, 'src')]
+    libs = []
+if embed_yajl or have_yajl:
+    yajl_ext = Extension('ijson.backends._yajl2',
+                         language='c',
+                         sources=sorted(glob.glob('ijson/backends/yajl2_c/*.c')) + extra_sources,
+                         include_dirs=['ijson/backends/yajl2_c'] + extra_include_dirs,
+                         libraries=libs,
+                         depends=glob.glob('ijson/backends/yajl2_c/*.h'))
+    setupArgs['ext_modules'] = [yajl_ext]
 
 setup(**setupArgs)
