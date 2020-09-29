@@ -1,6 +1,6 @@
 # Changelog
 
-## Development version
+## [3.1.2]
 
 * Fixed minor memory leaks
   in the initialization methods
@@ -238,3 +238,4 @@
 [3.1]: https://github.com/ICRAR/ijson/releases/tag/v3.1
 [3.1.post0]: https://github.com/ICRAR/ijson/releases/tag/v3.1.post0
 [3.1.1]: https://github.com/ICRAR/ijson/releases/tag/v3.1.1
+[3.1.2]: https://github.com/ICRAR/ijson/releases/tag/v3.1.2
