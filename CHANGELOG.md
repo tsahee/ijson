@@ -1,5 +1,15 @@
 # Changelog
 
+## [3.1.2]
+
+* Fixed minor memory leaks
+  in the initialization methods
+  of the generators of the ``yajl2_c`` backend.
+  All generators
+  (i.e., ``basic_parse``, ``parse``, ``kvitems`` and ``items``)
+  in both their sync and async versions,
+  were affected.
+
 ## [3.1.1]
 
 * Fixed two problems in the ``yajl2_c`` backend
@@ -228,3 +238,4 @@
 [3.1]: https://github.com/ICRAR/ijson/releases/tag/v3.1
 [3.1.post0]: https://github.com/ICRAR/ijson/releases/tag/v3.1.post0
 [3.1.1]: https://github.com/ICRAR/ijson/releases/tag/v3.1.1
+[3.1.2]: https://github.com/ICRAR/ijson/releases/tag/v3.1.2
